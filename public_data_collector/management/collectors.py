@@ -1,15 +1,37 @@
+from datetime import datetime
 from urllib.parse import urlencode, urlunsplit, urljoin
 from urllib.parse import urlsplit
 
 import requests
 
 from public_data_collector.models import AreaCodeProgress, Area, Sigungu, SmallArea, CategoryCodeProgress, Category1, \
-    Category2, Category3
+    Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo
 
 
-class Collector:
+class ContentTypeCollector:
+    content_type_dict = {
+        12: '관광지',
+        14: '문화시설',
+        15: '행사/공연/축제',
+        25: '여행코스',
+        28: '레포츠',
+        32: '숙박',
+        38: '쇼핑',
+        39: '음식점'
+    }
+
     def __init__(self):
-        super(Collector, self).__init__()
+        super(ContentTypeCollector, self).__init__()
+
+    def run(self):
+        if ContentType.objects.count() != len(self.content_type_dict):
+            ContentType.objects.all().delete()
+            ContentType.objects.bulk_create([ContentType(id, name) for id, name in self.content_type_dict.items()])
+
+
+class WebCollector:
+    def __init__(self):
+        super(WebCollector, self).__init__()
         self.base_url = 'http://api.visitkorea.or.kr/openapi/service/rest/KorService/'
         with open('/etc/secrets/travel_maker/service_key.txt') as f:
             self.service_key = f.read().strip()
@@ -17,9 +39,10 @@ class Collector:
             'pageNo': 1,
             'MobileOS': 'ETC',
             'MobileApp': 'travel_maker',
+            '_type': 'json',
         }
 
-    def update_setting(self, query_params):
+    def update_url(self, query_params):
         self.query_params = self.base_query_params.copy()
         self.query_params.update(query_params)
 
@@ -28,15 +51,15 @@ class Collector:
         self.url = urlunsplit(split_result) + '&ServiceKey={}'.format(self.service_key)
 
 
-class AreaCodeCollector(Collector):
+class AreacodeWebCollector(WebCollector):
     def __init__(self):
-        super(AreaCodeCollector, self).__init__()
+        super(AreacodeWebCollector, self).__init__()
         self.operation = 'areaCode'
         self.endpoint = urljoin(self.base_url, self.operation)
         self.progress = AreaCodeProgress.objects.get_or_create()[0]
 
     def _request(self, district_class, query_params, parent_dist):
-        self.update_setting(query_params)
+        self.update_url(query_params)
         response = requests.get(self.url)
         response.raise_for_status()
         res_dict = response.json()
@@ -63,7 +86,6 @@ class AreaCodeCollector(Collector):
     def request(self, district_class, parent_districts=None):
         query_params = {
             'numOfRows': 1000,
-            '_type': 'json',
         }
 
         level_switcher = {
@@ -130,15 +152,15 @@ class AreaCodeCollector(Collector):
         self.request_to_smallarea(sigungus)
 
 
-class CategoryCodeCollector(Collector):
+class CategorycodeWebCollector(WebCollector):
     def __init__(self):
-        super(CategoryCodeCollector, self).__init__()
+        super(CategorycodeWebCollector, self).__init__()
         self.operation = 'categoryCode'
         self.endpoint = urljoin(self.base_url, self.operation)
         self.progress = CategoryCodeProgress.objects.get_or_create()[0]
 
     def _request(self, category_class, query_params, parent_cat=None):
-        self.update_setting(query_params)
+        self.update_url(query_params)
         response = requests.get(self.url)
         response.raise_for_status()
         res_dict = response.json()
@@ -165,7 +187,6 @@ class CategoryCodeCollector(Collector):
     def request(self, category_class, parent_cats=None):
         query_params = {
             'numOfRows': 1000,
-            '_type': 'json',
         }
 
         level_switcher = {
@@ -230,12 +251,152 @@ class CategoryCodeCollector(Collector):
         self.request_to_cat3(cat2s)
 
 
+class TravelInfoWebCollector(WebCollector):
+    def __init__(self):
+        super(TravelInfoWebCollector, self).__init__()
+        self.operation = 'areaBasedList'
+        self.endpoint = urljoin(self.base_url, self.operation)
+
+    def request(self):
+        query_params = {
+            'numOfRows': 100000,
+        }
+        self.update_url(query_params)
+        response = requests.get(self.url)
+        response.raise_for_status()
+        res_dict = response.json()
+        raw_travel_info_dicts = res_dict['response']['body']['items']['item']
+
+        key_to_column_swithcer = {
+            'contentid': 'id',
+            'addr1': 'addr1',
+            'addr2': 'addr2',
+            'areacode': 'area_code',
+            'sigungucode': 'sigungu_code',
+            'contenttypeid': 'contenttype_id',
+            'cat1': 'cat1_code',
+            'cat2': 'cat2_code',
+            'cat3': 'cat3_code',
+            'title': 'title',
+            'firstimage': 'image',
+            'firstimage2': 'thumbnail',
+            'mapx': 'mapx',
+            'mapy': 'mapy',
+            'mlevel': 'mlevel',
+            'booktour': 'is_booktour',
+            'tel': 'tel',
+            'readcount': 'readcount',
+            'createdtime': 'created',
+            'modifiedtime': 'modified',
+        }
+
+        info_dicts = []
+        for raw_info in raw_travel_info_dicts:
+            info_dicts.append(
+                {key_to_column_swithcer[key]: val for key, val in raw_info.items() if key in key_to_column_swithcer}
+            )
+
+        infos = []
+        for info in info_dicts:
+            if 'mlevel' in info and type(info['mlevel']) is not int:
+                del info['mlevel']
+            if 'readcount' in info and type(info['readcount']) is not int:
+                del info['readcount']
+            if 'area_code' in info and 'sigungu_code' in info:
+                try:
+                    info.update({
+                        'sigungu': Sigungu.objects.get(area__code=info['area_code'], code=info['sigungu_code'])
+                    })
+                except Sigungu.DoesNotExist:
+                    pass
+            if 'cat3_code' in info:
+                try:
+                    info.update({
+                        'cat3': Category3.objects.get(code=info['cat3_code'])
+                    })
+                except Category3.DoesNotExist:
+                    pass
+            if 'created' in info:
+                try:
+                    info.update({
+                        'created': datetime.strptime(str(info['created']), '%Y%m%d%H%M%S')
+                    })
+                except ValueError:
+                    pass
+            if 'modified' in info:
+                try:
+                    info.update({
+                        'modified': datetime.strptime(str(info['modified']), '%Y%m%d%H%M%S')
+                    })
+                except ValueError:
+                    pass
+            infos.append(TravelInfo(**info))
+
+        TravelInfo.objects.bulk_create(infos)
+
+    def run(self):
+        if TravelInfo.objects.count() > 0:
+            return
+        self.request()
+
+
+class TravelOverviewInfoWebCollector(WebCollector):
+    def __init__(self):
+        super(TravelOverviewInfoWebCollector, self).__init__()
+        self.operation = 'detailCommon'
+        self.endpoint = urljoin(self.base_url, self.operation)
+
+    def request(self):
+        infos = []
+
+        for travel_info in TravelInfo.objects.all():
+            query_params = {
+                'contentId': travel_info.id,
+                'defaultYN': 'Y',
+                'overviewYN': 'Y',
+            }
+            self.update_url(query_params)
+            response = requests.get(self.url)
+            response.raise_for_status()
+            res_dict = response.json()
+            info_dict = res_dict['response']['body']['items']['item']
+
+            info = {
+                'travel_info': travel_info
+            }
+            if 'telname' in info_dict:
+                info.update({
+                    'telname': info_dict['telname'],
+                })
+            if 'homepage' in info_dict:
+                info.update({
+                    'homepage': info_dict['homepage'],
+                })
+            if 'overview' in info_dict:
+                info.update({
+                    'overview': info_dict['overview'],
+                })
+            infos.append(info)
+
+        TravelOverviewInfo.objects.bulk_create([TravelOverviewInfo(**info) for info in infos])
+
+    def run(self):
+        if TravelOverviewInfo.objects.count() > 0:
+            return
+        self.request()
+
+
 class PublicDataCollector:
     def __init__(self):
         super(PublicDataCollector, self).__init__()
-        self.areacode_collector = AreaCodeCollector()
-        self.categorycode_collector = CategoryCodeCollector()
+        self.collectors = [
+            ContentTypeCollector(),
+            AreacodeWebCollector(),
+            CategorycodeWebCollector(),
+            TravelInfoWebCollector(),
+            TravelOverviewInfoWebCollector()
+        ]
 
     def run(self):
-        self.areacode_collector.run()
-        self.categorycode_collector.run()
+        for collector in self.collectors:
+            collector.run()

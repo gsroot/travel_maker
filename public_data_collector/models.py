@@ -28,7 +28,6 @@ class SmallArea(District):
 
 
 class ContentType(models.Model):
-    id = models.IntegerField(primary_key=True)
     name = models.CharField(max_length=20)
 
 
@@ -53,37 +52,37 @@ class Category3(Category):
 
 
 class TravelInfo(models.Model):
-    addr1 = models.CharField(max_length=100)
+    addr1 = models.CharField(max_length=100, null=True, blank=True)
     addr2 = models.CharField(max_length=100, null=True, blank=True)
-    area_code = models.IntegerField()
-    sigungu_code = models.IntegerField()
-    sigungu = models.ForeignKey(Sigungu, on_delete=models.PROTECT)
-    contenttype = models.ForeignKey(ContentType, on_delete=models.PROTECT)
+    area_code = models.IntegerField(null=True)
+    sigungu_code = models.IntegerField(null=True)
+    sigungu = models.ForeignKey(Sigungu, on_delete=models.SET_NULL, null=True)
+    contenttype = models.ForeignKey(ContentType, on_delete=models.SET_NULL, null=True)
     cat1_code = models.CharField(max_length=20)
     cat2_code = models.CharField(max_length=20)
     cat3_code = models.CharField(max_length=20)
-    cat3 = models.ForeignKey(Category3, on_delete=models.PROTECT)
+    cat3 = models.ForeignKey(Category3, on_delete=models.SET_NULL, null=True)
     title = models.CharField(max_length=100)
     image = models.CharField(max_length=200, null=True, blank=True)
     thumbnail = models.CharField(max_length=200, null=True, blank=True)
-    mapx = models.FloatField()
-    mapy = models.FloatField()
-    mlevel = models.IntegerField()
-    is_book_tour = models.BooleanField()
-    tel = models.CharField(max_length=20, null=True, blank=True)
-    readcount = models.IntegerField()
+    mapx = models.FloatField(null=True)
+    mapy = models.FloatField(null=True)
+    mlevel = models.IntegerField(null=True)
+    is_booktour = models.BooleanField(default=False)
+    tel = models.CharField(max_length=200, null=True, blank=True)
+    readcount = models.IntegerField(null=True)
     created = models.DateTimeField(null=True, blank=True)
     modified = models.DateTimeField(null=True, blank=True)
 
 
 class AdditionalInfo(models.Model):
-    travel_info = models.OneToOneField(TravelInfo, on_delete=models.PROTECT, null=True)
+    travel_info = models.OneToOneField(TravelInfo, on_delete=models.PROTECT)
 
     class Meta:
         abstract = True
 
 
-class OverviewInfo(AdditionalInfo):
+class TravelOverviewInfo(AdditionalInfo):
     telname = models.CharField(max_length=50, null=True, blank=True)
     homepage = models.CharField(max_length=200, null=True, blank=True)
     overview = models.CharField(max_length=5000, null=True, blank=True)
