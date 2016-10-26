@@ -84,17 +84,17 @@ class AdditionalInfo(models.Model):
 
 class TravelOverviewInfo(AdditionalInfo):
     telname = models.CharField(max_length=50, null=True, blank=True)
-    homepage = models.CharField(max_length=200, null=True, blank=True)
-    overview = models.CharField(max_length=5000, null=True, blank=True)
+    homepage = models.CharField(max_length=1000, null=True, blank=True)
+    overview = models.CharField(max_length=10000, null=True, blank=True)
 
 
 class TourspotIntroInfo(AdditionalInfo):
-    accomcount = models.CharField(max_length=50, null=True, blank=True)
-    chkbabycarriage = models.CharField(max_length=20, null=True, blank=True)
-    chkcreditcard = models.CharField(max_length=20, null=True, blank=True)
-    chkpet = models.CharField(max_length=20, null=True, blank=True)
-    expagerange = models.CharField(max_length=50, null=True, blank=True)
-    expguide = models.CharField(max_length=1000, null=True, blank=True)
+    accomcount = models.CharField(max_length=100, null=True, blank=True)
+    chkbabycarriage = models.CharField(max_length=50, null=True, blank=True)
+    chkcreditcard = models.CharField(max_length=50, null=True, blank=True)
+    chkpet = models.CharField(max_length=50, null=True, blank=True)
+    expagerange = models.CharField(max_length=100, null=True, blank=True)
+    expguide = models.CharField(max_length=5000, null=True, blank=True)
     heritage1 = models.BooleanField(default=False)
     heritage2 = models.BooleanField(default=False)
     heritage3 = models.BooleanField(default=False)
@@ -107,10 +107,10 @@ class TourspotIntroInfo(AdditionalInfo):
 
 
 class CulturalFacilityIntroInfo(AdditionalInfo):
-    accomcount = models.CharField(max_length=50, null=True, blank=True)
-    chkbabycarriage = models.CharField(max_length=20, null=True, blank=True)
-    chkcreditcard = models.CharField(max_length=20, null=True, blank=True)
-    chkpet = models.CharField(max_length=20, null=True, blank=True)
+    accomcount = models.CharField(max_length=100, null=True, blank=True)
+    chkbabycarriage = models.CharField(max_length=50, null=True, blank=True)
+    chkcreditcard = models.CharField(max_length=50, null=True, blank=True)
+    chkpet = models.CharField(max_length=50, null=True, blank=True)
     discountinfo = models.CharField(max_length=500, null=True, blank=True)
     infocenter = models.CharField(max_length=200, null=True, blank=True)
     parking = models.CharField(max_length=500, null=True, blank=True)
@@ -124,7 +124,7 @@ class CulturalFacilityIntroInfo(AdditionalInfo):
 
 class DefaultDetailInfo(AdditionalInfo):
     infoname = models.CharField(max_length=50, null=True, blank=True)
-    infotext = models.CharField(max_length=2000, null=True, blank=True)
+    infotext = models.CharField(max_length=5000, null=True, blank=True)
 
 
 class ImageInfo(AdditionalInfo):
@@ -176,3 +176,10 @@ class CategoryCodeProgress(Progress):
     cat1 = models.OneToOneField(Category1, null=True, on_delete=models.PROTECT)
     cat2 = models.OneToOneField(Category2, null=True, on_delete=models.PROTECT)
     cat1_complete_count = models.IntegerField(default=0)
+
+
+class TravelOverviewInfoProgress(Progress):
+    TOTAL_INFO_CNT = TravelInfo.objects.count()
+
+    travel_info = models.OneToOneField(TravelInfo, null=True, on_delete=models.PROTECT)
+    info_complete_count = models.IntegerField(default=0)

@@ -1,3 +1,5 @@
+import json
+import logging
 from datetime import datetime
 from urllib.parse import urlencode, urlunsplit, urljoin
 from urllib.parse import urlsplit
@@ -5,10 +7,18 @@ from urllib.parse import urlsplit
 import requests
 
 from public_data_collector.models import AreaCodeProgress, Area, Sigungu, SmallArea, CategoryCodeProgress, Category1, \
-    Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo
+    Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo, TravelOverviewInfoProgress
+
+logging.basicConfig(level=logging.INFO, format='%(message)s')
+logger = logging.getLogger(__name__)
 
 
-class ContentTypeCollector:
+class Collector:
+    def run(self):
+        logger.info("{} running...".format(self.__class__.__name__))
+
+
+class ContentTypeCollector(Collector):
     content_type_dict = {
         12: '관광지',
         14: '문화시설',
@@ -20,27 +30,25 @@ class ContentTypeCollector:
         39: '음식점'
     }
 
-    def __init__(self):
-        super(ContentTypeCollector, self).__init__()
-
     def run(self):
+        super().run()
         if ContentType.objects.count() != len(self.content_type_dict):
             ContentType.objects.all().delete()
             ContentType.objects.bulk_create([ContentType(id, name) for id, name in self.content_type_dict.items()])
+        else:
+            logger.info("  Nothing to do")
 
 
-class WebCollector:
-    def __init__(self):
-        super(WebCollector, self).__init__()
-        self.base_url = 'http://api.visitkorea.or.kr/openapi/service/rest/KorService/'
-        with open('/etc/secrets/travel_maker/service_key.txt') as f:
-            self.service_key = f.read().strip()
-        self.base_query_params = {
-            'pageNo': 1,
-            'MobileOS': 'ETC',
-            'MobileApp': 'travel_maker',
-            '_type': 'json',
-        }
+class WebCollector(Collector):
+    base_url = 'http://api.visitkorea.or.kr/openapi/service/rest/KorService/'
+    base_query_params = {
+        'pageNo': 1,
+        'MobileOS': 'ETC',
+        'MobileApp': 'travel_maker',
+        '_type': 'json',
+    }
+    service_keys = []
+    service_key = ''
 
     def update_url(self, query_params):
         self.query_params = self.base_query_params.copy()
@@ -50,10 +58,14 @@ class WebCollector:
         split_result = split_result._replace(query=urlencode(self.query_params))
         self.url = urlunsplit(split_result) + '&ServiceKey={}'.format(self.service_key)
 
+    @classmethod
+    def change_service_key(cls, idx):
+        cls.service_key = cls.service_keys[idx % len(cls.service_keys)]
+
 
 class AreacodeWebCollector(WebCollector):
     def __init__(self):
-        super(AreacodeWebCollector, self).__init__()
+        super().__init__()
         self.operation = 'areaCode'
         self.endpoint = urljoin(self.base_url, self.operation)
         self.progress = AreaCodeProgress.objects.get_or_create()[0]
@@ -63,6 +75,13 @@ class AreacodeWebCollector(WebCollector):
         response = requests.get(self.url)
         response.raise_for_status()
         res_dict = response.json()
+
+        if int(res_dict['response']['header']['resultCode']) != 0:
+            msg = '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
+                self.url, res_dict['response']['header']['resultCode'], res_dict['response']['header']['resultMsg']
+            )
+            raise UserWarning(msg)
+
         if res_dict['response']['body']['totalCount'] == 0:
             return []
 
@@ -99,7 +118,11 @@ class AreacodeWebCollector(WebCollector):
 
         districts = []
         if district_class == Area:
-            districts = self._request(district_class, query_params)
+            try:
+                districts = self._request(district_class, query_params)
+            except UserWarning as e:
+                logger.warning(e)
+                return
         else:
             for pd in parent_districts:
                 if district_class == Sigungu:
@@ -119,7 +142,11 @@ class AreacodeWebCollector(WebCollector):
                 pd.save()
                 progress.save()
 
-                result = self._request(district_class, query_params, pd)
+                try:
+                    result = self._request(district_class, query_params, pd)
+                except UserWarning as e:
+                    logger.warning(e)
+                    return
 
                 if district_class == Sigungu:
                     districts += result
@@ -140,9 +167,12 @@ class AreacodeWebCollector(WebCollector):
         return self.request(SmallArea, sigungus)
 
     def run(self):
+        super().run()
+
         progress = self.progress
 
         if progress.percent >= 100:
+            logger.info("  Nothing to do")
             return
 
         areas = self.request_to_area() if progress.level <= AreaCodeProgress.AR else Area.objects.filter(
@@ -154,7 +184,7 @@ class AreacodeWebCollector(WebCollector):
 
 class CategorycodeWebCollector(WebCollector):
     def __init__(self):
-        super(CategorycodeWebCollector, self).__init__()
+        super().__init__()
         self.operation = 'categoryCode'
         self.endpoint = urljoin(self.base_url, self.operation)
         self.progress = CategoryCodeProgress.objects.get_or_create()[0]
@@ -166,6 +196,12 @@ class CategorycodeWebCollector(WebCollector):
         res_dict = response.json()
         if res_dict['response']['body']['totalCount'] == 0:
             return []
+
+        if int(res_dict['response']['header']['resultCode']) != 0:
+            msg = '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
+                self.url, res_dict['response']['header']['resultCode'], res_dict['response']['header']['resultMsg']
+            )
+            raise UserWarning(msg)
 
         category_dicts = res_dict['response']['body']['items']['item']
         if type(category_dicts) is not list:
@@ -200,7 +236,11 @@ class CategorycodeWebCollector(WebCollector):
 
         categories = []
         if category_class == Category1:
-            categories = self._request(category_class, query_params)
+            try:
+                categories = self._request(category_class, query_params)
+            except UserWarning as e:
+                logger.warning(e)
+                return
         else:
             for pc in parent_cats:
                 if category_class == Category2:
@@ -218,7 +258,11 @@ class CategorycodeWebCollector(WebCollector):
                         progress.cat1 = pc.cat1
                 progress.save()
 
-                result = self._request(category_class, query_params, pc)
+                try:
+                    result = self._request(category_class, query_params, pc)
+                except UserWarning as e:
+                    logger.warning(e)
+                    return
 
                 if category_class == Category2:
                     categories += result
@@ -239,9 +283,12 @@ class CategorycodeWebCollector(WebCollector):
         self.request(Category3, cat2s)
 
     def run(self):
+        super().run()
+
         progress = self.progress
 
         if progress.percent >= 100:
+            logger.info("  Nothing to do")
             return
 
         cat1s = self.request_to_cat1() if progress.level <= CategoryCodeProgress.C1 else Category1.objects.filter(
@@ -253,7 +300,7 @@ class CategorycodeWebCollector(WebCollector):
 
 class TravelInfoWebCollector(WebCollector):
     def __init__(self):
-        super(TravelInfoWebCollector, self).__init__()
+        super().__init__()
         self.operation = 'areaBasedList'
         self.endpoint = urljoin(self.base_url, self.operation)
 
@@ -265,6 +312,20 @@ class TravelInfoWebCollector(WebCollector):
         response = requests.get(self.url)
         response.raise_for_status()
         res_dict = response.json()
+
+        try:
+            if int(res_dict['response']['header']['resultCode']) != 0:
+                raise UserWarning
+        except UserWarning:
+            logger.warning(
+                '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
+                    self.url,
+                    res_dict['response']['header']['resultCode'],
+                    res_dict['response']['header']['resultMsg']
+                )
+            )
+            return
+
         raw_travel_info_dicts = res_dict['response']['body']['items']['item']
 
         key_to_column_swithcer = {
@@ -335,23 +396,32 @@ class TravelInfoWebCollector(WebCollector):
         TravelInfo.objects.bulk_create(infos)
 
     def run(self):
+        super().run()
         if TravelInfo.objects.count() > 0:
+            logger.info("  Nothing to do")
             return
         self.request()
 
 
 class TravelOverviewInfoWebCollector(WebCollector):
     def __init__(self):
-        super(TravelOverviewInfoWebCollector, self).__init__()
+        super().__init__()
         self.operation = 'detailCommon'
         self.endpoint = urljoin(self.base_url, self.operation)
+        self.progress = TravelOverviewInfoProgress.objects.get_or_create()[0]
 
     def request(self):
-        infos = []
+        progress = self.progress
 
-        for travel_info in TravelInfo.objects.all():
+        infos = TravelInfo.objects.all() if progress.travel_info is None \
+            else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
+
+        for info in infos:
+            progress.travel_info = info
+            progress.save()
+
             query_params = {
-                'contentId': travel_info.id,
+                'contentId': info.id,
                 'defaultYN': 'Y',
                 'overviewYN': 'Y',
             }
@@ -359,10 +429,24 @@ class TravelOverviewInfoWebCollector(WebCollector):
             response = requests.get(self.url)
             response.raise_for_status()
             res_dict = response.json()
+
+            try:
+                if int(res_dict['response']['header']['resultCode']) != 0:
+                    raise UserWarning
+            except UserWarning:
+                logger.warning(
+                    '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
+                        self.url,
+                        res_dict['response']['header']['resultCode'],
+                        res_dict['response']['header']['resultMsg']
+                    )
+                )
+                break
+
             info_dict = res_dict['response']['body']['items']['item']
 
             info = {
-                'travel_info': travel_info
+                'travel_info': info
             }
             if 'telname' in info_dict:
                 info.update({
@@ -376,19 +460,28 @@ class TravelOverviewInfoWebCollector(WebCollector):
                 info.update({
                     'overview': info_dict['overview'],
                 })
-            infos.append(info)
+            TravelOverviewInfo.objects.create(**info)
 
-        TravelOverviewInfo.objects.bulk_create([TravelOverviewInfo(**info) for info in infos])
+            progress.info_complete_count += 1
+            progress.percent = int(progress.info_complete_count * 100 / TravelOverviewInfoProgress.TOTAL_INFO_CNT)
+            progress.save()
 
     def run(self):
-        if TravelOverviewInfo.objects.count() > 0:
+        super().run()
+        if self.progress.percent >= 100:
+            logger.info("  Nothing to do")
             return
         self.request()
 
 
 class PublicDataCollector:
     def __init__(self):
-        super(PublicDataCollector, self).__init__()
+        super().__init__()
+
+        with open('/etc/secrets/travel_maker/service_key.txt') as f:
+            WebCollector.service_keys = json.loads(f.read().strip())
+        WebCollector.service_key = WebCollector.service_keys[0]
+
         self.collectors = [
             ContentTypeCollector(),
             AreacodeWebCollector(),
@@ -398,5 +491,7 @@ class PublicDataCollector:
         ]
 
     def run(self):
-        for collector in self.collectors:
-            collector.run()
+        for idx, key in enumerate(WebCollector.service_keys):
+            for collector in self.collectors:
+                collector.run()
+            WebCollector.change_service_key(idx + 1)
