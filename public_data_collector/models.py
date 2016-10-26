@@ -153,7 +153,7 @@ class AreaCodeProgress(Progress):
     )
     TOTAL_AREA_CNT = 17
 
-    level = models.IntegerField(choices=LEVELS, default=NO)
+    depth = models.IntegerField(choices=LEVELS, default=NO)
     area = models.OneToOneField(Area, null=True, on_delete=models.PROTECT)
     sigungu = models.OneToOneField(Sigungu, null=True, on_delete=models.PROTECT)
     area_complete_count = models.IntegerField(default=0)

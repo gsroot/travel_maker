@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 import requests
 
 from public_data_collector.models import AreaCodeProgress, Area, Sigungu, SmallArea, CategoryCodeProgress, Category1, \
-    Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo, TravelOverviewInfoProgress
+    Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo, TravelOverviewInfoProgress, District, Category
 
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 logger = logging.getLogger(__name__)
@@ -32,11 +32,13 @@ class ContentTypeCollector(Collector):
 
     def run(self):
         super().run()
-        if ContentType.objects.count() != len(self.content_type_dict):
-            ContentType.objects.all().delete()
-            ContentType.objects.bulk_create([ContentType(id, name) for id, name in self.content_type_dict.items()])
-        else:
+
+        if ContentType.objects.count() == len(self.content_type_dict):
             logger.info("  Nothing to do")
+            return
+
+        ContentType.objects.all().delete()
+        ContentType.objects.bulk_create([ContentType(id, name) for id, name in self.content_type_dict.items()])
 
 
 class WebCollector(Collector):
@@ -62,240 +64,167 @@ class WebCollector(Collector):
     def change_service_key(cls, idx):
         cls.service_key = cls.service_keys[idx % len(cls.service_keys)]
 
+    def response_to_dict(self, response):
+        response.raise_for_status()
+        res_dict = response.json()
 
-class AreacodeWebCollector(WebCollector):
+        if int(res_dict['response']['header']['resultCode']) != 0:
+            msg = '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
+                self.url, res_dict['response']['header']['resultCode'], res_dict['response']['header']['resultMsg']
+            )
+            raise UserWarning(msg)
+
+        return res_dict
+
+
+class DepthItemWebCollector(WebCollector):
+    def _request(self, target_class, query_params, parent):
+        self.update_url(query_params)
+        response = requests.get(self.url)
+        res_dict = self.response_to_dict(response)
+
+        if res_dict['response']['body']['totalCount'] == 0:
+            return []
+
+        item_dicts = res_dict['response']['body']['items']['item']
+        if type(item_dicts) is not list:
+            item_dicts = [item_dicts]
+        for d in item_dicts:
+            del d['rnum']
+
+        if target_class == Category1:
+            items = [target_class(**d) for d in item_dicts]
+        elif target_class == Category2:
+            items = [target_class(**d, area=parent) for d in item_dicts]
+        else:
+            items = [target_class(**d, sigungu=parent) for d in item_dicts]
+
+        target_class.objects.bulk_create(items)
+
+        return target_class.objects.all()
+
+    def request(self, item_class, parent_items=None):
+        query_params = {
+            'numOfRows': 1000,
+        }
+
+        progress = self.progress
+        depth_switcher = {
+            Area: AreaCodeProgress.AR,
+            Sigungu: AreaCodeProgress.SG,
+            SmallArea: AreaCodeProgress.SM,
+            Category1: CategoryCodeProgress.C1,
+            Category2: CategoryCodeProgress.C2,
+            Category3: CategoryCodeProgress.C3,
+        }
+        progress.depth = depth_switcher[item_class]
+        progress.save()
+
+        items = []
+        if item_class == self.dep1_class:
+            try:
+                items = self._request(item_class, query_params)
+            except UserWarning as e:
+                logger.warning(e)
+                return
+        else:
+            for parent_item in parent_items:
+                if item_class == self.dep2_class:
+                    query_params.update({
+                        self.query_param_dep1: parent_item.code,
+                    })
+                    self.progress_dep1 = parent_item
+                else:
+                    grand_parent = parent_item.area if self.__class__ == AreacodeWebCollector else parent_item.cat1
+                    query_params.update({
+                        self.query_param_dep1: grand_parent.code,
+                        self.query_param_dep2: parent_item.code,
+                    })
+                    self.progress_dep2 = parent_item
+                    if self.progress_dep1.code != grand_parent.code:
+                        self.progress_dep1 = grand_parent
+
+                parent_item.save()
+                progress.save()
+
+                try:
+                    result = self._request(item_class, query_params, parent_item)
+                except UserWarning as e:
+                    logger.warning(e)
+                    return
+
+                if item_class == self.dep1_class:
+                    items += result
+                else:
+                    grand_parent = parent_item.area if self.__class__ == AreacodeWebCollector else parent_item.cat1
+                    if self.progress_dep1.code != grand_parent.code:
+                        self.progress_dep1_complete_count += 1
+                        progress.percent = int(self.progress_dep1_complete_count * 100 / self.total_dep1_count)
+                        progress.save()
+
+        return items
+
+    def request_to_depth1(self):
+        return self.request(self.dep1_class)
+
+    def request_to_depth2(self, dep1_items):
+        return self.request(self.dep2_class, dep1_items)
+
+    def request_to_depth3(self, dep2_items):
+        return self.request(self.dep3_class, dep2_items)
+
+    def run(self):
+        super().run()
+
+        if self.progress.percent >= 100:
+            logger.info("  Nothing to do")
+            return
+
+        dep1_items = self.request_to_depth1() if self.progress.depth <= self.progress_dep1 \
+            else self.dep1_class.objects.filter(id__gte=self.progress_dep1_id)
+        dep2_items = self.request_to_depth2(dep1_items) if self.progress.depth <= self.progress_dep2 \
+            else self.dep2_class.objects.filter(id__gte=self.progress_dep2_id)
+        self.request_to_depth3(dep2_items)
+
+
+class AreacodeWebCollector(DepthItemWebCollector):
     def __init__(self):
         super().__init__()
         self.operation = 'areaCode'
         self.endpoint = urljoin(self.base_url, self.operation)
         self.progress = AreaCodeProgress.objects.get_or_create()[0]
 
-    def _request(self, district_class, query_params, parent_dist):
-        self.update_url(query_params)
-        response = requests.get(self.url)
-        response.raise_for_status()
-        res_dict = response.json()
-
-        if int(res_dict['response']['header']['resultCode']) != 0:
-            msg = '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
-                self.url, res_dict['response']['header']['resultCode'], res_dict['response']['header']['resultMsg']
-            )
-            raise UserWarning(msg)
-
-        if res_dict['response']['body']['totalCount'] == 0:
-            return []
-
-        district_dicts = res_dict['response']['body']['items']['item']
-        if type(district_dicts) is not list:
-            district_dicts = [district_dicts]
-        for d in district_dicts:
-            del d['rnum']
-
-        if district_class == Category1:
-            districts = [district_class(**d) for d in district_dicts]
-        elif district_class == Category2:
-            districts = [district_class(**d, area=parent_dist) for d in district_dicts]
-        else:
-            districts = [district_class(**d, sigungu=parent_dist) for d in district_dicts]
-
-        district_class.objects.bulk_create(districts)
-
-        return district_class.objects.all()
-
-    def request(self, district_class, parent_districts=None):
-        query_params = {
-            'numOfRows': 1000,
-        }
-
-        level_switcher = {
-            Area: AreaCodeProgress.AR,
-            Sigungu: AreaCodeProgress.SG,
-            SmallArea: AreaCodeProgress.SM
-        }
-        progress = self.progress
-        progress.level = level_switcher[district_class]
-        progress.save()
-
-        districts = []
-        if district_class == Area:
-            try:
-                districts = self._request(district_class, query_params)
-            except UserWarning as e:
-                logger.warning(e)
-                return
-        else:
-            for pd in parent_districts:
-                if district_class == Sigungu:
-                    query_params.update({
-                        'areaCode': pd.code,
-                    })
-                    progress.area = pd
-                else:
-                    query_params.update({
-                        'areaCode': pd.area.code,
-                        'sigunguCode': pd.code,
-                    })
-                    progress.sigungu = pd
-                    if progress.area.code != pd.area.code:
-                        progress.area = pd.area
-
-                pd.save()
-                progress.save()
-
-                try:
-                    result = self._request(district_class, query_params, pd)
-                except UserWarning as e:
-                    logger.warning(e)
-                    return
-
-                if district_class == Sigungu:
-                    districts += result
-                elif progress.area.code != pd.area.code:
-                    progress.area_complete_count += 1
-                    progress.percent = int(progress.area_complete_count * 100 / AreaCodeProgress.TOTAL_AREA_CNT)
-                    progress.save()
-
-        return districts
-
-    def request_to_area(self):
-        return self.request(Area)
-
-    def request_to_sigungu(self, areas):
-        return self.request(Sigungu, areas)
-
-    def request_to_smallarea(self, sigungus):
-        return self.request(SmallArea, sigungus)
-
-    def run(self):
-        super().run()
-
-        progress = self.progress
-
-        if progress.percent >= 100:
-            logger.info("  Nothing to do")
-            return
-
-        areas = self.request_to_area() if progress.level <= AreaCodeProgress.AR else Area.objects.filter(
-            id__gte=progress.area_id)
-        sigungus = self.request_to_sigungu(areas) if progress.level <= AreaCodeProgress.SG else Sigungu.objects.filter(
-            id__gte=progress.sigungu_id)
-        self.request_to_smallarea(sigungus)
+        self.dep1_class = Area
+        self.dep2_class = Sigungu
+        self.dep3_class = SmallArea
+        self.progress_dep1 = AreaCodeProgress.AR
+        self.progress_dep2 = AreaCodeProgress.SG
+        self.progress_dep1_id = self.progress.area.id
+        self.progress_dep2_id = self.progress.sigungu.id
+        self.query_param_dep1 = 'areaCode'
+        self.query_param_dep2 = 'sigunguCode'
+        self.progress_dep1_complete_count = self.progress.area_complete_count
+        self.total_dep1_count = AreaCodeProgress.TOTAL_AREA_CNT
 
 
-class CategorycodeWebCollector(WebCollector):
+class CategorycodeWebCollector(DepthItemWebCollector):
     def __init__(self):
         super().__init__()
-        self.operation = 'categoryCode'
+        self.operation = 'areaCode'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = CategoryCodeProgress.objects.get_or_create()[0]
+        self.progress = AreaCodeProgress.objects.get_or_create()[0]
 
-    def _request(self, category_class, query_params, parent_cat=None):
-        self.update_url(query_params)
-        response = requests.get(self.url)
-        response.raise_for_status()
-        res_dict = response.json()
-        if res_dict['response']['body']['totalCount'] == 0:
-            return []
-
-        if int(res_dict['response']['header']['resultCode']) != 0:
-            msg = '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
-                self.url, res_dict['response']['header']['resultCode'], res_dict['response']['header']['resultMsg']
-            )
-            raise UserWarning(msg)
-
-        category_dicts = res_dict['response']['body']['items']['item']
-        if type(category_dicts) is not list:
-            category_dicts = [category_dicts]
-        for c in category_dicts:
-            del c['rnum']
-
-        if category_class == Category1:
-            categories = [category_class(**c) for c in category_dicts]
-        elif category_class == Category2:
-            categories = [category_class(**c, cat1=parent_cat) for c in category_dicts]
-        else:
-            categories = [category_class(**c, cat2=parent_cat) for c in category_dicts]
-
-        category_class.objects.bulk_create(categories)
-
-        return category_class.objects.all()
-
-    def request(self, category_class, parent_cats=None):
-        query_params = {
-            'numOfRows': 1000,
-        }
-
-        level_switcher = {
-            Category1: CategoryCodeProgress.C1,
-            Category2: CategoryCodeProgress.C2,
-            Category3: CategoryCodeProgress.C3
-        }
-        progress = self.progress
-        progress.level = level_switcher[category_class]
-        progress.save()
-
-        categories = []
-        if category_class == Category1:
-            try:
-                categories = self._request(category_class, query_params)
-            except UserWarning as e:
-                logger.warning(e)
-                return
-        else:
-            for pc in parent_cats:
-                if category_class == Category2:
-                    query_params.update({
-                        'cat1': pc.code,
-                    })
-                    progress.cat1 = pc
-                else:
-                    query_params.update({
-                        'cat1': pc.cat1.code,
-                        'cat2': pc.code,
-                    })
-                    progress.cat2 = pc
-                    if progress.cat1.code != pc.cat1.code:
-                        progress.cat1 = pc.cat1
-                progress.save()
-
-                try:
-                    result = self._request(category_class, query_params, pc)
-                except UserWarning as e:
-                    logger.warning(e)
-                    return
-
-                if category_class == Category2:
-                    categories += result
-                elif progress.cat1.code != pc.cat1.code:
-                    progress.cat1_complete_count += 1
-                    progress.percent = int(progress.cat1_complete_count * 100 / AreaCodeProgress.TOTAL_AREA_CNT)
-                    progress.save()
-
-        return categories
-
-    def request_to_cat1(self):
-        return self.request(Category1)
-
-    def request_to_cat2(self, cat1s):
-        return self.request(Category2, cat1s)
-
-    def request_to_cat3(self, cat2s):
-        self.request(Category3, cat2s)
-
-    def run(self):
-        super().run()
-
-        progress = self.progress
-
-        if progress.percent >= 100:
-            logger.info("  Nothing to do")
-            return
-
-        cat1s = self.request_to_cat1() if progress.level <= CategoryCodeProgress.C1 else Category1.objects.filter(
-            id__gte=progress.cat1_id)
-        cat2s = self.request_to_cat2(cat1s) if progress.level <= CategoryCodeProgress.C2 else Category2.objects.filter(
-            id__gte=progress.cat2_id)
-        self.request_to_cat3(cat2s)
+        self.dep1_class = Category1
+        self.dep2_class = Category2
+        self.dep3_class = Category3
+        self.progress_dep1 = CategoryCodeProgress.C1
+        self.progress_dep2 = CategoryCodeProgress.C2
+        self.progress_dep1_id = self.progress.cat1.id
+        self.progress_dep2_id = self.progress.cat2.id
+        self.query_param_dep1 = 'cat1'
+        self.query_param_dep2 = 'cat2'
+        self.progress_dep1_complete_count = self.progress.cat1_complete_count
+        self.total_dep1_count = CategoryCodeProgress.TOTAL_CATEGORY_CNT
 
 
 class TravelInfoWebCollector(WebCollector):
@@ -310,21 +239,7 @@ class TravelInfoWebCollector(WebCollector):
         }
         self.update_url(query_params)
         response = requests.get(self.url)
-        response.raise_for_status()
-        res_dict = response.json()
-
-        try:
-            if int(res_dict['response']['header']['resultCode']) != 0:
-                raise UserWarning
-        except UserWarning:
-            logger.warning(
-                '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
-                    self.url,
-                    res_dict['response']['header']['resultCode'],
-                    res_dict['response']['header']['resultMsg']
-                )
-            )
-            return
+        res_dict = self.response_to_dict(response)
 
         raw_travel_info_dicts = res_dict['response']['body']['items']['item']
 
@@ -413,40 +328,26 @@ class TravelOverviewInfoWebCollector(WebCollector):
     def request(self):
         progress = self.progress
 
-        infos = TravelInfo.objects.all() if progress.travel_info is None \
+        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
             else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
 
-        for info in infos:
-            progress.travel_info = info
+        for travel_info in travel_infos:
+            progress.travel_info = travel_info
             progress.save()
 
             query_params = {
-                'contentId': info.id,
+                'contentId': travel_info.id,
                 'defaultYN': 'Y',
                 'overviewYN': 'Y',
             }
             self.update_url(query_params)
             response = requests.get(self.url)
-            response.raise_for_status()
-            res_dict = response.json()
-
-            try:
-                if int(res_dict['response']['header']['resultCode']) != 0:
-                    raise UserWarning
-            except UserWarning:
-                logger.warning(
-                    '  request failed!\n    url:{}\n    code:{}\n    msg:{}'.format(
-                        self.url,
-                        res_dict['response']['header']['resultCode'],
-                        res_dict['response']['header']['resultMsg']
-                    )
-                )
-                break
+            res_dict = self.response_to_dict(response)
 
             info_dict = res_dict['response']['body']['items']['item']
 
             info = {
-                'travel_info': info
+                'travel_info': travel_info
             }
             if 'telname' in info_dict:
                 info.update({
