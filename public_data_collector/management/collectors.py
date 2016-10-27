@@ -1,5 +1,4 @@
 import json
-import logging
 from datetime import datetime
 from urllib.parse import urlencode, urlunsplit, urljoin
 from urllib.parse import urlsplit
@@ -7,9 +6,10 @@ from urllib.parse import urlsplit
 import requests
 
 from public_data_collector.models import AreaCodeProgress, Area, Sigungu, SmallArea, CategoryCodeProgress, Category1, \
-    Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo, AdditionalInfoProgress, District, Category, \
-    TravelIntroInfo, TourspotIntroInfo, CulturalFacilityIntroInfo, FestivalIntroInfo, TourCourseIntroInfo, \
-    LeportsIntroInfo, LodgingIntroInfo, ShoppingIntroInfo, RestaurantIntroInfo
+    Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo, AdditionalInfoProgress, TravelIntroInfo, \
+    TourspotIntroInfo, CulturalFacilityIntroInfo, FestivalIntroInfo, TourCourseIntroInfo, \
+    LeportsIntroInfo, LodgingIntroInfo, ShoppingIntroInfo, RestaurantIntroInfo, TravelDetailInfo, \
+    DefaultTravelDetailInfo, TourCourseDetailInfo, LodgingDetailInfo
 
 
 class Collector:
@@ -102,9 +102,9 @@ class DepthItemWebCollector(WebCollector):
         for d in item_dicts:
             del d['rnum']
 
-        if target_class == Category1:
+        if target_class is Category1:
             items = [target_class(**d) for d in item_dicts]
-        elif target_class == Category2:
+        elif target_class is Category2:
             items = [target_class(**d, area=parent) for d in item_dicts]
         else:
             items = [target_class(**d, sigungu=parent) for d in item_dicts]
@@ -131,7 +131,7 @@ class DepthItemWebCollector(WebCollector):
         progress.save()
 
         items = []
-        if item_class == self.dep1_class:
+        if item_class is self.dep1_class:
             try:
                 items = self._request(item_class, query_params)
             except UserWarning as e:
@@ -139,13 +139,13 @@ class DepthItemWebCollector(WebCollector):
                 return
         else:
             for parent_item in parent_items:
-                if item_class == self.dep2_class:
+                if item_class is self.dep2_class:
                     query_params.update({
                         self.query_param_dep1: parent_item.code,
                     })
                     self.progress_dep1 = parent_item
                 else:
-                    grand_parent = parent_item.area if self.__class__ == AreacodeWebCollector else parent_item.cat1
+                    grand_parent = parent_item.area if self.__class__ is AreacodeWebCollector else parent_item.cat1
                     query_params.update({
                         self.query_param_dep1: grand_parent.code,
                         self.query_param_dep2: parent_item.code,
@@ -163,10 +163,10 @@ class DepthItemWebCollector(WebCollector):
                     print(e)
                     return
 
-                if item_class == self.dep1_class:
+                if item_class is self.dep1_class:
                     items += result
                 else:
-                    grand_parent = parent_item.area if self.__class__ == AreacodeWebCollector else parent_item.cat1
+                    grand_parent = parent_item.area if self.__class__ is AreacodeWebCollector else parent_item.cat1
                     if self.progress_dep1.code != grand_parent.code:
                         self.progress_dep1_complete_count += 1
                         progress.percent = int(self.progress_dep1_complete_count * 100 / self.total_dep1_count)
@@ -329,7 +329,7 @@ class TravelInfoWebCollector(WebCollector):
 
     def run(self):
         super().run()
-        if TravelInfo.objects.count() > 0:
+        if TravelInfo.objects.all().exists():
             print("  Nothing to do")
             return
         self.request()
@@ -373,16 +373,17 @@ class TravelOverviewInfoWebCollector(WebCollector):
                 print(e)
                 return
 
-            info_dict = res_dict['response']['body']['items']['item']
-            self._update_info_dict(info_dict)
-            info_dict.update({
-                'travel_info': travel_info
-            })
+            if res_dict['response']['body']['totalCount'] != 0:
+                info_dict = res_dict['response']['body']['items']['item']
+                self._update_info_dict(info_dict)
+                info_dict.update({
+                    'travel_info': travel_info
+                })
 
-            TravelOverviewInfo.objects.create(**info_dict)
+                TravelOverviewInfo.objects.create(**info_dict)
 
             progress.info_complete_count += 1
-            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_INFO_CNT)
+            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
             progress.save()
 
     def run(self):
@@ -401,8 +402,12 @@ class TravelIntroInfoWebCollector(WebCollector):
         self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=TravelIntroInfo.__name__)[0]
 
     def _update_info_dict(self, info_dict):
-        del info_dict['contentid']
-        del info_dict['contenttypeid']
+        if 'contentid' in info_dict:
+            del info_dict['contentid']
+        if 'contenttypeid' in info_dict:
+            del info_dict['contenttypeid']
+        if 'culturecenter' in info_dict:
+            del info_dict['culturecenter']
 
         new_info_dict = dict()
 
@@ -413,8 +418,9 @@ class TravelIntroInfoWebCollector(WebCollector):
                 .replace('tourcourse', '') \
                 .replace('leports', '') \
                 .replace('lodging', '') \
-                .replace('shopping', '') \
-                .replace('food', '')
+                .replace('shopping', '')
+            if self.info_class is RestaurantIntroInfo:
+                key = key.replace('food', '')
             if key in ['eventstartdate', 'eventenddate']:
                 try:
                     value = datetime.strptime(str(value), '%Y%m%d')
@@ -448,28 +454,108 @@ class TravelIntroInfoWebCollector(WebCollector):
                 print(e)
                 return
 
-            info_dict = res_dict['response']['body']['items']['item']
-            self._update_info_dict(info_dict)
-            info_dict.update({
-                'travel_info': travel_info
-            })
+            if res_dict['response']['body']['totalCount'] != 0:
+                info_class_swithcer = {
+                    ContentTypeConstant.TOURSPOT.id: TourspotIntroInfo,
+                    ContentTypeConstant.CULTURAL_FACILITY.id: CulturalFacilityIntroInfo,
+                    ContentTypeConstant.FESTIVAL.id: FestivalIntroInfo,
+                    ContentTypeConstant.TOUR_COURSE.id: TourCourseIntroInfo,
+                    ContentTypeConstant.LEPORTS.id: LeportsIntroInfo,
+                    ContentTypeConstant.LODGING.id: LodgingIntroInfo,
+                    ContentTypeConstant.SHOPPING.id: ShoppingIntroInfo,
+                    ContentTypeConstant.RESTAURANT.id: RestaurantIntroInfo,
+                }
+                self.info_class = info_class_swithcer[travel_info.contenttype.id]
 
-            info_class_swithcer = {
-                ContentTypeConstant.TOURSPOT.id: TourspotIntroInfo,
-                ContentTypeConstant.CULTURAL_FACILITY.id: CulturalFacilityIntroInfo,
-                ContentTypeConstant.FESTIVAL.id: FestivalIntroInfo,
-                ContentTypeConstant.TOUR_COURSE.id: TourCourseIntroInfo,
-                ContentTypeConstant.LEPORTS.id: LeportsIntroInfo,
-                ContentTypeConstant.LODGING.id: LodgingIntroInfo,
-                ContentTypeConstant.SHOPPING.id: ShoppingIntroInfo,
-                ContentTypeConstant.RESTAURANT.id: RestaurantIntroInfo,
-            }
-            info_class = info_class_swithcer[travel_info.contenttype.id]
+                info_dict = res_dict['response']['body']['items']['item']
+                self._update_info_dict(info_dict)
+                info_dict.update({
+                    'travel_info': travel_info
+                })
 
-            info_class.objects.create(**info_dict)
+                self.info_class.objects.create(**info_dict)
 
             progress.info_complete_count += 1
-            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_INFO_CNT)
+            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
+            progress.save()
+
+    def run(self):
+        super().run()
+        if self.progress.percent >= 100:
+            print("  Nothing to do")
+            return
+        self.request()
+
+
+class TravelDetailInfoWebCollector(WebCollector):
+    def __init__(self):
+        super().__init__()
+        self.operation = 'detailInfo'
+        self.endpoint = urljoin(self.base_url, self.operation)
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=TravelDetailInfo.__name__)[0]
+
+    def _update_info_dict(self, info_dict):
+        if 'contentid' in info_dict:
+            del info_dict['contentid']
+        if 'contenttypeid' in info_dict:
+            del info_dict['contenttypeid']
+
+        if self.info_class is DefaultTravelDetailInfo and 'fldgubun' in info_dict:
+            del info_dict['fldgubun']
+        elif self.info_class is TourCourseDetailInfo and 'subcontentid' in info_dict:
+            info_dict['sub_travel_info'] = info_dict.pop('subcontentid')
+        elif self.info_class is LodgingDetailInfo and 'roomcode' in info_dict:
+            del info_dict['roomcode']
+
+    def request(self):
+        progress = self.progress
+
+        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
+            else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
+
+        for travel_info in travel_infos:
+            progress.travel_info = travel_info
+            progress.save()
+
+            query_params = {
+                'contentId': travel_info.id,
+                'contentTypeId': travel_info.contenttype.id,
+            }
+            self.update_url(query_params)
+            response = requests.get(self.url)
+            try:
+                res_dict = self.response_to_dict(response)
+            except UserWarning as e:
+                print(e)
+                return
+
+            if res_dict['response']['body']['totalCount'] != 0:
+                info_class_swithcer = {
+                    ContentTypeConstant.TOURSPOT.id: DefaultTravelDetailInfo,
+                    ContentTypeConstant.CULTURAL_FACILITY.id: DefaultTravelDetailInfo,
+                    ContentTypeConstant.FESTIVAL.id: DefaultTravelDetailInfo,
+                    ContentTypeConstant.TOUR_COURSE.id: TourCourseDetailInfo,
+                    ContentTypeConstant.LEPORTS.id: DefaultTravelDetailInfo,
+                    ContentTypeConstant.LODGING.id: LodgingDetailInfo,
+                    ContentTypeConstant.SHOPPING.id: DefaultTravelDetailInfo,
+                    ContentTypeConstant.RESTAURANT.id: DefaultTravelDetailInfo,
+                }
+                self.info_class = info_class_swithcer[travel_info.contenttype.id]
+
+                info_dicts = res_dict['response']['body']['items']['item']
+                if type(info_dicts) is not list:
+                    info_dicts = [info_dicts]
+
+                for info_dict in info_dicts:
+                    self._update_info_dict(info_dict)
+                    info_dict.update({
+                        'travel_info': travel_info
+                    })
+
+                    self.info_class.objects.create(**info_dict)
+
+            progress.info_complete_count += 1
+            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
             progress.save()
 
     def run(self):
@@ -495,6 +581,7 @@ class PublicDataCollector:
             TravelInfoWebCollector(),
             TravelOverviewInfoWebCollector(),
             TravelIntroInfoWebCollector(),
+            TravelDetailInfoWebCollector(),
         ]
 
     def run(self):

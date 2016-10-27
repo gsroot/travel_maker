@@ -75,20 +75,15 @@ class TravelInfo(models.Model):
     modified = models.DateTimeField(null=True, blank=True)
 
 
-class AdditionalInfo(models.Model):
+class TravelOverviewInfo(models.Model):
     travel_info = models.OneToOneField(TravelInfo, on_delete=models.PROTECT, primary_key=True)
-
-    class Meta:
-        abstract = True
-
-
-class TravelOverviewInfo(AdditionalInfo):
     telname = models.CharField(max_length=50, null=True, blank=True)
     homepage = models.CharField(max_length=1000, null=True, blank=True)
     overview = models.CharField(max_length=10000, null=True, blank=True)
 
 
-class TravelIntroInfo(AdditionalInfo):
+class TravelIntroInfo(models.Model):
+    travel_info = models.OneToOneField(TravelInfo, on_delete=models.PROTECT, primary_key=True)
 
     class Meta:
         abstract = True
@@ -131,12 +126,12 @@ class CulturalFacilityIntroInfo(TravelIntroInfo):
 class FestivalIntroInfo(TravelIntroInfo):
     agelimit = models.CharField(max_length=100, null=True, blank=True)
     bookingplace = models.CharField(max_length=500, null=True, blank=True)
-    discountinfofestival = models.CharField(max_length=500, null=True, blank=True)
+    discountinfo = models.CharField(max_length=500, null=True, blank=True)
     eventenddate = models.DateField(null=True, blank=True)
     eventhomepage = models.CharField(max_length=1000, null=True, blank=True)
     eventplace = models.CharField(max_length=200, null=True, blank=True)
     eventstartdate = models.DateField(null=True, blank=True)
-    festivalgrade = models.CharField(max_length=100, null=True, blank=True)
+    grade = models.CharField(max_length=100, null=True, blank=True)
     placeinfo = models.CharField(max_length=1000, null=True, blank=True)
     playtime = models.CharField(max_length=500, null=True, blank=True)
     program = models.CharField(max_length=2000, null=True, blank=True)
@@ -179,7 +174,7 @@ class LodgingIntroInfo(TravelIntroInfo):
     benikia = models.BooleanField(default=False)
     checkintime = models.CharField(max_length=200, null=True, blank=True)
     checkouttime = models.CharField(max_length=200, null=True, blank=True)
-    chkcooking = models.BooleanField(default=False)
+    chkcooking = models.CharField(max_length=200, null=True, blank=True)
     foodplace = models.CharField(max_length=500, null=True, blank=True)
     goodstay = models.BooleanField(default=False)
     hanok = models.BooleanField(default=False)
@@ -192,25 +187,24 @@ class LodgingIntroInfo(TravelIntroInfo):
     roomtype = models.CharField(max_length=1000, null=True, blank=True)
     scale = models.CharField(max_length=200, null=True, blank=True)
     subfacility = models.CharField(max_length=1000, null=True, blank=True)
-    barbecue = models.BooleanField(default=False)
-    beauty = models.BooleanField(default=False)
-    beverage = models.BooleanField(default=False)
-    bicycle = models.BooleanField(default=False)
-    campfire = models.BooleanField(default=False)
-    fitness = models.BooleanField(default=False)
-    karaoke = models.BooleanField(default=False)
-    publicbath = models.BooleanField(default=False)
-    publicpc = models.BooleanField(default=False)
-    sauna = models.BooleanField(default=False)
-    seminar = models.BooleanField(default=False)
-    sports = models.BooleanField(default=False)
+    barbecue = models.NullBooleanField(null=True)
+    beauty = models.NullBooleanField(null=True)
+    beverage = models.NullBooleanField(null=True)
+    bicycle = models.NullBooleanField(null=True)
+    campfire = models.NullBooleanField(null=True)
+    fitness = models.NullBooleanField(null=True)
+    karaoke = models.NullBooleanField(null=True)
+    publicbath = models.NullBooleanField(null=True)
+    publicpc = models.NullBooleanField(null=True)
+    sauna = models.NullBooleanField(null=True)
+    seminar = models.NullBooleanField(null=True)
+    sports = models.NullBooleanField(null=True)
 
 
 class ShoppingIntroInfo(TravelIntroInfo):
     chkbabycarriage = models.CharField(max_length=50, null=True, blank=True)
     chkcreditcard = models.CharField(max_length=50, null=True, blank=True)
     chkpet = models.CharField(max_length=50, null=True, blank=True)
-    culturecenter = models.CharField(max_length=200, null=True, blank=True)
     fairday = models.CharField(max_length=200, null=True, blank=True)
     infocenter = models.CharField(max_length=500, null=True, blank=True)
     opendate = models.CharField(max_length=500, null=True, blank=True)
@@ -242,14 +236,82 @@ class RestaurantIntroInfo(TravelIntroInfo):
     treatmenu = models.CharField(max_length=1000, null=True, blank=True)
 
 
-class DefaultDetailInfo(AdditionalInfo):
+class TravelDetailInfo(models.Model):
+    travel_info = models.ForeignKey(TravelInfo, on_delete=models.PROTECT)
+
+    class Meta:
+        abstract = True
+
+
+class DefaultTravelDetailInfo(TravelDetailInfo):
+    serialnum = models.IntegerField()
     infoname = models.CharField(max_length=50, null=True, blank=True)
     infotext = models.CharField(max_length=10000, null=True, blank=True)
 
+    class Meta:
+        unique_together = ('travel_info', 'serialnum')
 
-class ImageInfo(AdditionalInfo):
+
+class TourCourseDetailInfo(TravelDetailInfo):
+    sub_travel_info = models.OneToOneField(
+        TravelInfo, on_delete=models.PROTECT, unique=True, null=True, blank=True, related_name='detailinfo'
+    )
+    subnum = models.IntegerField()
+    subdetailalt = models.CharField(max_length=500, null=True, blank=True)
+    subdetailimg = models.CharField(max_length=500, null=True, blank=True)
+    subdetailoverview = models.CharField(max_length=5000, null=True, blank=True)
+    subname = models.CharField(max_length=200, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('travel_info', 'subnum')
+
+
+class LodgingDetailInfo(TravelDetailInfo):
+    roomtitle = models.CharField(max_length=200, null=True, blank=True)
+    roomsize1 = models.IntegerField(null=True)
+    roomcount = models.IntegerField(null=True)
+    roombasecount = models.IntegerField(null=True)
+    roommaxcount = models.IntegerField(null=True)
+    roomoffseasonminfee1 = models.IntegerField(null=True)
+    roomoffseasonminfee2 = models.IntegerField(null=True)
+    roompeakseasonminfee1 = models.IntegerField(null=True)
+    roompeakseasonminfee2 = models.IntegerField(null=True)
+    roomintro = models.CharField(max_length=1000, null=True, blank=True)
+    roombathfacility = models.NullBooleanField(null=True)
+    roombath = models.NullBooleanField(null=True)
+    roomhometheater = models.NullBooleanField(null=True)
+    roomaircondition = models.NullBooleanField(null=True)
+    roomtv = models.NullBooleanField(null=True)
+    roompc = models.NullBooleanField(null=True)
+    roomcable = models.NullBooleanField(null=True)
+    roominternet = models.NullBooleanField(null=True)
+    roomrefrigerator = models.NullBooleanField(null=True)
+    roomtoiletries = models.NullBooleanField(null=True)
+    roomsofa = models.NullBooleanField(null=True)
+    roomcook = models.NullBooleanField(null=True)
+    roomTable = models.NullBooleanField(null=True)
+    roomhairdryer = models.NullBooleanField(null=True)
+    roomsize2 = models.IntegerField(null=True)
+    roomimg1 = models.CharField(max_length=500, null=True, blank=True)
+    roomimg1alt = models.CharField(max_length=500, null=True, blank=True)
+    roomimg2 = models.CharField(max_length=500, null=True, blank=True)
+    roomimg2alt = models.CharField(max_length=500, null=True, blank=True)
+    roomimg3 = models.CharField(max_length=500, null=True, blank=True)
+    roomimg3alt = models.CharField(max_length=500, null=True, blank=True)
+    roomimg4 = models.CharField(max_length=500, null=True, blank=True)
+    roomimg4alt = models.CharField(max_length=500, null=True, blank=True)
+    roomimg5 = models.CharField(max_length=500, null=True, blank=True)
+    roomimg5alt = models.CharField(max_length=500, null=True, blank=True)
+
+
+class ImageInfo(models.Model):
+    travel_info = models.ForeignKey(TravelInfo, on_delete=models.PROTECT)
+    serialnum = models.IntegerField()
     originimgurl = models.CharField(max_length=500, null=True, blank=True)
     smallimageurl = models.CharField(max_length=500, null=True, blank=True)
+
+    class Meta:
+        unique_together = ('travel_info', 'serialnum')
 
 
 class Progress(models.Model):
@@ -299,7 +361,7 @@ class CategoryCodeProgress(Progress):
 
 
 class AdditionalInfoProgress(Progress):
-    TOTAL_INFO_CNT = TravelInfo.objects.count()
+    TOTAL_TRAVEL_INFO_CNT = TravelInfo.objects.count()
 
     info_type = models.CharField(max_length=100)
     travel_info = models.OneToOneField(TravelInfo, null=True, on_delete=models.PROTECT)
