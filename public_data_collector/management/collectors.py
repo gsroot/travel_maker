@@ -9,7 +9,7 @@ from public_data_collector.models import AreaCodeProgress, Area, Sigungu, SmallA
     Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo, AdditionalInfoProgress, TravelIntroInfo, \
     TourspotIntroInfo, CulturalFacilityIntroInfo, FestivalIntroInfo, TourCourseIntroInfo, \
     LeportsIntroInfo, LodgingIntroInfo, ShoppingIntroInfo, RestaurantIntroInfo, TravelDetailInfo, \
-    DefaultTravelDetailInfo, TourCourseDetailInfo, LodgingDetailInfo
+    DefaultTravelDetailInfo, TourCourseDetailInfo, LodgingDetailInfo, TravelImageInfo
 
 
 class Collector:
@@ -566,6 +566,75 @@ class TravelDetailInfoWebCollector(WebCollector):
         self.request()
 
 
+class TravelImageInfoWebCollector(WebCollector):
+    def __init__(self):
+        super().__init__()
+        self.operation = 'detailImage'
+        self.endpoint = urljoin(self.base_url, self.operation)
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=TravelImageInfo.__name__)[0]
+
+    def _update_info_dict(self, info_dict):
+        if 'contentid' in info_dict:
+            del info_dict['contentid']
+        if 'imgname' in info_dict:
+            del info_dict['imgname']
+
+    def request(self):
+        progress = self.progress
+
+        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
+            else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
+
+        for travel_info in travel_infos:
+            progress.travel_info = travel_info
+            progress.save()
+
+            query_params = {
+                'contentId': travel_info.id,
+            }
+
+            req_cnt_per_travel_info = 1 if travel_info.contenttype is not ContentTypeConstant.RESTAURANT else 2
+
+            for i in range(req_cnt_per_travel_info):
+                if i == 1:
+                    query_params.update({
+                        'imageYN': 'N'
+                    })
+                self.update_url(query_params)
+                response = requests.get(self.url)
+                try:
+                    res_dict = self.response_to_dict(response)
+                except UserWarning as e:
+                    print(e)
+                    if travel_info.contenttype is ContentTypeConstant.RESTAURANT and i == 0:
+                        TravelImageInfo.objects.get(travel_info=travel_info).delete()
+                    return
+
+                if res_dict['response']['body']['totalCount'] != 0:
+                    info_dicts = res_dict['response']['body']['items']['item']
+                    if type(info_dicts) is not list:
+                        info_dicts = [info_dicts]
+
+                    for info_dict in info_dicts:
+                        self._update_info_dict(info_dict)
+                        info_dict.update({
+                            'travel_info': travel_info
+                        })
+
+                        TravelImageInfo.objects.create(**info_dict)
+
+            progress.info_complete_count += 1
+            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
+            progress.save()
+
+    def run(self):
+        super().run()
+        if self.progress.percent >= 100:
+            print("  Nothing to do")
+            return
+        self.request()
+
+
 class PublicDataCollector:
     def __init__(self):
         super().__init__()
@@ -582,6 +651,7 @@ class PublicDataCollector:
             TravelOverviewInfoWebCollector(),
             TravelIntroInfoWebCollector(),
             TravelDetailInfoWebCollector(),
+            TravelImageInfoWebCollector(),
         ]
 
     def run(self):

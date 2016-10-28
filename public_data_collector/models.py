@@ -304,9 +304,9 @@ class LodgingDetailInfo(TravelDetailInfo):
     roomimg5alt = models.CharField(max_length=500, null=True, blank=True)
 
 
-class ImageInfo(models.Model):
+class TravelImageInfo(models.Model):
     travel_info = models.ForeignKey(TravelInfo, on_delete=models.PROTECT)
-    serialnum = models.IntegerField()
+    serialnum = models.CharField(max_length=100, null=True, blank=True)
     originimgurl = models.CharField(max_length=500, null=True, blank=True)
     smallimageurl = models.CharField(max_length=500, null=True, blank=True)
 
