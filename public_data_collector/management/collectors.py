@@ -408,6 +408,8 @@ class TravelIntroInfoWebCollector(WebCollector):
             del info_dict['contenttypeid']
         if 'culturecenter' in info_dict:
             del info_dict['culturecenter']
+        if 'publicpc' in info_dict and type(info_dict['publicpc']) is not int:
+            info_dict['publicpc'] = 0
 
         new_info_dict = dict()
 
@@ -503,9 +505,17 @@ class TravelDetailInfoWebCollector(WebCollector):
         if self.info_class is DefaultTravelDetailInfo and 'fldgubun' in info_dict:
             del info_dict['fldgubun']
         elif self.info_class is TourCourseDetailInfo and 'subcontentid' in info_dict:
-            info_dict['sub_travel_info'] = info_dict.pop('subcontentid')
-        elif self.info_class is LodgingDetailInfo and 'roomcode' in info_dict:
-            del info_dict['roomcode']
+            sub_travel_info_id = info_dict.pop('subcontentid')
+            info_dict['sub_travel_info_id'] = sub_travel_info_id \
+                if TravelInfo.objects.filter(id=sub_travel_info_id).exists() else None
+        elif self.info_class is LodgingDetailInfo:
+            if'roomcode' in info_dict:
+                del info_dict['roomcode']
+            for key, value in info_dict.items():
+                if value == 'Y':
+                    info_dict[key] = True
+                elif value == 'N':
+                    info_dict[key] = False
 
     def request(self):
         progress = self.progress

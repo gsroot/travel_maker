@@ -253,8 +253,8 @@ class DefaultTravelDetailInfo(TravelDetailInfo):
 
 
 class TourCourseDetailInfo(TravelDetailInfo):
-    sub_travel_info = models.OneToOneField(
-        TravelInfo, on_delete=models.PROTECT, unique=True, null=True, blank=True, related_name='detailinfo'
+    sub_travel_info = models.ForeignKey(
+        TravelInfo, on_delete=models.SET_NULL, null=True, related_name='detailinfo'
     )
     subnum = models.IntegerField()
     subdetailalt = models.CharField(max_length=500, null=True, blank=True)
@@ -289,7 +289,7 @@ class LodgingDetailInfo(TravelDetailInfo):
     roomtoiletries = models.NullBooleanField(null=True)
     roomsofa = models.NullBooleanField(null=True)
     roomcook = models.NullBooleanField(null=True)
-    roomTable = models.NullBooleanField(null=True)
+    roomtable = models.NullBooleanField(null=True)
     roomhairdryer = models.NullBooleanField(null=True)
     roomsize2 = models.IntegerField(null=True)
     roomimg1 = models.CharField(max_length=500, null=True, blank=True)
@@ -364,5 +364,5 @@ class AdditionalInfoProgress(Progress):
     TOTAL_TRAVEL_INFO_CNT = TravelInfo.objects.count()
 
     info_type = models.CharField(max_length=100)
-    travel_info = models.OneToOneField(TravelInfo, null=True, on_delete=models.PROTECT)
+    travel_info = models.ForeignKey(TravelInfo, null=True, on_delete=models.PROTECT)
     info_complete_count = models.IntegerField(default=0)
