@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'travel_maker.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.',
+        'ENGINE': '',
         'NAME': '',
         'USER': '',
         'PASSWORD': '',
@@ -124,4 +124,12 @@ USE_TZ = False
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
+# See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
+STATIC_ROOT = 'staticfiles'
+
 STATIC_URL = '/static/'
+
+# See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
+STATICFILES_DIRS = (
+    str(os.path.join(BASE_DIR, 'static')),
+)

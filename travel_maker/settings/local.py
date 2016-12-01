@@ -9,16 +9,16 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#databases
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'travel_maker',
-        'USER': 'root',
+        'USER': 'postgres',
         'PASSWORD': '',
         'HOST': '127.0.0.1',
-        'PORT': '3306',
+        'PORT': '5432',
     }
 }
 
-with open('/etc/secrets/travel_maker/db_password.txt') as f:
-    DATABASES['default'].update({
-        'PASSWORD': f.read().strip()
-    })
+# with open('/etc/secrets/travel_maker/db_password.txt') as f:
+#     DATABASES['default'].update({
+#         'PASSWORD': f.read().strip()
+#     })
