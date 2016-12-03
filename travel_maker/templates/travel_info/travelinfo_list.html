@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% load static i18n %}
+
+{% block title %}Travel Maker - 여행지 정보{% endblock %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+<div class="container">
+    <div class="list-group">
+    {% for info in travelinfo_list %}
+        <div class="spacer-lg"></div>
+        <div class="row">
+            <div class="col-md-3">
+                <div class="travel-info-index">
+                    <p>
+                        {% widthratio page_obj.number|add:"-1" 1 10 as start_counter %}
+                        {{ forloop.counter|slugify|add:start_counter }}
+                    </p>
+                </div>
+                <div class="spacer-xs"></div>
+                <div>
+                    <a href="{% url 'travel_info:detail' info.id %}">
+                        <img src="{{ info.image }}" alt="">
+                    </a>
+                </div>
+            </div>
+            <div class="col-md-4 stat-area">
+                <div class="spacer-sm"></div>
+                <div class="row">
+                    <a class="travel-info-title" href="{% url 'travel_info:detail' info.id %}">
+                        {{ info.title }}
+                    </a>
+                </div>
+                <div class="spacer-lg"></div>
+                <div class="row">
+                    <div class="stat-item col-md-3">
+                        <div class="stat-item-count">97</div>
+                        <div class="stat-item-title">점수</div>
+                    </div>
+                    <div class="stat-item col-md-3">
+                        <div class="stat-item-count">125</div>
+                        <div class="stat-item-title">좋아요</div>
+                    </div>
+                    <div class="stat-item col-md-3">
+                        <div class="stat-item-count">1</div>
+                        <div class="stat-item-title">평가</div>
+                    </div>
+                    <div class="stat-item col-md-3">
+                        <div class="stat-item-count">55</div>
+                        <div class="stat-item-title">블로그</div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="spacer-sm"></div>
+                <div class="row">
+                    <div class="col-md-1">
+                        <i class="fa fa-tags fa-lg" aria-hidden="true"></i>
+                    </div>
+                    <div class="col-md-11">
+                        <p>혼술, 혼밥, 예약필수, 콜키지, 가성비좋은, 낮술, 런치코스</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-1">
+                        <i class="fa fa-map-marker fa-lg" aria-hidden="true"></i>
+                    </div>
+                    <div class="col-md-11">
+                        <p>{{ info.addr1 }}</p>
+                    </div>
+                </div>
+                <div class="spacer-sm"></div>
+                <div class="row">
+                    <a href="#">
+                        <div class="col-md-1">
+                            <i class="fa fa-thumbs-o-up fa-lg" aria-hidden="true"></i>
+                        </div>
+                        <div class="col-md-11">
+                            <p>좋아요</p>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+
+    <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+    </div>
+</div>
+{% endblock content %}

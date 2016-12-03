@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from public_data_collector.management.collectors import PublicDataCollector
+from travel_maker.public_data_collector.management.collectors import PublicDataCollector
 
 
 class Command(PublicDataCollector, BaseCommand):

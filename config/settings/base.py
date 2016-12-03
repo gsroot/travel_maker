@@ -10,21 +10,23 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
-import os
+import environ
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ROOT_DIR = environ.Path(__file__) - 3  # (travel_maker/config/settings/base.py - 3 = travel_maker/)
+APPS_DIR = ROOT_DIR.path('travel_maker')
+
+env = environ.Env()
+env.read_env()
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-with open('/etc/secrets/travel_maker/secret_key.txt') as f:
-    SECRET_KEY = f.read().strip()
+SECRET_KEY = env('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = env.bool('DJANGO_DEBUG', False)
 
 ALLOWED_HOSTS = []
 
@@ -38,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'public_data_collector',
+    'travel_maker.public_data_collector.apps.PublicDataCollectorConfig',
+    'travel_maker.travel_info.apps.TravelInfoConfig',
 ]
 
 MIDDLEWARE = [
@@ -51,12 +54,16 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'travel_maker.urls'
+# URL Configuration
+# ------------------------------------------------------------------------------
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
+        'DIRS': [
+            str(APPS_DIR.path('templates')),
+        ]
         ,
         'APP_DIRS': True,
         'OPTIONS': {
@@ -70,21 +77,14 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'travel_maker.wsgi.application'
+WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': '',
-        'NAME': '',
-        'USER': '',
-        'PASSWORD': '',
-        'HOST': '',
-        'PORT': '',
-    }
+    'default': env.db('DATABASE_URL'),
 }
 
 
@@ -131,5 +131,5 @@ STATIC_URL = '/static/'
 
 # See: https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = (
-    str(os.path.join(BASE_DIR, 'static')),
+    str(APPS_DIR.path('static')),
 )

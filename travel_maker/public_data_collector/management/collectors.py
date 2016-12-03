@@ -5,11 +5,7 @@ from urllib.parse import urlsplit
 
 import requests
 
-from public_data_collector.models import AreaCodeProgress, Area, Sigungu, SmallArea, CategoryCodeProgress, Category1, \
-    Category2, Category3, ContentType, TravelInfo, TravelOverviewInfo, AdditionalInfoProgress, TravelIntroInfo, \
-    TourspotIntroInfo, CulturalFacilityIntroInfo, FestivalIntroInfo, TourCourseIntroInfo, \
-    LeportsIntroInfo, LodgingIntroInfo, ShoppingIntroInfo, RestaurantIntroInfo, TravelDetailInfo, \
-    DefaultTravelDetailInfo, TourCourseDetailInfo, LodgingDetailInfo, TravelImageInfo
+from travel_maker.public_data_collector.models import *
 
 
 class Collector:

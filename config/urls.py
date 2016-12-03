@@ -16,9 +16,10 @@ Including another URLconf
 from django.conf.urls import url, include
 from django.contrib import admin
 
-from travel_maker.views import IndexView
+from travel_maker.views import HomeView
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
-    url(r'^$', IndexView.as_view()),
+    url(r'^$', HomeView.as_view()),
+    url(r'^travel-info/', include('travel_maker.travel_info.urls', namespace='travel_info')),
 ]

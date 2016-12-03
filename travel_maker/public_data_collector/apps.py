@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class PublicDataCollectorConfig(AppConfig):
-    name = 'public_data_collector'
+    name = 'travel_maker.public_data_collector'

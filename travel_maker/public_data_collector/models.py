@@ -74,6 +74,9 @@ class TravelInfo(models.Model):
     created = models.DateTimeField(null=True, blank=True)
     modified = models.DateTimeField(null=True, blank=True)
 
+    class Meta:
+        ordering = ['-readcount']
+
 
 class TravelOverviewInfo(models.Model):
     travel_info = models.OneToOneField(TravelInfo, on_delete=models.PROTECT, primary_key=True)
