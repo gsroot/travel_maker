@@ -25,6 +25,10 @@ env.read_env()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 
+TRAVEL_API_SECRET_KEYS = env('TRAVEL_API_SECRET_KEYS')
+
+GOOGLE_API_KEY = env('GOOGLE_API_KEY')
+
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG', False)
 
@@ -41,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'travel_maker.public_data_collector.apps.PublicDataCollectorConfig',
+    'travel_maker.google_data_collector.apps.GoogleDataCollectorConfig',
     'travel_maker.travel_info.apps.TravelInfoConfig',
 ]
 

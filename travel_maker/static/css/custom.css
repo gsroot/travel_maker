@@ -1,29 +1,37 @@
 * {
-    font-family:'나눔고딕', 'Nanum Gothic';
+    font-family: '나눔고딕', 'Nanum Gothic';
 }
 
 body {
-	background-color: rgb(247, 245, 240);
+    background-color: rgb(247, 245, 240);
 }
 
 .list-group img {
     width: 300px;
     height: 200px;
 }
-.stat-item-count {
+
+.item-stat-count {
     color: #00cdcd;
-    font-size: 18px;
+    font-size: 22px;
 }
-a {
-    color: #404041;
+
+.item-stat-title {
+    font-size: 15px;
+}
+
+.list-group a {
+    color: #404041 !important;
 }
 
 .stat-area {
     margin-left: 40px;
 }
+
 .travel-info-title {
     font-size: 30px;
 }
+
 .travel-info-index {
     position: absolute;
     top: 0px;
@@ -33,7 +41,7 @@ a {
     height: 0;
     border-width: 32px;
     border-style: solid;
-    border-color: rgba(0,205,205,1) transparent transparent rgba(0,205,205,1);
+    border-color: rgba(0, 205, 205, 1) transparent transparent rgba(0, 205, 205, 1);
 }
 
 .travel-info-index p {
@@ -45,18 +53,103 @@ a {
     font-size: 14px;
     text-align: left;
 }
+
+#item-header {
+    background: rgba(0,205,205,.85);
+}
+
+#item-header {
+    color: white !important;
+}
+
+#item-header div {
+    color: white !important;
+}
+
+#item-header a {
+    color: white !important;
+}
+
+.item-header-divider {
+	border-bottom: 1px solid #fff;
+}
+
+.divider {
+	border-bottom: 1px solid #cecece;
+}
+
+.item-header-right {
+	font-size: 15px;
+}
+
+.item-title {
+	font-size: 36px;
+}
+
+.item-info-text {
+    margin-left: 10px;
+    color: #122b40;
+    font-size: 15px;
+}
+
+#item-info p {
+    color: #122b40;
+    font-size: 15px;
+}
+
+#carousel-generic {
+    width: 500px;
+}
+
+.navbar-fixed-bottom, .navbar-fixed-top {
+    position: static !important;;
+}
+
+.navbar {
+    margin-bottom: 0px;
+}
+
 .spacer-xs {
     margin-top: 10px;
 }
+
 .spacer-sm {
     margin-top: 30px;
 }
+
 .spacer-md {
     margin-top: 50px;
 }
+
 .spacer-lg {
     margin-top: 70px;
 }
+
 .spacer-xl {
     margin-top: 100px;
+}
+
+.review-user-profile-img {
+    width: 40px;
+    height: 40px;
+}
+
+.review-user-name {
+    color: #122b40;
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.review-time {
+    color: #23527c;
+    font-size: 12px;
+}
+
+#rating-text {
+    margin-left: 10px;
+    font-size: 18px;
+}
+
+#item-header-top .item-header-right {
+    margin-top: 20px;
 }

@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 from urllib.parse import urlencode, urlunsplit, urljoin
 from urllib.parse import urlsplit
@@ -505,7 +504,7 @@ class TravelDetailInfoWebCollector(WebCollector):
             info_dict['sub_travel_info_id'] = sub_travel_info_id \
                 if TravelInfo.objects.filter(id=sub_travel_info_id).exists() else None
         elif self.info_class is LodgingDetailInfo:
-            if'roomcode' in info_dict:
+            if 'roomcode' in info_dict:
                 del info_dict['roomcode']
             for key, value in info_dict.items():
                 if value == 'Y':
@@ -639,29 +638,3 @@ class TravelImageInfoWebCollector(WebCollector):
             print("  Nothing to do")
             return
         self.request()
-
-
-class PublicDataCollector:
-    def __init__(self):
-        super().__init__()
-
-        with open('/etc/secrets/travel_maker/service_key.txt') as f:
-            WebCollector.service_keys = json.loads(f.read().strip())
-        WebCollector.service_key = WebCollector.service_keys[0]
-
-        self.collectors = [
-            ContentTypeCollector(),
-            AreacodeWebCollector(),
-            CategorycodeWebCollector(),
-            TravelInfoWebCollector(),
-            TravelOverviewInfoWebCollector(),
-            TravelIntroInfoWebCollector(),
-            TravelDetailInfoWebCollector(),
-            TravelImageInfoWebCollector(),
-        ]
-
-    def run(self):
-        for idx, key in enumerate(WebCollector.service_keys):
-            for collector in self.collectors:
-                collector.run()
-            WebCollector.change_service_key(idx + 1)
