@@ -9,6 +9,9 @@ class GooglePlaceInfo(models.Model):
     place_id = CharField(max_length=100)
     travel_info = OneToOneField(TravelInfo, on_delete=models.PROTECT)
 
+    class Meta:
+        ordering = ['id']
+
 
 class GooglePlaceReviewInfo(models.Model):
     place_info = ForeignKey(GooglePlaceInfo, on_delete=models.PROTECT)

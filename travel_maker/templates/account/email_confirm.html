@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% load static i18n account %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'vendor/bootstrap-social/bootstrap-social.css' %}" rel="stylesheet">
+    <link href="{% static 'css/accounts.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+    <header>
+        <div class="spacer-xl"></div>
+        <div class="spacer-xl"></div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <h1>{% trans "이메일 주소 확인" %}</h1>
+                {% if confirmation %}
+                    {% user_display confirmation.email_address.user as user_display %}
+                    <div class="spacer-sm"></div>
+                    <p>
+                        {% blocktrans with confirmation.email_address.email as email %}
+                            <p>다음 이메일 주소가 {{ user_display }} 고객님의 이메일 주소가 맞는지 확인해 주세요.</p>
+                            <a href="mailto:{{ email }}">{{ email }}</a>
+                        {% endblocktrans %}
+                    </p>
+                    <div class="spacer-sm"></div>
+                    <div class="row">
+                        <div class="col-md-4"></div>
+                        <div class="col-md-4">
+                            <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                                {% csrf_token %}
+                                <button class="btn btn-primary btn-block" type="submit">{% trans '확인' %}</button>
+                            </form>
+                        </div>
+                    </div>
+                {% else %}
+                    {% url 'account_email' as email_url %}
+                    <p>{% blocktrans %}This e-mail confirmation link expired or is invalid. Please
+                        <a href="{{ email_url }}">issue a new e-mail confirmation request</a>.{% endblocktrans %}</p>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+{% endblock header %}

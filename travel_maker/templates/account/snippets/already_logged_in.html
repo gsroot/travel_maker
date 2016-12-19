@@ -1,0 +1,7 @@
+{% load i18n account %}
+
+{% user_display user as user_display %}
+<p>
+    <strong>{% trans "주의" %}:</strong>
+    {% blocktrans %} 이미 로그인 되어있습니다.{% endblocktrans %}
+</p>

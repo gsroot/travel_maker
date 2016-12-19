@@ -15,11 +15,15 @@ Including another URLconf
 """
 from django.conf.urls import url, include
 from django.contrib import admin
+from filebrowser.sites import site
 
 from travel_maker.views import HomeView
 
 urlpatterns = [
+    url(r'^admin/filebrowser/', include(site.urls)),
+    url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
-    url(r'^$', HomeView.as_view()),
+    url(r'^$', HomeView.as_view(), name='home'),
+    url(r'^accounts/', include('allauth.urls')),
     url(r'^travel-info/', include('travel_maker.travel_info.urls', namespace='travel_info')),
 ]

@@ -1,3 +1,6 @@
+from collections import Counter
+from statistics import mean
+
 from django.db import models
 
 
@@ -11,6 +14,30 @@ class District(models.Model):
 
 class Area(District):
     code = models.IntegerField(unique=True)
+
+    @property
+    def info(self):
+        title = self.name
+
+        area_selector = {
+            '경기도': '경기 수원시',
+            '강원도': '강원 원주시',
+            '충청북도': '청주시',
+            '충청남도': '충남 홍성군',
+            '경상북도': '안동시',
+            '경상남도': '창원시',
+            '전라북도': '전주시',
+            '전라남도': '전남 무안군',
+            '제주도': '제주특별자치도',
+        }
+        if title == '서울':
+            title = '서울특별시'
+        elif title in ['인천', '대전', '대구', '광주', '부산', '울산']:
+            title += '광역시'
+        elif title in area_selector:
+            title = area_selector[title]
+
+        return TravelInfo.objects.get(title=title)
 
 
 class Sigungu(District):
@@ -73,6 +100,36 @@ class TravelInfo(models.Model):
     readcount = models.IntegerField(null=True)
     created = models.DateTimeField(null=True, blank=True)
     modified = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['id']
+
+    @property
+    def rating(self):
+        if self.googleplaceinfo and self.googleplaceinfo.googleplacereviewinfo_set.all():
+            return mean([review.rating for review in self.googleplaceinfo.googleplacereviewinfo_set.all()])
+        else:
+            return None
+
+    @property
+    def blogs(self):
+        return self.blogdata_set.all()
+
+    @property
+    def primary_blogs(self):
+        return self.blogdata_set.all()[:10]
+
+    @property
+    def tags(self):
+        return [tag for data in self.blogdata_set.all() for tag in data.tags.all()]
+
+    @property
+    def primary_three_tags(self):
+        return sorted(Counter(self.tags).items(), key=lambda pair: pair[1], reverse=True)[:3]
+
+    @property
+    def primary_six_tags(self):
+        return sorted(Counter(self.tags).items(), key=lambda pair: pair[1], reverse=True)[:6]
 
 
 class TravelOverviewInfo(models.Model):

@@ -25,9 +25,13 @@ env.read_env()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('DJANGO_SECRET_KEY')
 
-TRAVEL_API_SECRET_KEYS = env('TRAVEL_API_SECRET_KEYS')
+TRAVEL_API_SECRET_KEY = env('TRAVEL_API_SECRET_KEY')
 
 GOOGLE_API_KEY = env('GOOGLE_API_KEY')
+
+NAVER_API_CLIENT_ID = env('NAVER_API_CLIENT_ID')
+
+NAVER_API_CLIENT_SECRET = env('NAVER_API_CLIENT_SECRET')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG', False)
@@ -38,15 +42,33 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
+    'filebrowser',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'taggit',
+    'crispy_forms',
+    'bootstrap_pagination',
+    'schedule',
+
     'travel_maker.public_data_collector.apps.PublicDataCollectorConfig',
     'travel_maker.google_data_collector.apps.GoogleDataCollectorConfig',
+    'travel_maker.blog_data_collector.apps.BlogDataCollectorConfig',
+    'travel_maker.account.apps.AccountConfig',
     'travel_maker.travel_info.apps.TravelInfoConfig',
+    'travel_maker.travel_schedule.apps.TravelScheduleConfig',
 ]
 
 MIDDLEWARE = [
@@ -138,3 +160,31 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     str(APPS_DIR.path('static')),
 )
+
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend',
+)
+
+SITE_ID = 1
+
+
+AUTH_USER_MODEL = 'tm_account.TmUser'
+
+ACCOUNT_ADAPTER = 'travel_maker.account.adapter.AccountAdapter'
+ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = True
+ACCOUNT_LOGOUT_ON_GET = True
+ACCOUNT_AUTHENTICATION_METHOD = 'email'
+ACCOUNT_FORMS = {
+    'signup': 'travel_maker.account.forms.UserSignupForm',
+    'login': 'travel_maker.account.forms.UserLoginForm',
+}

@@ -4,6 +4,11 @@
 
 {% block title %}Travel Maker - {{ travelinfo.title }}{% endblock %}
 
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block header %}
 <div id="item-header">
     <div id="map" style="width:100%;height:300px;"></div>
@@ -11,15 +16,18 @@
         <div class="spacer-sm"></div>
         <div id="item-header-top">
             <div class="row">
-                <div class="item-header-left col-md-6">
+                <div class="item-header-left col-md-9">
                     <span class="item-title">{{ travelinfo.title }}</span>
-                    <span class="item-subtitle"></span>
+                    <span class="item-primary-tags">
+                        {% for tag in travelinfo.primary_three_tags %}
+                            {{ tag.0 }}{% if forloop.counter < 3 %},{% endif %}
+                        {% endfor %}
+                    </span>
                 </div>
-                <div class="col-md-3"></div>
                 <div class="item-header-right col-md-3">
                     <span id="rating"></span>
                 {% if google_reviews %}
-                    <span id="rating-text">{{ rating }} 점</span>
+                    <span id="rating-text">{{ travelinfo.rating }} 점</span>
                 {% endif %}
                 </div>
             </div>
@@ -45,7 +53,13 @@
                         <div class="item-stat-title">평가</div>
                     </div>
                     <div class="col-md-1">
-                        <div class="item-stat-count">55</div>
+                        <div class="item-stat-count">
+                        {% if travelinfo.blogs %}
+                            {{ travelinfo.blogs.count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                        </div>
                         <div class="item-stat-title">블로그</div>
                     </div>
                 </div>
@@ -269,16 +283,15 @@
         {% if google_reviews %}
         <div class="row">
             <div id="item-reviews-info">
-                <div class="test"></div>
                 <h3>유저 평가</h3>
                 <div class="spacer-sm"></div>
                 {% for review in google_reviews %}
                 <div class="row">
                     <div class="col-md-1">
                     {% if review.profile_photo_url %}
-                        <img class="review-user-profile-img" src="https:{{ review.profile_photo_url }}" alt="">
+                        <img class="review-user-profile-img img-circle" src="https:{{ review.profile_photo_url }}" alt="">
                     {% else %}
-                        <img class="review-user-profile-img" src="{% static 'img/no-photo.png' %}" alt="">
+                        <img class="review-user-profile-img img-circle" src="{% static 'img/no-photo.png' %}" alt="">
                     {% endif %}
                     </div>
                     <div class="row col-md-11">
@@ -308,6 +321,39 @@
             </div>
         </div>
         {% endif %}
+
+        {% if travelinfo.blogs %}
+        <div class="row">
+            <div id="item-blogs-info">
+                <h3>추천 블로그</h3>
+                <div class="spacer-sm"></div>
+                {% for blog in travelinfo.primary_blogs %}
+                <div class="row">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-8">
+                        <div>
+                            <a href="{{ blog.link }}">{{ blog.title }}</a>
+                        </div>
+                        <div class="spacer-xs"></div>
+                        <div>
+                            {{ blog.description }}
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div>
+                            DATE: {{ blog.postdate }}
+                        </div>
+                        <div>
+                            FROM: <a href="{{ blog.bloggerlink }}">{{ blog.bloggername }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="spacer-sm divider"></div>
+                <div class="spacer-sm"></div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
     </div>
     {% endautoescape %}
 </div>
@@ -315,7 +361,7 @@
 
 {% block javascript %}
 {{ block.super }}
-<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId=sf25UIddIqmO_OVes4hf"></script>
+<script type="text/javascript" src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId={{ naverapi_client_id }}"></script>
 <script>
     var mapOptions = {
         center: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
@@ -331,7 +377,7 @@
 
     $.fn.raty.defaults.path = '/static/vendor/raty/images/';
 
-    {% if rating %}
+    {% if travelinfo.rating %}
     $('#rating').raty({
         readOnly : true,
         space: false,
@@ -339,7 +385,7 @@
         starHalf  : 'star-half-big.png',
         starOff   : 'star-off-big.png',
         starOn    : 'star-on-big.png',
-        score: {{ rating }}
+        score: {{ travelinfo.rating }}
     });
     {% endif %}
 

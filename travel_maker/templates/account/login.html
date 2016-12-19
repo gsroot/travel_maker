@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% load static i18n crispy_forms_tags account socialaccount %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'vendor/bootstrap-social/bootstrap-social.css' %}" rel="stylesheet">
+    <link href="{% static 'css/accounts.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+    <header>
+        <div class="spacer-xl"></div>
+        <div class="spacer-xl"></div>
+        <div class="row">
+            <div class="col-md-5"></div>
+            <div class="col-md-2">
+                {% crispy form %}
+                <div class="spacer-xs"></div>
+                <div class="row text-center">
+                    <div class="col-md-5">
+                        <a href="{% url 'account_signup' %}">{% trans "회원가입" %}</a>
+                    </div>
+                    <div class="col-md-1">
+                        |
+                    </div>
+                    <div class="col-md-5">
+                        <a class="button secondaryAction"
+                           href="{% url 'account_reset_password' %}">{% trans "비밀번호 찾기" %}</a>
+                    </div>
+                </div>
+                <div class="social">
+                    <div class="spacer-xs"></div>
+                    <a class="btn btn-block btn-social btn-google" href="/accounts/google/login/">
+                        <i class="fa fa-google"></i>
+                        구글 계정으로 로그인
+                    </a>
+                    <div class="spacer-xs"></div>
+                    <a class="btn btn-block btn-social btn-facebook" href="/accounts/facebook/login/">
+                        <i class="fa fa-facebook"></i>
+                        페이스북 계정으로 로그인
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+{% endblock header %}

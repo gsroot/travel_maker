@@ -51,9 +51,11 @@ class GooglePlaceInfoCollector(WebCollector):
         progress = self.progress
 
         travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
+            else TravelInfo.objects.filter(id__gte=progress.travel_info.id).order_by('id')
 
         for travel_info in travel_infos:
+            if GooglePlaceInfo.objects.filter(travel_info=travel_info).exists():
+                continue
             progress.travel_info = travel_info
             progress.save()
 
@@ -99,9 +101,11 @@ class GooglePlaceReviewInfoCollector(WebCollector):
         progress = self.progress
 
         place_infos = GooglePlaceInfo.objects.all() if progress.place_info is None \
-            else GooglePlaceInfo.objects.filter(id__gte=progress.place_info.id)
+            else GooglePlaceInfo.objects.filter(id__gte=progress.place_info.id).order_by('id')
 
         for place_info in place_infos:
+            if GooglePlaceReviewInfo.objects.filter(place_info=place_info).exists():
+                continue
             progress.place_info = place_info
             progress.save()
 

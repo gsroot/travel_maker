@@ -7,22 +7,47 @@ from django.db.models.functions import Coalesce
 from django.views.generic import DetailView
 from django.views.generic import ListView
 
+from config.settings.base import NAVER_API_CLIENT_ID
+from travel_maker.blog_data_collector.models import BlogData
 from travel_maker.google_data_collector.models import GooglePlaceInfo
-from travel_maker.public_data_collector.models import TravelInfo
+from travel_maker.public_data_collector.models import TravelInfo, Area
+from travel_maker.travel_info.forms import TravelInfoSearchForm
 
 
 class TravelInfoLV(ListView):
-    queryset = TravelInfo.objects.annotate(review_cnt=Count('googleplaceinfo__googleplacereviewinfo')) \
-        .annotate(rating=Coalesce(Avg('googleplaceinfo__googleplacereviewinfo__rating'), Value(0))) \
-        .filter(contenttype__name="관광지") \
-        .order_by('-rating', '-review_cnt', '-readcount')
     template_name = "travel_info/travelinfo_list.html"
     paginate_by = 10
 
+    def get_queryset(self):
+        queryset = TravelInfo.objects.annotate(review_cnt=Count('googleplaceinfo__googleplacereviewinfo')) \
+            .annotate(place_rating=Coalesce(Avg('googleplaceinfo__googleplacereviewinfo__rating'), Value(0))) \
+            .filter(contenttype__name="관광지") \
+            .order_by('-place_rating', '-review_cnt', '-readcount')
+
+        if self.request.GET.get('area'):
+            queryset = queryset.filter(sigungu__area=self.request.GET.get('area'))
+
+        if self.request.GET.get('name'):
+            queryset = queryset.filter(title__contains=self.request.GET.get('name'))
+
+        return queryset
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context.update(self.request.GET)
+        if self.request.GET.get('area'):
+            context['areas'] = Area.objects.filter(id=self.request.GET.get('area'))
+        else:
+            context['areas'] = Area.objects.all()
+        context['center_mapx'] = mean([area.info.mapx for area in context['areas']])
+        context['center_mapy'] = mean([area.info.mapy for area in context['areas']])
+        context['naverapi_client_id'] = NAVER_API_CLIENT_ID
+        context['form'] = TravelInfoSearchForm(self.request.GET) \
+            if self.request.GET.get('area') else TravelInfoSearchForm()
+
         for info in context['travelinfo_list']:
-            info.google_reviews_cnt = info.googleplaceinfo.googleplacereviewinfo_set.count()
+            info.google_reviews_cnt = info.googleplaceinfo.googleplacereviewinfo_set.count() \
+                if GooglePlaceInfo.objects.filter(travel_info=info).exists() else 0
 
         return context
 
@@ -33,9 +58,11 @@ class TravelInfoDV(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        context['naverapi_client_id'] = NAVER_API_CLIENT_ID
+
         if GooglePlaceInfo.objects.filter(travel_info=context['travelinfo']).exists() \
                 and context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all():
             context['google_reviews'] = context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all()
-            context['rating'] = mean([review.rating for review in context['google_reviews']])
 
         return context

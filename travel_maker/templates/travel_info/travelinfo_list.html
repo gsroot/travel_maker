@@ -1,105 +1,137 @@
 {% extends "base.html" %}
 
-{% load static i18n %}
+{% load static i18n crispy_forms_tags bootstrap_pagination %}
 
 {% block title %}Travel Maker - 여행지 정보{% endblock %}
 
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/custom.css' %}" rel="stylesheet">
+{% endblock %}
+
 {% block header %}
+    <div id="item-header">
+        <div id="map" style="width:100%;height:300px;"></div>
+    </div>
 {% endblock header %}
 
 {% block content %}
-<div class="container">
-    <div class="list-group">
-    {% for info in travelinfo_list %}
+    <div class="container">
         <div class="spacer-lg"></div>
-        <div class="row">
-            <div class="col-md-3">
-                <div class="travel-info-index">
-                    <p>
-                        {% widthratio page_obj.number|add:"-1" 1 10 as start_counter %}
-                        {{ forloop.counter|slugify|add:start_counter }}
-                    </p>
-                </div>
-                <div class="spacer-xs"></div>
-                <div>
-                    <a href="{% url 'travel_info:detail' info.id %}">
-                        <img src="{{ info.image }}" alt="">
-                    </a>
-                </div>
-            </div>
-            <div class="col-md-4 stat-area">
-                <div class="spacer-sm"></div>
-                <div class="row">
-                    <a class="travel-info-title" href="{% url 'travel_info:detail' info.id %}">
-                        {{ info.title }}
-                    </a>
-                </div>
+        <div>
+            {% crispy form %}
+        </div>
+        <div class="list-group">
+            {% for info in travelinfo_list %}
                 <div class="spacer-lg"></div>
                 <div class="row">
                     <div class="col-md-3">
-                        <div class="item-stat-count">97</div>
-                        <div class="item-stat-title">점수</div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="item-stat-count">
-                            {{ info.google_reviews_cnt }}
+                        <div class="travel-info-index">
+                            <p>
+                                {% widthratio page_obj.number|add:"-1" 1 10 as start_counter %}
+                                {{ forloop.counter|slugify|add:start_counter }}
+                            </p>
                         </div>
-                        <div class="item-stat-title">평가</div>
-                    </div>
-                    <div class="col-md-3">
-                        <div class="item-stat-count">55</div>
-                        <div class="item-stat-title">블로그</div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="spacer-sm"></div>
-                <div class="row">
-                    <div class="col-md-1">
-                        <i class="fa fa-tags fa-lg" aria-hidden="true"></i>
-                    </div>
-                    <div class="col-md-11">
-                        <p>혼술, 혼밥, 예약필수, 콜키지, 가성비좋은, 낮술, 런치코스</p>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-1">
-                        <i class="fa fa-map-marker fa-lg" aria-hidden="true"></i>
-                    </div>
-                    <div class="col-md-11">
-                        <p>{{ info.addr1 }}</p>
-                    </div>
-                </div>
-                <div class="spacer-sm"></div>
-                <div class="row">
-                    <a href="#">
-                        <div class="col-md-1">
-                            <i class="fa fa-thumbs-o-up fa-lg" aria-hidden="true"></i>
+                        <div class="spacer-xs"></div>
+                        <div>
+                            <a href="{% url 'travel_info:detail' info.id %}">
+                                <img src="{{ info.image }}" alt="">
+                            </a>
                         </div>
-                        <div class="col-md-11">
-                            <p>관심 여행지에 추가</p>
+                    </div>
+                    <div class="col-md-4 stat-area">
+                        <div class="spacer-sm"></div>
+                        <div class="row">
+                            <a class="travel-info-title" href="{% url 'travel_info:detail' info.id %}">
+                                {{ info.title }}
+                            </a>
                         </div>
-                    </a>
+                        <div class="spacer-lg"></div>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="item-stat-count">97</div>
+                                <div class="item-stat-title">점수</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="item-stat-count">
+                                    {{ info.google_reviews_cnt }}
+                                </div>
+                                <div class="item-stat-title">평가</div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="item-stat-count">
+                                    {% if info.blogs %}
+                                        {{ info.blogs.count }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </div>
+                                <div class="item-stat-title">블로그</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="spacer-sm"></div>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <i class="fa fa-tags fa-lg" aria-hidden="true"></i>
+                            </div>
+                            <div class="col-md-11">
+                                <p>
+                                    {% for tag in info.primary_six_tags %}
+                                        {{ tag.0 }}{% if forloop.counter < 6 %},{% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <i class="fa fa-map-marker fa-lg" aria-hidden="true"></i>
+                            </div>
+                            <div class="col-md-11">
+                                <p>{{ info.addr1 }}</p>
+                            </div>
+                        </div>
+                        <div class="spacer-sm"></div>
+                        <div class="row">
+                            <a href="#">
+                                <div class="col-md-1">
+                                    <i class="fa fa-thumbs-o-up fa-lg" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-md-11">
+                                    <p>관심 여행지에 추가</p>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
                 </div>
-            </div>
+            {% endfor %}
         </div>
-    {% endfor %}
+
+        <div class="spacer-md"></div>
+        <div class="text-center">
+            {% bootstrap_paginate page_obj range=15 previous_label='<' next_label='>' show_first_last='true' first_label='<<' last_label='>>' %}
+        </div>
     </div>
-
-    <div class="pagination">
-    <span class="step-links">
-        {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}">previous</a>
-        {% endif %}
-
-        <span class="current">
-            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
-        </span>
-
-        {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}">next</a>
-        {% endif %}
-    </span>
-    </div>
-</div>
 {% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script type="text/javascript"
+            src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId={{ naverapi_client_id }}"></script>
+    <script>
+        var mapOptions = {
+            center: new naver.maps.LatLng({{ center_mapy }}, {{ center_mapx }}),
+            zoom: 3
+        };
+
+        var map = new naver.maps.Map('map', mapOptions);
+
+        {% for area in areas %}
+            var marker = new naver.maps.Marker({
+                position: new naver.maps.LatLng({{ area.info.mapy }}, {{ area.info.mapx }}),
+                map: map
+            });
+        {% endfor %}
+    </script>
+{% endblock %}

@@ -349,9 +349,11 @@ class TravelOverviewInfoWebCollector(WebCollector):
         progress = self.progress
 
         travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
+            else TravelInfo.objects.filter(id__gte=progress.travel_info.id).order_by('id')
 
         for travel_info in travel_infos:
+            if TravelOverviewInfo.objects.filter(travel_info=travel_info).exists():
+                continue
             progress.travel_info = travel_info
             progress.save()
 
@@ -433,9 +435,21 @@ class TravelIntroInfoWebCollector(WebCollector):
         progress = self.progress
 
         travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
+            else TravelInfo.objects.filter(id__gte=progress.travel_info.id).order_by('id')
 
         for travel_info in travel_infos:
+
+            if TourspotIntroInfo.objects.filter(travel_info=travel_info).exists() \
+                    or CulturalFacilityIntroInfo.objects.filter(travel_info=travel_info).exists() \
+                    or FestivalIntroInfo.objects.filter(travel_info=travel_info).exists() \
+                    or TourCourseIntroInfo.objects.filter(travel_info=travel_info).exists() \
+                    or LeportsIntroInfo.objects.filter(travel_info=travel_info).exists() \
+                    or LodgingIntroInfo.objects.filter(travel_info=travel_info).exists() \
+                    or ShoppingIntroInfo.objects.filter(travel_info=travel_info).exists() \
+                    or RestaurantIntroInfo.objects.filter(travel_info=travel_info).exists():
+
+                continue
+
             progress.travel_info = travel_info
             progress.save()
 
@@ -519,6 +533,13 @@ class TravelDetailInfoWebCollector(WebCollector):
             else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
 
         for travel_info in travel_infos:
+
+            if DefaultTravelDetailInfo.objects.filter(travel_info=travel_info).exists() \
+                    or TourCourseDetailInfo.objects.filter(travel_info=travel_info).exists() \
+                    or LodgingDetailInfo.objects.filter(travel_info=travel_info).exists():
+
+                continue
+
             progress.travel_info = travel_info
             progress.save()
 
@@ -591,6 +612,9 @@ class TravelImageInfoWebCollector(WebCollector):
             else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
 
         for travel_info in travel_infos:
+            if TravelImageInfo.objects.filter(travel_info=travel_info).exists():
+                continue
+
             progress.travel_info = travel_info
             progress.save()
 
