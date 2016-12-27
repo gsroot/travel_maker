@@ -26,4 +26,5 @@ urlpatterns = [
     url(r'^$', HomeView.as_view(), name='home'),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^travel-info/', include('travel_maker.travel_info.urls', namespace='travel_info')),
+    url(r'^travel-schedule/', include('travel_maker.travel_schedule.urls', namespace='travel_schedule')),
 ]

@@ -15,6 +15,9 @@ class District(models.Model):
 class Area(District):
     code = models.IntegerField(unique=True)
 
+    def __str__(self):
+        return self.name
+
     @property
     def info(self):
         title = self.name
@@ -42,6 +45,9 @@ class Area(District):
 
 class Sigungu(District):
     area = models.ForeignKey(Area, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return ' '.join([self.area.name, self.name])
 
     class Meta:
         unique_together = ('area', 'code')
@@ -103,6 +109,9 @@ class TravelInfo(models.Model):
 
     class Meta:
         ordering = ['id']
+
+    def __str__(self):
+        return self.title
 
     @property
     def rating(self):

@@ -1,0 +1,10 @@
+.schedule-items {
+    height: 200px;
+    background: url('https://wishbeen.akamaized.net/v2.5/images/wb_base_cover.jpg')
+}
+
+.delete-schedule {
+    position: absolute;
+    top: 30px;
+    right: 25px;
+}

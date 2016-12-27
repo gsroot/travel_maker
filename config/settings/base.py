@@ -59,9 +59,11 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.facebook',
     'taggit',
+    'taggit_serializer',
     'crispy_forms',
     'bootstrap_pagination',
     'schedule',
+    'rest_framework',
 
     'travel_maker.public_data_collector.apps.PublicDataCollectorConfig',
     'travel_maker.google_data_collector.apps.GoogleDataCollectorConfig',

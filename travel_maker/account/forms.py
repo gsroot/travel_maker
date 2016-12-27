@@ -37,7 +37,6 @@ class UserLoginForm(LoginForm):
                 'login',
                 'password',
                 'remember',
-
             ),
             FormActions(
                 HTML('<button class="btn btn-primary btn-block" id="id-login" type="submit">로그인</button>'),

@@ -6,9 +6,11 @@ from django.db.models import Value
 from django.db.models.functions import Coalesce
 from django.views.generic import DetailView
 from django.views.generic import ListView
+from rest_framework.renderers import TemplateHTMLRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from config.settings.base import NAVER_API_CLIENT_ID
-from travel_maker.blog_data_collector.models import BlogData
 from travel_maker.google_data_collector.models import GooglePlaceInfo
 from travel_maker.public_data_collector.models import TravelInfo, Area
 from travel_maker.travel_info.forms import TravelInfoSearchForm
@@ -66,3 +68,23 @@ class TravelInfoDV(DetailView):
             context['google_reviews'] = context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all()
 
         return context
+
+
+class TravelInfoList(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'travel_info/travelinfo_list_by_api.html'
+
+    def get_queryset(self):
+        queryset = TravelInfo.objects.all()
+        area = self.request.query_params.get('area')
+        title = self.request.query_params.get('name')
+        page = int(self.request.query_params.get('page', 1))
+        if area:
+            queryset = queryset.filter(sigungu__area=int(area))
+        if title:
+            queryset = queryset.filter(title__contains=title)
+        queryset = queryset[20 * (page - 1):20 * page]
+        return queryset
+
+    def get(self, request):
+        return Response({'travelinfo_list': self.get_queryset()})

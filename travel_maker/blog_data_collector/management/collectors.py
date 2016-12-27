@@ -5,6 +5,7 @@ from urllib.parse import urlparse, parse_qs, urlunparse
 
 import requests
 from bs4 import BeautifulSoup
+from django.db import IntegrityError
 
 from config.settings.base import NAVER_API_CLIENT_ID, NAVER_API_CLIENT_SECRET
 from travel_maker.blog_data_collector.forms import BlogDataForm
@@ -135,7 +136,7 @@ class BlogDataCollector(WebCollector):
             if form.is_valid() and not BlogData.objects.filter(travel_info=travel_info, link=blog['link']).exists():
                 try:
                     form.save()
-                except UnicodeEncodeError as e:
+                except (UnicodeEncodeError, IntegrityError) as e:
                     print(e)
 
     def request(self):

@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% load static i18n scheduletags %}
+
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/fullcalendar/dist/fullcalendar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/travelschedule_detail.css' %}">
+{% endblock %}
+
+{% block header %}
+    <header>
+        <div class="spacer-xl"></div>
+        <div class="spacer-sm"></div>
+        <div>
+            {{ travelschedule.title }}
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    {% get_or_create_calendar travelschedule as calendar %}
+    <div class="spacer-xl"></div>
+    <div class="container">
+        <div>
+            {{ travelschedule.description }}
+        </div>
+        <div>
+            여행 첫날: {{ travelschedule.start|date:'Y-m-d' }}
+        </div>
+        <div>
+            여행 마지막날: {{ travelschedule.end|date:'Y-m-d' }}
+        </div>
+        <div>
+            여행 인원: {{ travelschedule.people_count }}
+        </div>
+        <div>
+            {% for tag in travelschedule.tags.all %}
+                <div>
+                    {{ tag }}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <a href="{% url 'travel_schedule:update' travelschedule.id %}">
+                    <button class="btn btn-primary btn-block" type="submit">여행 일정 정보 수정</button>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{% url 'travel_schedule:calendar_update' travelschedule.id %}">
+                    <button class="btn btn-primary btn-block" type="submit">여행 일정표 수정</button>
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div id="external-events" class="col-md-3">
+            </div>
+            <div id="calendar" class="col-md-9"></div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {% get_or_create_calendar travelschedule as calendar %}
+    {{ block.super }}
+    <script type='text/javascript' src="{% static 'vendor/moment/moment.js' %}"></script>
+    <script type='text/javascript' src="{% static 'vendor/fullcalendar/dist/fullcalendar.js' %}"></script>
+    <script type="text/javascript" src="{% static 'vendor/fullcalendar/dist/locale/ko.js' %}"></script>
+    <script type='text/javascript'>
+        $(document).ready(function () {
+            /* initialize the calendar
+             -----------------------------------------------------------------*/
+            $('#calendar').fullCalendar({
+                header: {
+                    left: '',
+                    center: 'title',
+                    right: ''
+                },
+                views: {
+                    agendaDuration: {
+                        type: 'agenda',
+                        duration: {days: {{ travelschedule.duration_days }}},
+                    }
+                },
+                defaultDate: moment('{{ travelschedule.start|date:"c" }}'),
+                defaultView: 'agendaDuration',
+                contentHeight: 'auto',
+                lang: 'ko',
+                editable: false,
+                droppable: false, // this allows things to be dropped onto the calendar
+                events: [
+                    {% for event in travelschedule.events %}
+                        {
+                            title: '{{ event.event.title }}',
+                            start: '{{ event.event.start|date:"c" }}',
+                            end: '{{ event.event.end|date:"c" }}',
+                            allDay: false
+                        },
+                    {% endfor %}
+                ]
+            });
+        });
+    </script>
+{% endblock %}

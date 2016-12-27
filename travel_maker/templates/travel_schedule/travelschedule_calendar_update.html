@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+
+{% load static i18n crispy_forms_tags scheduletags %}
+
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/fullcalendar/dist/fullcalendar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/travelschedule_detail.css' %}">
+{% endblock %}
+
+{% block header %}
+    <header>
+        <div class="spacer-xl"></div>
+        <div class="spacer-sm"></div>
+        <div>
+            {{ travelschedule.title }}
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    {% get_or_create_calendar travelschedule as calendar %}
+    <div class="spacer-xl"></div>
+    <div class="container">
+        <div class="spacer-sm"></div>
+        <div class="row">
+            <div class="col-md-3">
+                <button id="save" class="btn btn-primary btn-block">저장하기</button>
+                <div class="spacer-sm"></div>
+                <div id="external-events">
+                    <h4>여행지</h4>
+                    <ul class="nav nav-tabs">
+                        <li role="presentation" class="nav-tab active"><a href="#">검색</a></li>
+                        <li role="presentation" class="nav-tab"><a href="#">관심 여행지</a></li>
+                    </ul>
+                    <label for="area-search">지역 검색</label>
+                    <select class="form-control area-search" id="area-search">
+                        <option value="">전체</option>
+                        {% for area in area_list %}
+                            <option value="{{ area.id }}">{{ area }}</option>
+                        {% endfor %}
+                    </select>
+                    <label for="name-search">이름 검색</label>
+                    <input type="text" class="form-control" id="name-search" placeholder="여행지 이름">
+                    <div id="travel-info-list">
+                        {% for travelinfo in travelinfo_list %}
+                            <div class="fc-event ui-draggable ui-draggable-handle">
+                                <div class="hidden travelinfo-id">{{ travelinfo.id }}</div>
+                                <div class="row">
+                                    <div class="col-md-5 travelinfo-image"><img class="travelinfo-image"
+                                                                                src="{{ travelinfo.thumbnail }}"></div>
+                                    <div class="col-md-7 travelinfo-text">
+                                        <div class="travelinfo-title">{{ travelinfo.title }}</div>
+                                        <div class="travelinfo-sigungu">{{ travelinfo.sigungu }}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                        <div id="waypoint"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="calendar" class="col-md-9"></div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script type='text/javascript' src="{% static 'vendor/moment/moment.js' %}"></script>
+    <script type='text/javascript' src="{% static 'vendor/fullcalendar/dist/fullcalendar.js' %}"></script>
+    <script type='text/javascript' src="{% static 'vendor/fullcalendar/dist/locale/ko.js' %}"></script>
+    <script type='text/javascript' src="{% static 'vendor/waypoints/lib/noframework.waypoints.js' %}"></script>
+    {% get_or_create_calendar travelschedule as calendar %}
+    <script type='text/javascript'>
+        $(document).ready(function () {
+            var csrftoken = Cookies.get('csrftoken');
+
+            function csrfSafeMethod(method) {
+                // these HTTP methods do not require CSRF protection
+                return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+            }
+
+            $.ajaxSetup({
+                beforeSend: function (xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                }
+            });
+
+            var page = 2;
+
+            var set_waypoint = function () {
+                new Waypoint({
+                    element: document.getElementById('waypoint'),
+                    handler: function (direction) {
+                        get_travelinfos();
+                        this.destroy();
+                    },
+                    context: document.getElementById('travel-info-list'),
+                    offset: '110%'
+                });
+            };
+
+            set_waypoint();
+
+            var get_travelinfos = function () {
+                console.log('a');
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'travel_info:list_api' %}",
+                    contentType: 'application/json',
+                    dataType: 'html',
+                    data: {
+                        area: $('#area-search').val(),
+                        name: $('#name-search').val(),
+                        page: page
+                    },
+                    success: function (result) {
+                        Waypoint.destroyAll();
+                        if (result.toString().length == 0){
+                            return;
+                        }
+                        $('#waypoint').before(result);
+                        page += 1;
+                        setTimeout(function () {
+                            set_waypoint();
+                        }, 2000);
+                    },
+                    error: function (req, status, error) {
+                        console.log(error);
+                    }
+                });
+            };
+
+            var search = function () {
+                Waypoint.destroyAll();
+                page = 1;
+                $('.fc-event').remove();
+                get_travelinfos();
+            }
+
+            $('#area-search').change(function () {
+                search();
+            });
+
+            $('#name-search').keypress(function (key) {
+                if (key.keyCode == 13) {
+                    search();
+                }
+            });
+
+            /* initialize the external events
+             -----------------------------------------------------------------*/
+            $('#external-events .fc-event').each(function () {
+                // store data so the calendar knows to render an event upon drop
+                $(this).data('event', {
+                    title: $.trim($(this).find('.travelinfo-title').text()), // use the element's text as the event title
+                    travel_info: $.trim($(this).find('.travelinfo-id').text()),
+                    stick: true // maintain when user navigates (see docs on the renderEvent method)
+                });
+                // make the event draggable using jQuery UI
+                $(this).draggable({
+                    zIndex: 999,
+                    revert: true,      // will cause the event to go back to its
+                    revertDuration: 0  //  original position after the drag
+                });
+            });
+
+            /* initialize the calendar
+             -----------------------------------------------------------------*/
+            $('#calendar').fullCalendar({
+                header: {
+                    left: '',
+                    center: 'title',
+                    right: ''
+                },
+                views: {
+                    agendaDuration: {
+                        type: 'agenda',
+                        duration: {days: {{ travelschedule.duration_days }}},
+                    }
+                },
+                defaultDate: moment('{{ travelschedule.start|date:"c" }}'),
+                defaultView: 'agendaDuration',
+                contentHeight: 'auto',
+                lang: 'ko',
+                editable: true,
+                droppable: true, // this allows things to be dropped onto the calendar
+                events: [
+                    {% for event in travelschedule.events %}
+                        {
+                            start: '{{ event.event.start|date:"c" }}',
+                            end: '{{ event.event.end|date:"c" }}',
+                            title: '{{ event.event.title }}',
+                            travel_info: {{ event.travel_info.id }},
+                            allDay: false
+                        },
+                    {% endfor %}
+                ],
+                eventClick: function (event, jsEvent, view) {
+                    $('#calendar').fullCalendar('removeEvents', event._id);
+                }
+            });
+
+            $('#save').click(function () {
+                var travel_info_events = [];
+                $.each(
+                    $('#calendar').fullCalendar('clientEvents'),
+                    function (i, val) {
+                        var event = val;
+                        travel_info_events.push({
+                            'event': {
+                                'start': event.start ? event.start.format('YYYY-MM-DD[T]hh:mm:ss') : '',
+                                'end': event.end ? event.end.format('YYYY-MM-DD[T]hh:mm:ss') :
+                                    moment(event.start).add(2, 'hours').format('YYYY-MM-DD[T]hh:mm:ss'),
+                                'title': event.title,
+                                'calendar': {{ calendar.id }}
+                            },
+                            'travel_schedule': {{ travelschedule.id }},
+                            'travel_info': event.travel_info
+                        });
+                    }
+                );
+                var data = {
+                    'calendar': {{ calendar.id }},
+                    'travelinfoevent_set': travel_info_events
+                };
+                $.ajax({
+                    type: 'PUT',
+                    url: "{% url 'travel_schedule:calendar_update_api' travelschedule.id %}",
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    success: function (result) {
+                        alert('저장 되었습니다');
+                    },
+                    error: function (req, status, error) {
+                        alert('여행 일정 저장에 실패 했습니다. 관리자에게 문의 하세요.');
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

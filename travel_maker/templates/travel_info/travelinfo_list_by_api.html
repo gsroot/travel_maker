@@ -1,0 +1,13 @@
+{% for travelinfo in travelinfo_list %}
+    <div class="fc-event ui-draggable ui-draggable-handle">
+        <div class="hidden travelinfo-id">{{ travelinfo.id }}</div>
+        <div class="row">
+            <div class="col-md-5 travelinfo-image"><img class="travelinfo-image"
+                                                        src="{{ travelinfo.thumbnail }}"></div>
+            <div class="col-md-7 travelinfo-text">
+                <div class="travelinfo-title">{{ travelinfo.title }}</div>
+                <div class="travelinfo-sigungu">{{ travelinfo.sigungu }}</div>
+            </div>
+        </div>
+    </div>
+{% endfor %}

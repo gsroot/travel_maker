@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% load static i18n crispy_forms_tags scheduletags %}
+
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/travelschedule_detail.css' %}">
+{% endblock %}
+
+{% block header %}
+    <header>
+        <div class="spacer-xl"></div>
+        <div class="spacer-sm"></div>
+        <div>
+            {{ travelschedule.title }}
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div class="spacer-xl"></div>
+    <div class="container">
+        <form action="" method="post">
+            {% crispy form %}
+            <button class="btn btn-primary btn-block" id="id-submit" type="submit">여행 일정 수정</button>
+        </form>
+    </div>
+
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script type='text/javascript'>
+        $(document).ready(function () {
+            $.datepicker.setDefaults({
+                dateFormat: 'yy-mm-dd',
+                prevText: '이전 달',
+                nextText: '다음 달',
+                monthNames: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                monthNamesShort: ['1월', '2월', '3월', '4월', '5월', '6월', '7월', '8월', '9월', '10월', '11월', '12월'],
+                dayNames: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesShort: ['일', '월', '화', '수', '목', '금', '토'],
+                dayNamesMin: ['일', '월', '화', '수', '목', '금', '토'],
+                showMonthAfterYear: true,
+                yearSuffix: '년'
+            });
+
+            $(function () {
+                $(".dateinput").datepicker();
+            });
+        });
+    </script>
+{% endblock %}
