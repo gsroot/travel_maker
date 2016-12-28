@@ -1,6 +1,7 @@
 import json
 import re
 from datetime import datetime
+from json import JSONDecodeError
 from urllib.parse import urlparse, parse_qs, urlunparse
 
 import requests
@@ -134,10 +135,7 @@ class BlogDataCollector(WebCollector):
             blog['tags'] = ' '.join(tags) if all(type(tag) == str for tag in tags) else ''
             form = BlogDataForm(blog)
             if form.is_valid() and not BlogData.objects.filter(travel_info=travel_info, link=blog['link']).exists():
-                try:
-                    form.save()
-                except (UnicodeEncodeError, IntegrityError) as e:
-                    print(e)
+                form.save()
 
     def request(self):
         progress = self.progress
@@ -159,14 +157,16 @@ class BlogDataCollector(WebCollector):
                 "X-Naver-Client-Id": self.client_id, "X-Naver-Client-Secret": self.client_secret
             }, params=self.query_params)
 
-            res_dict = self.response_to_dict(response)
-            blogs = res_dict['items']
-
-            self.parse_blogs(blogs, travel_info)
-
-            progress.item_complete_count += 1
-            progress.percent = int(progress.item_complete_count * 100 / self.progress.TOTAL_ITEM_CNT)
-            progress.save()
+            try:
+                res_dict = self.response_to_dict(response)
+                blogs = res_dict['items']
+                self.parse_blogs(blogs, travel_info)
+            except (JSONDecodeError, UnicodeEncodeError, IntegrityError) as e:
+                print(e)
+            finally:
+                progress.item_complete_count += 1
+                progress.percent = int(progress.item_complete_count * 100 / self.progress.TOTAL_ITEM_CNT)
+                progress.save()
 
     def run(self):
         super().run()

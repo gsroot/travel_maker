@@ -63,6 +63,9 @@ class SmallArea(District):
 class ContentType(models.Model):
     name = models.CharField(max_length=20)
 
+    def __str__(self):
+        return self.name
+
 
 class Category(models.Model):
     code = models.CharField(unique=True, max_length=20)

@@ -21,13 +21,13 @@ class TravelInfoLV(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = TravelInfo.objects.annotate(review_cnt=Count('googleplaceinfo__googleplacereviewinfo')) \
-            .annotate(place_rating=Coalesce(Avg('googleplaceinfo__googleplacereviewinfo__rating'), Value(0))) \
-            .filter(contenttype__name="관광지") \
-            .order_by('-place_rating', '-review_cnt', '-readcount')
+        queryset = TravelInfo.objects.all()
 
         if self.request.GET.get('area'):
             queryset = queryset.filter(sigungu__area=self.request.GET.get('area'))
+
+        if self.request.GET.get('contenttype'):
+            queryset = queryset.filter(contenttype=self.request.GET.get('contenttype'))
 
         if self.request.GET.get('name'):
             queryset = queryset.filter(title__contains=self.request.GET.get('name'))

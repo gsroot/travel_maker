@@ -14,7 +14,7 @@ header {
     border: 1px solid #ccc;
     background: #eee;
     text-align: left;
-    width: 260px;
+    width: 280px;
 }
 
 #travel-info-list {
@@ -31,6 +31,7 @@ header {
 
 #external-events .fc-event {
     margin: 10px 0;
+    margin-right: 10px;
     cursor: pointer;
 }
 
@@ -46,8 +47,8 @@ header {
 }
 
 .travelinfo-image {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
 }
 
 .travelinfo-text {
