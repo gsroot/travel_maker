@@ -26,8 +26,8 @@ class TravelInfoLV(ListView):
         if self.request.GET.get('area'):
             queryset = queryset.filter(sigungu__area=self.request.GET.get('area'))
 
-        if self.request.GET.get('contenttype'):
-            queryset = queryset.filter(contenttype=self.request.GET.get('contenttype'))
+        if self.request.GET.getlist('contenttype'):
+            queryset = queryset.filter(contenttype__in=self.request.GET.getlist('contenttype'))
 
         if self.request.GET.get('name'):
             queryset = queryset.filter(title__contains=self.request.GET.get('name'))
@@ -38,14 +38,14 @@ class TravelInfoLV(ListView):
         context = super().get_context_data(**kwargs)
         context.update(self.request.GET)
         if self.request.GET.get('area'):
-            context['areas'] = Area.objects.filter(id=self.request.GET.get('area'))
+            context['map_areas'] = Area.objects.filter(id=self.request.GET.get('area'))
         else:
-            context['areas'] = Area.objects.all()
-        context['center_mapx'] = mean([area.info.mapx for area in context['areas']])
-        context['center_mapy'] = mean([area.info.mapy for area in context['areas']])
+            context['map_areas'] = Area.objects.all()
+        context['center_mapx'] = mean([area.info.mapx for area in context['map_areas']])
+        context['center_mapy'] = mean([area.info.mapy for area in context['map_areas']])
         context['naverapi_client_id'] = NAVER_API_CLIENT_ID
         context['form'] = TravelInfoSearchForm(self.request.GET) \
-            if self.request.GET.get('area') else TravelInfoSearchForm()
+            if any([v != '' for v in self.request.GET.values()]) else TravelInfoSearchForm()
 
         for info in context['travelinfo_list']:
             info.google_reviews_cnt = info.googleplaceinfo.googleplacereviewinfo_set.count() \

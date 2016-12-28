@@ -1,22 +1,18 @@
-from crispy_forms.bootstrap import FormActions
+from crispy_forms.bootstrap import FormActions, InlineCheckboxes
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Div, HTML
-from django.forms import RadioSelect, ModelChoiceField, CharField, Form
+from django.forms import RadioSelect, ModelChoiceField, CharField, Form, CheckboxSelectMultiple, \
+    ModelMultipleChoiceField
 
 from travel_maker.public_data_collector.models import Area, ContentType
 
 
-class TmChoiceField(ModelChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
-
-
 class TravelInfoSearchForm(Form):
-    area = TmChoiceField(
+    area = ModelChoiceField(
         queryset=Area.objects.all(), required=False, widget=RadioSelect(), label='지역', empty_label='전체',
     )
-    contenttype = TmChoiceField(
-        queryset=ContentType.objects.all(), required=False, widget=RadioSelect(), label='여행지 타입', empty_label='전체'
+    contenttype = ModelMultipleChoiceField(
+        queryset=ContentType.objects.all(), required=False, widget=CheckboxSelectMultiple(), label='여행지 타입'
     )
     name = CharField(max_length=200, required=False, label='여행지 이름')
 
@@ -28,7 +24,7 @@ class TravelInfoSearchForm(Form):
             Fieldset(
                 '',
                 Field('area', template='crispy_forms/custom_choice_field.html'),
-                Field('contenttype', template='crispy_forms/custom_choice_field.html'),
+                InlineCheckboxes('contenttype'),
                 Div(
                     Div(css_class='col-md-3'),
                     Div('name', css_class='col-md-6'),
@@ -41,6 +37,5 @@ class TravelInfoSearchForm(Form):
                     css_class='text-center'
                 ),
                 css_class='row'
-
             )
         )

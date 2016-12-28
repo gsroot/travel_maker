@@ -129,7 +129,7 @@
 
         var map = new naver.maps.Map('map', mapOptions);
 
-        {% for area in areas %}
+        {% for area in map_areas %}
             var marker = new naver.maps.Marker({
                 position: new naver.maps.LatLng({{ area.info.mapy }}, {{ area.info.mapx }}),
                 map: map
