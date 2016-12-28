@@ -1,3 +1,4 @@
+{% autoescape off %}
 {% for travelinfo in travelinfo_list %}
     <div class="fc-event ui-draggable ui-draggable-handle">
         <div class="hidden travelinfo-id">{{ travelinfo.id }}</div>
@@ -14,3 +15,4 @@
         </div>
     </div>
 {% endfor %}
+{% endautoescape %}

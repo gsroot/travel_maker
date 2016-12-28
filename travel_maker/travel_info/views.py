@@ -11,6 +11,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from config.settings.base import NAVER_API_CLIENT_ID
+from travel_maker.blog_data_collector.models import BlogData
 from travel_maker.google_data_collector.models import GooglePlaceInfo
 from travel_maker.public_data_collector.models import TravelInfo, Area
 from travel_maker.travel_info.forms import TravelInfoSearchForm
@@ -92,3 +93,17 @@ class TravelInfoList(APIView):
 
     def get(self, request):
         return Response({'travelinfo_list': self.get_queryset()})
+
+
+class BlogList(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'travel_info/blog_list_by_api.html'
+
+    def get_queryset(self):
+        queryset = BlogData.objects.filter(travel_info=self.kwargs['pk'])
+        page = int(self.request.query_params.get('page', 1))
+        queryset = queryset[10 * (page - 1):10 * page]
+        return queryset
+
+    def get(self, request, pk):
+        return Response({'blog_list': self.get_queryset()})
