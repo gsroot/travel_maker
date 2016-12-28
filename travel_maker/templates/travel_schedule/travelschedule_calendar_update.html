@@ -191,7 +191,10 @@
                 $(this).draggable({
                     zIndex: 999,
                     revert: true,      // will cause the event to go back to its
-                    revertDuration: 0  //  original position after the drag
+                    revertDuration: 0,  //  original position after the drag
+                    scroll: false,
+                    helper: 'clone',
+                    appendTo: 'body'
                 });
             });
 
@@ -218,6 +221,8 @@
                 events: [
                     {% for event in travelschedule.events %}
                         {
+                            id: '{{ event.id }}',
+                            event_id: '{{ event.event.id }}',
                             start: '{{ event.event.start|date:"c" }}',
                             end: '{{ event.event.end|date:"c" }}',
                             title: '{{ event.event.title }}',
@@ -232,27 +237,37 @@
             });
 
             $('#save').click(function () {
-                var travel_info_events = [];
+                var travelinfoevent_set = [];
                 $.each(
                     $('#calendar').fullCalendar('clientEvents'),
                     function (i, val) {
-                        var event = val;
-                        travel_info_events.push({
-                            'event': {
-                                'start': event.start ? event.start.format('YYYY-MM-DD[T]hh:mm:ss') : '',
-                                'end': event.end ? event.end.format('YYYY-MM-DD[T]hh:mm:ss') :
-                                    moment(event.start).add(2, 'hours').format('YYYY-MM-DD[T]hh:mm:ss'),
-                                'title': event.title,
-                                'calendar': {{ calendar.id }}
-                            },
+                        var client_event = val;
+
+                        var event = {
+                            'start': client_event.start ? client_event.start.format('') : '',
+                            'end': client_event.end ? client_event.end.format('') :
+                                moment(client_event.start).add(2, 'hours').format(''),
+                            'title': client_event.title,
+                            'calendar': {{ calendar.id }}
+                        };
+                        if (client_event.event_id) {
+                            event['id'] = client_event.event_id;
+                        }
+
+                        var travelinfo_event = {
+                            'event': event,
                             'travel_schedule': {{ travelschedule.id }},
-                            'travel_info': event.travel_info
-                        });
+                            'travel_info': client_event.travel_info
+                        };
+                        if (client_event.id) {
+                            travelinfo_event['id'] = client_event.id;
+                        }
+                        travelinfoevent_set.push(travelinfo_event);
                     }
                 );
                 var data = {
                     'calendar': {{ calendar.id }},
-                    'travelinfoevent_set': travel_info_events
+                    'travelinfoevent_set': travelinfoevent_set
                 };
                 $.ajax({
                     type: 'PUT',
@@ -262,9 +277,11 @@
                     data: JSON.stringify(data),
                     success: function (result) {
                         alert('저장 되었습니다');
+                        location.reload();
                     },
                     error: function (req, status, error) {
                         alert('여행 일정 저장에 실패 했습니다. 관리자에게 문의 하세요.');
+                        location.reload();
                     }
                 });
             });

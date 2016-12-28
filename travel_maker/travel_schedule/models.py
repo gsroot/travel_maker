@@ -45,4 +45,4 @@ class TravelEvent(models.Model):
 
 
 class TravelInfoEvent(TravelEvent):
-    travel_info = OneToOneField(TravelInfo, on_delete=models.PROTECT)
+    travel_info = ForeignKey(TravelInfo, on_delete=models.PROTECT)
