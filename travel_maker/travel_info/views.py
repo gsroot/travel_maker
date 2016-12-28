@@ -75,14 +75,18 @@ class TravelInfoList(APIView):
     template_name = 'travel_info/travelinfo_list_by_api.html'
 
     def get_queryset(self):
-        queryset = TravelInfo.objects.all()
+        queryset = TravelInfo.objects.filter(contenttype__name__in=['관광지', '숙박', '쇼핑', '음식점'])
         area = self.request.query_params.get('area')
         title = self.request.query_params.get('name')
+        contenttype_list = self.request.query_params.getlist('contenttype_list[]')
         page = int(self.request.query_params.get('page', 1))
         if area:
             queryset = queryset.filter(sigungu__area=int(area))
         if title:
             queryset = queryset.filter(title__contains=title)
+        if contenttype_list:
+            queryset = queryset.filter(contenttype__in=contenttype_list)
+
         queryset = queryset[20 * (page - 1):20 * page]
         return queryset
 

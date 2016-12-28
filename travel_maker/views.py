@@ -5,7 +5,6 @@ from travel_maker.public_data_collector.models import TravelInfo
 
 
 class HomeView(FormView):
-    template_name = 'pages/home.html'
     form_class = UserLoginForm
 
     def get_context_data(self, **kwargs):
@@ -15,3 +14,9 @@ class HomeView(FormView):
         ).exclude(image='')[:6]
 
         return context
+
+    def get_template_names(self):
+        if self.request.user.is_authenticated():
+            return 'pages/home.html'
+        else:
+            return 'pages/anonymous_home.html'

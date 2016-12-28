@@ -11,7 +11,7 @@ from django.views.generic import ListView
 from django.views.generic import UpdateView
 from rest_framework.generics import UpdateAPIView
 
-from travel_maker.public_data_collector.models import TravelInfo, Area
+from travel_maker.public_data_collector.models import TravelInfo, Area, ContentType
 from travel_maker.travel_schedule.forms import TravelScheduleForm
 from travel_maker.travel_schedule.models import TravelSchedule
 from travel_maker.travel_schedule.serializers import TravelScheduleSerializer
@@ -69,7 +69,8 @@ class TravelCalendarUpdateView(LoginRequiredMixin, DetailView):
         context['travelschedule'].duration_days = \
             (context['travelschedule'].end - context['travelschedule'].start).days + 1
         context['area_list'] = Area.objects.all()
-        context['travelinfo_list'] = TravelInfo.objects.all()[:20]
+        context['contenttype_list'] = ContentType.objects.filter(name__in=['관광지', '숙박', '쇼핑', '음식점'])
+        context['travelinfo_list'] = TravelInfo.objects.filter(contenttype__in=context['contenttype_list'])[:20]
 
         return context
 

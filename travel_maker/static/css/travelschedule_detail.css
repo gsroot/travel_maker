@@ -53,6 +53,7 @@ header {
 
 .travelinfo-text {
     margin-left: 10px;
+    padding-right: 0px;
 }
 
 .travelinfo-title {
@@ -64,6 +65,10 @@ header {
     font-size: 11px;
 }
 
+.travelinfo-contenttype {
+    font-size: 11px;
+}
+
 .nav-tab {
     width: 50%;
 }
@@ -72,7 +77,6 @@ header {
     background-color: #eee !important;
 }
 
-.area-search {
+.search {
     margin-top: 10px;
-    margin-bottom: 10px;
 }
