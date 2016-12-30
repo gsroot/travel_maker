@@ -1,3 +1,9 @@
-from django.shortcuts import render
+from braces.views import LoginRequiredMixin
+from django.views.generic import DetailView
 
-# Create your views here.
+from travel_maker.account.models import TmUser
+
+
+class ProfileHomeView(LoginRequiredMixin, DetailView):
+    model = TmUser
+    template_name = 'account/profile.html'

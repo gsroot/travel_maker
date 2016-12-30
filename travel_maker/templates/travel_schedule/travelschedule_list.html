@@ -7,6 +7,37 @@
     <link href="{% static 'css/travelschedule_list.css' %}" rel="stylesheet">
 {% endblock %}
 
+{% block header %}
+    <header>
+        <div class="spacer-lg"></div>
+        <div class="row">
+            <div class="col-md-4"></div>
+            <div class="col-md-4">
+                <div class="user-info">
+                    <image class="img-thumbnail profile-img" src="{% static 'img/no-photo.png' %}"></image>
+                    <div>
+                        <h3>{{ user.username }}</h3>
+                    </div>
+                    <div>
+                        <a class="update-profile-indroduction" role="button" data-toggle="modal">자기소개를 입력해주세요.</a>
+                    </div>
+                    <div class="spacer-xs"></div>
+                    <div>
+                        <a class="user-page-url" href="{% url 'profile:home' %}">
+                            www.travel-maker.kr/{% url 'profile:home' %}
+                        </a>
+                    </div>
+                    <div class="spacer-xs"></div>
+                    <div class="update-profile hidden">
+                        <button class="btn btn-tm">프로필 수정</button>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </header>
+{% endblock %}
+
 {% block content %}
     <div class="spacer-xl"></div>
     <div class="container">
@@ -81,9 +112,17 @@
                 var title = button.data('title');
                 var modal = $(this);
                 var form = modal.find('.modal-footer form');
-                form.attr('action', form.attr('action').slice(0,-2) + id + '/');
+                form.attr('action', form.attr('action').slice(0, -2) + id + '/');
                 modal.find('.modal-title').text('여행 일정 "' + title + '" 삭제');
-            })
+            });
+
+            $('.user-info').hover(
+                function () {
+                    $(this).find('.update-profile').removeClass('hidden');
+                }, function () {
+                    $(this).find('.update-profile').addClass('hidden');
+                }
+            );
         })
     </script>
 {% endblock %}
