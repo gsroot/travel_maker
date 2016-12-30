@@ -71,6 +71,7 @@ INSTALLED_APPS = [
     'travel_maker.account.apps.AccountConfig',
     'travel_maker.travel_info.apps.TravelInfoConfig',
     'travel_maker.travel_schedule.apps.TravelScheduleConfig',
+    'travel_maker.data_analysis.apps.DataAnalysisConfig',
 ]
 
 MIDDLEWARE = [

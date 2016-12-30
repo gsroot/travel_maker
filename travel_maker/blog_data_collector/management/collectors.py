@@ -23,7 +23,7 @@ class WebCollector(Collector):
     base_url = 'https://openapi.naver.com/v1/search/blog'
     url = base_url
     base_query_params = {
-        'display': 100,
+        'display': 50,
     }
     client_id = NAVER_API_CLIENT_ID
     client_secret = NAVER_API_CLIENT_SECRET

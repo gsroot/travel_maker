@@ -1,26 +1,26 @@
 {% autoescape off %}
-{% for blog in blog_list %}
-    <div class="row">
-        <div class="col-md-1"></div>
-        <div class="col-md-8">
-            <div>
-                <a href="{{ blog.link }}">{{ blog.title }}</a>
+    {% for blog in blog_list %}
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-8">
+                <div>
+                    <a href="{{ blog.link }}">{{ blog.title }}</a>
+                </div>
+                <div class="spacer-xs"></div>
+                <div>
+                    {{ blog.description }}
+                </div>
             </div>
-            <div class="spacer-xs"></div>
-            <div>
-                {{ blog.description }}
+            <div class="col-md-2">
+                <div>
+                    DATE: {{ blog.postdate }}
+                </div>
+                <div>
+                    FROM: <a href="{{ blog.bloggerlink }}">{{ blog.bloggername }}</a>
+                </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div>
-                DATE: {{ blog.postdate }}
-            </div>
-            <div>
-                FROM: <a href="{{ blog.bloggerlink }}">{{ blog.bloggername }}</a>
-            </div>
-        </div>
-    </div>
-    <div class="spacer-sm divider"></div>
-    <div class="spacer-sm"></div>
-{% endfor %}
+        <div class="spacer-sm divider"></div>
+        <div class="spacer-sm"></div>
+    {% endfor %}
 {% endautoescape %}
