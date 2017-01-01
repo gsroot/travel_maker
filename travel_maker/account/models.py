@@ -23,7 +23,6 @@ class TmUserManager(BaseUserManager):
     def create_superuser(self, username, email, password, **kwargs):
         user = self.model(username=username, email=email, is_staff=True, is_superuser=True, **kwargs)
         user.set_password(password)
-        print(username, email, password)
         user.save()
         return user
 
@@ -36,9 +35,9 @@ class TmUser(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator() if six.PY3 else ASCIIUsernameValidator()
 
     username = models.CharField(
-        _('username'),
+        _('사용자 이름'),
         max_length=150,
-        unique=True,
+        default='',
         help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
         validators=[username_validator],
         error_messages={

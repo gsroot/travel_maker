@@ -34,7 +34,7 @@ body {
     text-shadow: 2px 2px 2px rgba(0, 0, 0, .6);
 }
 
-.user-info a, p {
+.user-info .update-profile-indroduction, .user-profile-url {
     line-height: 18px;
     font-size: 15px;
     color: #fff;

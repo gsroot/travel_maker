@@ -29,8 +29,8 @@
                     </div>
                     <div class="spacer-xs"></div>
                     <div>
-                        <a class="user-page-url" href="{% url 'profile:home' %}">
-                            www.travel-maker.kr/{% url 'profile:home' %}
+                        <a class="user-page-url" href="{% url 'profile:home' user.id %}">
+                            www.travel-maker.kr{% url 'profile:home' user.id %}
                         </a>
                     </div>
                     <div class="spacer-xs"></div>

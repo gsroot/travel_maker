@@ -214,3 +214,31 @@ header a {
         margin-right: auto;
     }
 }
+
+.user-thumbnail {
+    width: 30px;
+    height: 30px;
+}
+
+#mainNav {
+	padding-left: 200px;
+    padding-right: 200px;
+}
+
+.navbar-brand {
+	line-height: 30px;
+    font-size: 18px;
+}
+
+.navbar-nav > li > a {
+	line-height: 30px;
+}
+
+.navbar-right a {
+    font-size: 14px !important;
+}
+
+.delete-user a {
+    float: right;
+    color: grey;
+}

@@ -2,7 +2,11 @@ from allauth.account.forms import LoginForm, SignupForm
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, HTML
+from django.forms import ModelForm, Textarea
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
+
+from travel_maker.account.models import TmUser
 
 
 class UserSignupForm(SignupForm):
@@ -43,3 +47,16 @@ class UserLoginForm(LoginForm):
                 css_class='text-center'
             ),
         )
+
+
+class UserUpdateForm(ModelForm):
+    class Meta:
+        model = TmUser
+        fields = ['username', 'image', 'introduction']
+        widgets = {
+            'introduction': Textarea(),
+        }
+        labels = {
+            'image': _("프로필 사진"),
+            'introduction': _("자기소개"),
+        }

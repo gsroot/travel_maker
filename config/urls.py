@@ -27,7 +27,7 @@ urlpatterns = [
     url(r'^grappelli/', include('grappelli.urls')),
     url(r'^admin/', admin.site.urls),
     url(r'^$', HomeView.as_view(), name='home'),
-    url(r'^accounts/profile/', include('travel_maker.account.urls', namespace='profile')),
+    url(r'^accounts/profile/(?P<pk>\d+)/', include('travel_maker.account.urls', namespace='profile')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^travel-info/', include('travel_maker.travel_info.urls', namespace='travel_info')),
     url(r'^travel-schedule/', include('travel_maker.travel_schedule.urls', namespace='travel_schedule')),
