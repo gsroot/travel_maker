@@ -45,12 +45,13 @@
                     </div>
                     <div class="social">
                         <div class="spacer-xs"></div>
-                        <a class="btn btn-block btn-social btn-google" href="/accounts/google/login/">
+                        <a class="btn btn-block btn-social btn-google" href="{% provider_login_url "google" %}">
                             <i class="fa fa-google"></i>
                             구글 계정으로 로그인
                         </a>
                         <div class="spacer-xs"></div>
-                        <a class="btn btn-block btn-social btn-facebook" href="/accounts/facebook/login/">
+                        <a class="btn btn-block btn-social btn-facebook"
+                           href="{% provider_login_url "facebook" method="oauth2" %}">
                             <i class="fa fa-facebook"></i>
                             페이스북 계정으로 로그인
                         </a>

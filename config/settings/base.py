@@ -14,10 +14,10 @@ import environ
 
 ROOT_DIR = environ.Path(__file__) - 3  # (travel_maker/config/settings/base.py - 3 = travel_maker/)
 APPS_DIR = ROOT_DIR.path('travel_maker')
+RESOURCE_DIR = ROOT_DIR.path('resource')
 
 env = environ.Env()
 env.read_env()
-
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
@@ -37,7 +37,6 @@ NAVER_API_CLIENT_SECRET = env('NAVER_API_CLIENT_SECRET')
 DEBUG = env.bool('DJANGO_DEBUG', False)
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -109,14 +108,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
     'default': env.db('DATABASE_URL'),
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/1.10/ref/settings/#auth-password-validators
@@ -136,7 +133,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.10/topics/i18n/
 
@@ -150,12 +146,11 @@ USE_L10N = True
 
 USE_TZ = False
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.10/howto/static-files/
 
 # See: https://docs.djangoproject.com/en/dev/ref/settings/#static-root
-STATIC_ROOT = 'staticfiles'
+STATIC_ROOT = str(RESOURCE_DIR.path('staticfiles'))
 
 STATIC_URL = '/static/'
 
@@ -165,8 +160,12 @@ STATICFILES_DIRS = (
 )
 
 
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
+MEDIA_URL = '/media/'
 
+MEDIA_ROOT = str(RESOURCE_DIR.path('media'))
+
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -178,11 +177,11 @@ AUTHENTICATION_BACKENDS = (
 
 SITE_ID = 1
 
-
 AUTH_USER_MODEL = 'tm_account.TmUser'
 
 ACCOUNT_ADAPTER = 'travel_maker.account.adapter.AccountAdapter'
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
+ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_LOGOUT_ON_GET = True

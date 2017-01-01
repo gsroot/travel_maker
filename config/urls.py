@@ -14,9 +14,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from filebrowser.sites import site
 
+from config.settings.base import MEDIA_URL, MEDIA_ROOT
 from travel_maker.views import HomeView
 
 urlpatterns = [
@@ -28,4 +31,4 @@ urlpatterns = [
     url(r'^accounts/', include('allauth.urls')),
     url(r'^travel-info/', include('travel_maker.travel_info.urls', namespace='travel_info')),
     url(r'^travel-schedule/', include('travel_maker.travel_schedule.urls', namespace='travel_schedule')),
-]
+] + staticfiles_urlpatterns() + static(MEDIA_URL, document_root=MEDIA_ROOT)
