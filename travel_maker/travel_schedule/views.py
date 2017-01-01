@@ -1,7 +1,5 @@
 from braces.views import LoginRequiredMixin
-from django.db.models import Count, Avg
-from django.db.models import Value
-from django.db.models.functions import Coalesce
+from braces.views import UserPassesTestMixin
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
@@ -18,12 +16,19 @@ from travel_maker.travel_schedule.serializers import TravelScheduleSerializer
 
 
 class TravelScheduleListView(LoginRequiredMixin, ListView):
-    model = TravelSchedule
     paginate_by = 10
 
+    def get_queryset(self):
+        queryset = TravelSchedule.objects.filter(owner=self.request.user)
 
-class TravelScheduleDetailView(LoginRequiredMixin, DetailView):
+        return queryset
+
+
+class TravelScheduleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = TravelSchedule
+
+    def test_func(self, user):
+        return user == self.get_object().owner
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -46,10 +51,13 @@ class TravelScheduleCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class TravelScheduleUpdateView(LoginRequiredMixin, UpdateView):
+class TravelScheduleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = TravelSchedule
     form_class = TravelScheduleForm
     template_name_suffix = '_update'
+
+    def test_func(self, user):
+        return user == self.get_object().owner
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -60,9 +68,12 @@ class TravelScheduleUpdateView(LoginRequiredMixin, UpdateView):
         return reverse('travel_schedule:detail', kwargs=self.kwargs)
 
 
-class TravelCalendarUpdateView(LoginRequiredMixin, DetailView):
+class TravelCalendarUpdateView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = TravelSchedule
     template_name = 'travel_schedule/travelschedule_calendar_update.html'
+
+    def test_func(self, user):
+        return user == self.get_object().owner
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -75,11 +86,17 @@ class TravelCalendarUpdateView(LoginRequiredMixin, DetailView):
         return context
 
 
-class TravelScheduleDeleteView(LoginRequiredMixin, DeleteView):
+class TravelScheduleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = TravelSchedule
     success_url = reverse_lazy('travel_schedule:list')
 
+    def test_func(self, user):
+        return user == self.get_object().owner
 
-class TravelScheduleUpdate(UpdateAPIView):
+
+class TravelScheduleUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateAPIView):
     queryset = TravelSchedule.objects.all()
     serializer_class = TravelScheduleSerializer
+
+    def test_func(self, user):
+        return user == self.get_object().owner

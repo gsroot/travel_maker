@@ -14,7 +14,13 @@
             <div class="col-md-4"></div>
             <div class="col-md-4">
                 <div class="user-info">
-                    <image class="img-thumbnail profile-img" src="{{ user.thumbnail.url }}"></image>
+                    <image class="img-thumbnail profile-img"
+                           src="{% if user.thumbnail %}
+                                    {{ user.thumbnail.url }}
+                                {% else %}
+                                    {% static 'img/no-photo.png' %}
+                                {% endif %}">
+                    </image>
                     <div>
                         <h3>{{ user.username }}</h3>
                     </div>
