@@ -17,8 +17,6 @@ class HomeView(FormView):
 
     def get_template_names(self):
         if self.request.user.is_authenticated():
-            self.request.user.update_profile()
-
             return 'pages/home.html'
         else:
             return 'pages/anonymous_home.html'

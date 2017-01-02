@@ -1,3 +1,5 @@
+import os
+
 import requests
 from PIL import Image
 from django.contrib.auth.base_user import BaseUserManager, AbstractBaseUser
@@ -10,7 +12,8 @@ from django.db.models import ImageField, PositiveIntegerField
 from django.utils import six
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from io import BytesIO
+
+from config.settings.base import MEDIA_ROOT
 
 
 class TmUserManager(BaseUserManager):
@@ -27,8 +30,13 @@ class TmUserManager(BaseUserManager):
         return user
 
 
-def user_img_directory_path(instance, filename):
-    return 'img/users/{0}/{1}'.format(instance.id, filename)
+def image_path(instance, filename):
+    name, ext = os.path.splitext(filename)
+    return 'img/users/{0}/profile{1}'.format(instance.id, ext)
+
+
+def thumbnail_path(instance, filename):
+    return 'img/users/{0}/thumbnail.png'.format(instance.id)
 
 
 class TmUser(AbstractBaseUser, PermissionsMixin):
@@ -45,15 +53,15 @@ class TmUser(AbstractBaseUser, PermissionsMixin):
         },
     )
     email = models.EmailField(_('email address'), max_length=255, unique=True)
-    image_width = PositiveIntegerField(editable=False, default=120)
-    image_height = PositiveIntegerField(editable=False, default=120)
+    image_width = PositiveIntegerField(editable=False, null=True)
+    image_height = PositiveIntegerField(editable=False, null=True)
     image = ImageField(
-        upload_to=user_img_directory_path, height_field='image_height', width_field='image_width', blank=True
+        upload_to=image_path, height_field='image_height', width_field='image_width', blank=True
     )
-    thumbnail_width = PositiveIntegerField(editable=False, default=120)
-    thumbnail_height = PositiveIntegerField(editable=False, default=120)
+    thumbnail_width = PositiveIntegerField(editable=False, null=True)
+    thumbnail_height = PositiveIntegerField(editable=False, null=True)
     thumbnail = ImageField(
-        upload_to=user_img_directory_path, height_field='thumbnail_height', width_field='thumbnail_width', blank=True
+        upload_to=thumbnail_path, height_field='thumbnail_height', width_field='thumbnail_width', blank=True
     )
     introduction = models.CharField(max_length=2000, blank=True)
     is_staff = models.BooleanField(
@@ -87,6 +95,12 @@ class TmUser(AbstractBaseUser, PermissionsMixin):
         else:
             return None
 
+    @classmethod
+    def from_db(cls, db, field_names, values):
+        new_obj = super().from_db(db, field_names, values)
+        new_obj._loaded_image = values[field_names.index('image')]
+        return new_obj
+
     def get_full_name(self):
         return self.username
 
@@ -102,18 +116,36 @@ class TmUser(AbstractBaseUser, PermissionsMixin):
     def update_image_by_facebook(self):
         url = 'http://graph.facebook.com/v2.8/{}/picture?type=large'.format(self.social_account.uid)
         image_data = requests.get(url)
-        image = ContentFile(image_data.content)
+        image_file = ContentFile(image_data.content)
         if not self.image:
-            self.image.save('profile.jpg', image)
-        if not self.thumbnail:
+            self.image.save('profile.jpg', image_file, save=False)
+            self.update_thumbnail()
+            self.save()
+
+    def update_thumbnail(self):
+        if hasattr(self, '_loaded_image') and self._loaded_image:
+            os.remove(MEDIA_ROOT + '/' + self._loaded_image)
+        if self.image:
             self.image.open()
             image = Image.open(self.image)
             side_length = min([self.image_width, self.image_height])
             croped = image.crop((0, 0, side_length, side_length))
-            image_io = BytesIO()
-            croped.save(image_io, 'JPEG')
-            self.thumbnail.save('thumbnail.jpg', ContentFile(image_io.getvalue()))
 
-    def update_profile(self):
-        if self.social_account and self.social_account.provider == 'facebook' and not (self.image and self.thumbnail):
-            self.update_image_by_facebook()
+            filepath = MEDIA_ROOT + '/' + thumbnail_path(self, None)
+            croped.thumbnail((200, 200))
+            croped.save(filepath, 'PNG')
+
+            url = thumbnail_path(self, None)
+            self.thumbnail = url
+        else:
+            self.thumbnail = ''
+
+    def save(self, *args, **kwargs):
+        if not self._state.adding:
+            if self.social_account and self.social_account.provider == 'facebook' \
+                    and not hasattr(self, '_loaded_image') and not self.image:
+                self.update_image_by_facebook()
+            elif hasattr(self, '_loaded_image') and self.image != self._loaded_image:
+                self.update_thumbnail()
+
+        return super().save(*args, **kwargs)

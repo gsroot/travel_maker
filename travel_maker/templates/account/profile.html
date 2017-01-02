@@ -60,7 +60,7 @@
                                 aria-hidden="true">&times;</span></button>
                         <h4 class="modal-title" id="profile-update-modal-label">회원 정보 설정</h4>
                     </div>
-                    <form action="" method="post">
+                    <form action="" method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="modal-body">
                             {{ form|crispy }}
@@ -148,6 +148,10 @@
 
             $('#profile-update-modal').on('show.bs.modal', function (e) {
             });
+
+            {% if form.errors %}
+                $('.update-profile button').click();
+            {% endif %}
         })
     </script>
 {% endblock %}
