@@ -63,9 +63,9 @@
                                data-toggle="dropdown" role="button"
                                aria-haspopup="true" aria-expanded="false">
                                 {% if user.thumbnail %}
-                                    <img class="img-circle user-thumbnail" src="{{ user.thumbnail.url }}">
+                                    <img class="img-circle img-thumbnail user-thumbnail" src="{{ user.thumbnail.url }}">
                                 {% else %}
-                                    <img class="img-circle user-thumbnail" src="{% static 'img/no-photo.png' %}">
+                                    <img class="img-circle img-thumbnail user-thumbnail" src="{% static 'img/no-photo.png' %}">
                                 {% endif %}
                                 {{ user.email }} <span class="caret"></span>
                             </a>

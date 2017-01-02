@@ -25,7 +25,7 @@
                         <h3>{{ user.username }}</h3>
                     </div>
                     <div>
-                        <a class="update-profile-indroduction" role="button" data-toggle="modal">자기소개를 입력해주세요.</a>
+                        <a class="update-profile-introduction" role="button" data-toggle="modal">자기소개를 입력해주세요.</a>
                     </div>
                     <div class="spacer-xs"></div>
                     <div>
@@ -51,7 +51,7 @@
             {% for schedule in travelschedule_list %}
                 <div class="col-md-6">
                     <a href="{{ schedule.get_absolute_url }}">
-                        <div class="schedule-items text-center">
+                        <div class="schedule-item text-center">
                             <h1>{{ schedule.title }}</h1>
                             <button class="btn btn-danger btn-xs hidden delete-schedule" data-toggle="modal"
                                     data-target="#delete-modal" data-id="{{ schedule.id }}"
@@ -73,7 +73,6 @@
         <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
-
                     <div class="modal-header">
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                                 aria-hidden="true">&times;</span></button>
@@ -100,7 +99,7 @@
 
     <script type='text/javascript'>
         $(document).ready(function () {
-            $('.schedule-items').hover(
+            $('.schedule-item').hover(
                 function () {
                     $(this).find('.delete-schedule').removeClass('hidden');
                 }, function () {

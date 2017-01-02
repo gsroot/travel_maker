@@ -8,6 +8,7 @@ from django.views.generic import UpdateView
 
 from travel_maker.account.forms import UserUpdateForm
 from travel_maker.account.models import TmUser
+from travel_maker.travel_schedule.models import TravelSchedule
 
 
 class ProfileHomeView(LoginRequiredMixin, UpdateView):
@@ -17,6 +18,12 @@ class ProfileHomeView(LoginRequiredMixin, UpdateView):
 
     def get_success_url(self):
         return reverse('profile:home', kwargs=self.kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['travelschedule_list'] = TravelSchedule.objects.filter(owner=self.request.user)
+
+        return context
 
 
 class ProfileDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

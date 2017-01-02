@@ -25,7 +25,7 @@
                         <h3>{{ user.email }}</h3>
                     </div>
                     <div>
-                        <a class="update-profile-indroduction" role="button" data-toggle="modal"
+                        <a class="update-profile-introduction" role="button" data-toggle="modal"
                            data-target="#profile-update-modal">
                             자기소개를 입력해주세요.
                         </a>
@@ -130,6 +130,69 @@
             </div>
         </div>
 
+        <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="delete-modal-label">여행 일정 삭제</h4>
+                    </div>
+                    <div class="modal-body">
+                        여행 일정을 정말 삭제하시겠습니까?
+                    </div>
+                    <div class="modal-footer">
+                        <form action="{% url 'travel_schedule:delete' 0 %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger">삭제</button>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-10">
+                <div class="spacer-lg"></div>
+                <div class="row">
+                    {% for schedule in travelschedule_list %}
+                        <div class="col-md-6">
+                            <a href="{{ schedule.get_absolute_url }}">
+                                <div class="schedule-item">
+                                    <div class="owner-info">
+                                        <span>
+                                            <img class="img-thumbnail owner-img" src="{{ schedule.owner.thumbnail.url }}">
+                                        </span>
+                                        <span class="owner-name">{{ schedule.owner.email }}</span>
+                                        <button class="btn btn-danger btn-xs hidden delete-schedule" data-toggle="modal"
+                                                data-target="#delete-modal" data-id="{{ schedule.id }}"
+                                                data-title="{{ schedule.title }}">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <h1 class="center">{{ schedule.title }}</h1>
+                                </div>
+                            </a>
+                        </div>
+                    {% empty %}
+                        <div class="center">
+                            <img class="empty-img" src="{% static 'img/empty.png' %}">
+                            <div class="spacer-sm"></div>
+                            <div class="empty-text">아직 여행 일정이 없습니다</div>
+                        </div>
+                    {% endfor %}
+                </div>
+                <div class="spacer-sm"></div>
+                <div class="row">
+                    <div class="center">
+                        <a class="btn btn-tm" href="{% url 'travel_schedule:create' %}">여행 일정 만들기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 {% endblock %}
 
@@ -138,6 +201,18 @@
 
     <script type='text/javascript'>
         $(document).ready(function () {
+            $('.schedule-item').hover(
+                function () {
+                    $(this).find('.delete-schedule').removeClass('hidden');
+                }, function () {
+                    $(this).find('.delete-schedule').addClass('hidden');
+                }
+            );
+
+            $('.delete-schedule').click(function (e) {
+                e.preventDefault();
+            });
+
             $('.user-info').hover(
                 function () {
                     $(this).find('.update-profile').removeClass('hidden');
