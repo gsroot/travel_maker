@@ -2,6 +2,10 @@
     font-family: '나눔고딕', 'Nanum Gothic';
 }
 
+.center {
+    text-align: center;
+}
+
 .spacer-xs {
     padding-bottom: 10px;
 }

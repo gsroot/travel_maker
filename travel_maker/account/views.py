@@ -22,6 +22,8 @@ class ProfileHomeView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['travelschedule_list'] = TravelSchedule.objects.filter(owner=self.request.user)
+        for schedule in context['travelschedule_list']:
+            schedule.duration_days = (schedule.end - schedule.start).days + 1
 
         return context
 

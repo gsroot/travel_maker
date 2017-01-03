@@ -159,8 +159,9 @@ class BlogDataCollector(WebCollector):
 
             try:
                 res_dict = self.response_to_dict(response)
-                blogs = res_dict['items']
-                self.parse_blogs(blogs, travel_info)
+                if res_dict['total'] > 0:
+                    blogs = res_dict['items']
+                    self.parse_blogs(blogs, travel_info)
             except (JSONDecodeError, UnicodeEncodeError, IntegrityError) as e:
                 print(e)
             finally:
