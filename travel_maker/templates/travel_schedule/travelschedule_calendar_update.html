@@ -11,8 +11,8 @@
 {% block header %}
     <header>
         <div class="spacer-xl"></div>
-        <div class="spacer-sm"></div>
-        <div>
+        <div class="spacer-md"></div>
+        <div class="header-title">
             {{ travelschedule.title }}
         </div>
     </header>
@@ -20,63 +20,69 @@
 
 {% block content %}
     {% get_or_create_calendar travelschedule as calendar %}
-    <div class="spacer-xl"></div>
+    <div class="spacer-md"></div>
     <div class="container">
-        <div class="spacer-sm"></div>
         <div class="row">
-            <div class="col-md-3">
-                <button id="save" class="btn btn-primary btn-block">저장하기</button>
-                <div class="spacer-sm"></div>
-                <div id="external-events">
-                    <h4>여행지</h4>
+            <div class="col-md-4">
+                <button id="save" class="btn btn-block btn-tm">저장하기</button>
+                <div class="spacer-xs"></div>
+                <a href="{% url 'travel_schedule:detail' travelschedule.id %}">
+                    <button class="btn btn-block btn-default">취소</button>
+                </a>
+                <div class="spacer-xs"></div>
+                <div class="scedule-item-pannel">
                     <ul class="nav nav-tabs">
                         <li role="presentation" class="nav-tab active"><a href="#">검색</a></li>
                         <li role="presentation" class="nav-tab"><a href="#">관심 여행지</a></li>
                     </ul>
-                    <div class="search">
-                        <label for="area-search">지역</label>
-                        <select class="form-control area-search" id="area-search">
-                            <option value="">전체</option>
-                            {% for area in area_list %}
-                                <option value="{{ area.id }}">{{ area }}</option>
-                            {% endfor %}
-                        </select>
-                        <div class="spacer-xs"></div>
-                        <label for="name-search">이름</label>
-                        <input type="text" class="form-control" id="name-search" placeholder="여행지 이름">
-                        <div class="spacer-xs"></div>
-                        <label for="contenttype-search">여행지타입</label>
-                        <div id="contenttype-search">
-                            {% for contenttype in contenttype_list %}
-                                <label class="checkbox-inline">
-                                    <input type="checkbox" name="contenttype" value="{{ contenttype.id }}">
-                                    {{ contenttype }}
-                                </label>
-                            {% endfor %}
+                    <div id="external-events" class="box">
+                        <div class="search">
+                            <label for="area-search">지역</label>
+                            <select class="form-control area-search" id="area-search">
+                                <option value="">전체</option>
+                                {% for area in area_list %}
+                                    <option value="{{ area.id }}">{{ area }}</option>
+                                {% endfor %}
+                            </select>
+                            <div class="spacer-xs"></div>
+                            <label for="name-search">이름</label>
+                            <input type="text" class="form-control" id="name-search" placeholder="여행지 이름">
+                            <div class="spacer-xs"></div>
+                            <label for="contenttype-search">여행지타입</label>
+                            <div id="contenttype-search">
+                                {% for contenttype in contenttype_list %}
+                                    <label class="checkbox-inline">
+                                        <input type="checkbox" name="contenttype" value="{{ contenttype.id }}">
+                                        {{ contenttype }}
+                                    </label>
+                                {% endfor %}
+                            </div>
                         </div>
-                    </div>
-                    <div id="travel-info-list">
-                        {% for travelinfo in travelinfo_list %}
-                            <div class="fc-event ui-draggable ui-draggable-handle">
-                                <div class="hidden travelinfo-id">{{ travelinfo.id }}</div>
-                                <div class="row">
-                                    <div class="col-md-5 travelinfo-image">
-                                        <img class="travelinfo-image" src="{{ travelinfo.thumbnail }}"></div>
-                                    <div class="col-md-7 travelinfo-text">
-                                        <div class="travelinfo-title">{{ travelinfo.title }}</div>
-                                        <div class="travelinfo-sigungu">{{ travelinfo.sigungu }}</div>
-                                        <div class="spacer-xs"></div>
-                                        <div class="spacer-xs"></div>
-                                        <div class="travelinfo-contenttype">{{ travelinfo.contenttype }}</div>
+                        <div id="travel-info-list">
+                            {% for travelinfo in travelinfo_list %}
+                                <div class="fc-event ui-draggable ui-draggable-handle">
+                                    <div class="hidden travelinfo-id">{{ travelinfo.id }}</div>
+                                    <div class="row">
+                                        <div class="col-md-5 travelinfo-image">
+                                            <img class="travelinfo-image" src="{{ travelinfo.thumbnail }}"></div>
+                                        <div class="col-md-7 travelinfo-text">
+                                            <div class="travelinfo-title">{{ travelinfo.title }}</div>
+                                            <div class="travelinfo-sigungu">{{ travelinfo.sigungu }}</div>
+                                            <div class="spacer-xs"></div>
+                                            <div class="spacer-xs"></div>
+                                            <div class="travelinfo-contenttype">{{ travelinfo.contenttype }}</div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% endfor %}
-                        <div id="waypoint"></div>
+                            {% endfor %}
+                            <div id="waypoint"></div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div id="calendar" class="col-md-9"></div>
+            <div class="col-md-8">
+                <div id="calendar" class="box"></div>
+            </div>
         </div>
     </div>
 
@@ -203,7 +209,7 @@
             $('#calendar').fullCalendar({
                 header: {
                     left: '',
-                    center: 'title',
+                    center: '',
                     right: ''
                 },
                 views: {
@@ -218,7 +224,7 @@
                 lang: 'ko',
                 editable: true,
                 droppable: true,
-                allDaySlot:false,
+                allDaySlot: false,
                 events: [
                     {% for event in travelschedule.events %}
                         {

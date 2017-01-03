@@ -2,8 +2,22 @@
     font-family: '나눔고딕', 'Nanum Gothic';
 }
 
+body {
+    background-color: #eee;
+}
+
 .center {
     text-align: center;
+}
+
+.bold {
+    font-weight: 600;
+}
+
+.box {
+    background: #fff;
+    padding: 20px 20px 20px 20px;
+    -webkit-box-shadow: 1px 1px 1px 1px rgba(125, 125, 125, .6);
 }
 
 .spacer-xs {
@@ -27,31 +41,36 @@
 }
 
 .btn-tm {
-	color: #fff;
-	background-color: #4292c6 !important;
-	border-color: #2171b5;
+    color: #fff;
+    background-color: #4292c6 !important;
+    border-color: #2171b5;
 }
 
 .btn-tm {
-	background-image: -webkit-linear-gradient(top,#4292c6 0,#2171b5 100%);
-	background-image: -o-linear-gradient(top,#4292c6 0,#2171b5 100%);
-	background-image: -webkit-gradient(linear,left top,left bottom,from(#4292c6),to(#2171b5));
-	background-image: linear-gradient(to bottom,#4292c6 0,#2171b5 100%);
-	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff337ab7', endColorstr='#ff265a88', GradientType=0);
-	filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-	background-repeat: repeat-x;
-	border-color: #2171b5;
+    background-image: -webkit-linear-gradient(top, #4292c6 0, #2171b5 100%);
+    background-image: -o-linear-gradient(top, #4292c6 0, #2171b5 100%);
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#4292c6), to(#2171b5));
+    background-image: linear-gradient(to bottom, #4292c6 0, #2171b5 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff337ab7', endColorstr='#ff265a88', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background-repeat: repeat-x;
+    border-color: #2171b5;
 }
 
 .btn-tm {
-	text-shadow: 0 -1px 0 rgba(0,0,0,.2);
-	-webkit-box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075);
-	box-shadow: inset 0 1px 0 rgba(255,255,255,.15),0 1px 1px rgba(0,0,0,.075);
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, .2);
+    -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15), 0 1px 1px rgba(0, 0, 0, .075);
 }
 
 .btn-tm:focus, .btn-tm:hover {
     color: #fff;
     border-color: #204d74;
+}
+
+.header-title {
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .35);
+    font-size: 38px;
 }
 
 .navbar-default {
@@ -225,17 +244,17 @@ header a {
 }
 
 #mainNav {
-	padding-left: 200px;
+    padding-left: 200px;
     padding-right: 200px;
 }
 
 .navbar-brand {
-	line-height: 30px;
+    line-height: 30px;
     font-size: 18px;
 }
 
 .navbar-nav > li > a {
-	line-height: 30px;
+    line-height: 30px;
 }
 
 .navbar-right a {

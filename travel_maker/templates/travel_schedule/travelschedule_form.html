@@ -10,16 +10,28 @@
 {% block header %}
     <header>
         <div class="spacer-xl"></div>
-        <div class="row">
-            <div class="col-md-4"></div>
-            <div class="col-md-4">
-                <form action="" method="post">
-                    {% crispy form %}
-                    <button class="btn btn-primary btn-block" id="id-submit" type="submit">여행 일정 생성</button>
-                </form>
-            </div>
+        <div class="spacer-md"></div>
+        <div class="header-title">
+            여행 일정 생성
         </div>
     </header>
+{% endblock %}
+
+{% block content %}
+    <div class="spacer-xl"></div>
+    <div class="container">
+        <form action="" method="post">
+            {% crispy form %}
+            <div class="col-md-6">
+                <button class="btn btn-block btn-tm" id="id-submit" type="submit">여행 일정 생성</button>
+            </div>
+            <div class="col-md-6">
+                <a class="btn btn-block btn-default" href="{% url 'profile:home' user.id %}">
+                    취소
+                </a>
+            </div>
+        </form>
+    </div>
 {% endblock %}
 
 {% block javascript %}

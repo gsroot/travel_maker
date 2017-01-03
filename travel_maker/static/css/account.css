@@ -4,6 +4,10 @@ body {
     width: 100%;
 }
 
+header {
+    font-size: 38px;
+}
+
 header a {
 	color: white !important;
 }

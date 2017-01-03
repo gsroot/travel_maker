@@ -10,22 +10,31 @@
 {% block header %}
     <header>
         <div class="spacer-xl"></div>
-        <div class="spacer-sm"></div>
-        <div>
+        <div class="spacer-md"></div>
+        <div class="header-title">
             {{ travelschedule.title }}
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
-    <div class="spacer-xl"></div>
+    <div class="spacer-md"></div>
     <div class="container">
         <form action="" method="post">
             {% crispy form %}
-            <button class="btn btn-primary btn-block" id="id-submit" type="submit">여행 일정 수정</button>
+            <div class="row">
+                <div class="col-md-6">
+                    <button class="btn btn-block btn-tm" id="id-submit" type="submit">여행 일정 수정</button>
+                </div>
+                <div class="col-md-6">
+                    <a class="btn btn-block btn-default" href="{% url 'travel_schedule:detail' travelschedule.id %}">
+                        취소
+                    </a>
+                </div>
+            </div>
         </form>
     </div>
-
+    <div class="spacer-xl"></div>
 {% endblock %}
 
 {% block javascript %}

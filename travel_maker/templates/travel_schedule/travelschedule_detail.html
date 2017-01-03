@@ -11,8 +11,8 @@
 {% block header %}
     <header>
         <div class="spacer-xl"></div>
-        <div class="spacer-sm"></div>
-        <div>
+        <div class="spacer-md"></div>
+        <div class="header-title">
             {{ travelschedule.title }}
         </div>
     </header>
@@ -20,43 +20,64 @@
 
 {% block content %}
     {% get_or_create_calendar travelschedule as calendar %}
-    <div class="spacer-xl"></div>
+    <div class="spacer-md"></div>
     <div class="container">
-        <div>
-            {{ travelschedule.description }}
-        </div>
-        <div>
-            여행 첫날: {{ travelschedule.start|date:'Y-m-d' }}
-        </div>
-        <div>
-            여행 마지막날: {{ travelschedule.end|date:'Y-m-d' }}
-        </div>
-        <div>
-            여행 인원: {{ travelschedule.people_count }}
-        </div>
-        <div>
-            {% for tag in travelschedule.tags.all %}
-                <div>
-                    {{ tag }}
+        <div class="row">
+            <div class="col-md-3">
+                <div class="scedule-item-pannel">
+                    <div class="box schedule-update">
+                        <a href="{% url 'travel_schedule:update' travelschedule.id %}">
+                            <button class="btn btn-block btn-tm" type="submit">여행 일정 정보 수정</button>
+                        </a>
+                        <div class="spacer-xs"></div>
+                        <a href="{% url 'travel_schedule:calendar_update' travelschedule.id %}">
+                            <button class="btn btn-block btn-tm" type="submit">여행 일정표 수정</button>
+                        </a>
+                        <div class="spacer-xs"></div>
+                        <div class="btn-group btn-group-justified" role="group">
+                            <div class="btn-group btn-group" role="group">
+                                <button class="btn btn-inactive">공개</button>
+                            </div>
+                            <div class="btn-group btn-group" role="group">
+                                <button class="btn btn-active">비공개</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spacer-xs"></div>
+                    <div class="box center">
+                        <a href="{% url 'profile:home' user.id %}">
+                            <img class="owner-img" src="{{ user.thumbnail.url }}">
+                        </a>
+                        <div class="spacer-xs"></div>
+                        <a href="{% url 'profile:home' user.id %}">
+                            <div class="owner-email">{{ user.email }}</div>
+                        </a>
+                    </div>
                 </div>
-            {% endfor %}
-        </div>
-        <div class="row">
-            <div class="col-md-6">
-                <a href="{% url 'travel_schedule:update' travelschedule.id %}">
-                    <button class="btn btn-primary btn-block" type="submit">여행 일정 정보 수정</button>
-                </a>
             </div>
-            <div class="col-md-6">
-                <a href="{% url 'travel_schedule:calendar_update' travelschedule.id %}">
-                    <button class="btn btn-primary btn-block" type="submit">여행 일정표 수정</button>
-                </a>
+            <div class="col-md-9">
+                <div class="center box schedule-item-overview">
+                    <div>
+                        <span>
+                            여행 첫날: {{ travelschedule.start }}
+                        </span>
+                        <span>
+                            여행 마지막날: {{ travelschedule.end }}
+                        </span>
+                        <span>
+                            여행 인원: {{ travelschedule.people_count }}
+                        </span>
+                    </div>
+                    <div class="spacer-xs"></div>
+                    <div>
+                        {{ travelschedule.tags.all|join:', ' }}
+                    </div>
+                    <div class="spacer-xs"></div>
+                    <p>{{ travelschedule.description }}</p>
+                </div>
+                <div class="spacer-xs"></div>
+                <div id="calendar" class="box"></div>
             </div>
-        </div>
-        <div class="row">
-            <div id="external-events" class="col-md-3">
-            </div>
-            <div id="calendar" class="col-md-9"></div>
         </div>
     </div>
 
@@ -75,7 +96,7 @@
             $('#calendar').fullCalendar({
                 header: {
                     left: '',
-                    center: 'title',
+                    center: '',
                     right: ''
                 },
                 views: {
@@ -90,7 +111,7 @@
                 lang: 'ko',
                 editable: false,
                 droppable: false,
-                allDaySlot:false,
+                allDaySlot: false,
                 events: [
                     {% for event in travelschedule.events %}
                         {

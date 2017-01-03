@@ -4,23 +4,57 @@ body {
     width: 100%;
 }
 
-header {
-    font-size: 42px;
+a:hover {
+    text-decoration: none;
 }
 
-#external-events {
-    float: left;
-    padding: 0 10px;
-    border: 1px solid #ccc;
-    background: #eee;
-    text-align: left;
-    width: 280px;
+.schedule-item-overview {
+    padding: 20px 20px 20px 20px;
+    font-size: 15px;
+}
+
+.schedule-item-overview span {
+    margin-left: 20px;
+    margin-right: 20px;
+}
+
+.btn-active {
+    background: #7bccc4;
+    color: #fff;
+}
+
+.btn-inactive {
+    background: #969696;
+    color: #fff;
+}
+
+.owner-img {
+    width: 100px;
+    height: 100px;
+}
+
+.owner-email {
+    display: inline-block;
+    font-size: 16px;
+    font-weight: 600;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, .35);
+    word-break: break-all;
+}
+
+.nav-tabs .active {
+    background: #fff;
 }
 
 #travel-info-list {
     margin-top: 20px;
     height: 800px;
     overflow: auto;
+}
+
+#external-events {
+    border: 1px solid rgba(125, 125, 125, .6);
+    border-top-width: 0;
+    border-right-width: 0;
 }
 
 #external-events h4 {
@@ -73,8 +107,14 @@ header {
     width: 50%;
 }
 
+.nav-tabs .active {
+    border: 1px solid rgba(125, 125, 125, .6);
+    border-bottom-width: 0;
+    -webkit-box-shadow: 2px 0 0 0 rgba(125, 125, 125, .6);
+}
+
 .nav-tab a {
-    background-color: #eee !important;
+    border: 0 !important;
 }
 
 .search {
