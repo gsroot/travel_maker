@@ -4,9 +4,8 @@
 
 {% block css %}
     {{ block.super }}
-    <!-- Theme CSS -->
-    <link href="{% static 'css/home.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/bootstrap-social/bootstrap-social.css' %}" rel="stylesheet">
+    <link href="{% static 'css/pages/home.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block javascript %}
@@ -17,7 +16,6 @@
     <script src="{% static 'vendor/scrollreveal/scrollreveal.min.js' %}"></script>
     <script src="{% static 'vendor/magnific-popup/jquery.magnific-popup.min.js' %}"></script>
 
-    <!-- Theme JavaScript -->
     <script src="{% static 'js/home.js' %}"></script>
 {% endblock %}
 

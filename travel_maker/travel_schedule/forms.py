@@ -1,6 +1,5 @@
-from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Layout, Fieldset, Field, HTML, Div
+from crispy_forms.layout import Layout, Fieldset, Field, Div
 from django.forms import ModelForm, DateInput
 
 from travel_maker.travel_schedule.models import TravelSchedule
@@ -25,8 +24,8 @@ class TravelScheduleForm(ModelForm):
                 Field('title'),
                 Field('description'),
                 Div(
-                    Div(Field('start', readonly='true'), css_class='col-md-4'),
-                    Div(Field('end', readonly='true'), css_class='col-md-4'),
+                    Div(Field('start'), css_class='col-md-4'),
+                    Div(Field('end'), css_class='col-md-4'),
                     Div(Field('people_count'), css_class='col-md-4'),
                     css_class='row',
                 ),
