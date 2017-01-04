@@ -13,192 +13,23 @@
         <div class="row">
             <div class="col-md-4"></div>
             <div class="col-md-4">
-                <div class="user-info">
-                    <image class="img-thumbnail profile-img"
-                           src="{% if user.thumbnail %}
-                                    {{ user.thumbnail.url }}
-                                {% else %}
-                                    {% static 'img/no-photo.png' %}
-                                {% endif %}">
-                    </image>
-                    <div>
-                        <h3>{{ user.email }}</h3>
-                    </div>
-                    <div>
-                        <a class="update-profile-introduction" role="button" data-toggle="modal"
-                           data-target="#profile-update-modal">
-                            자기소개를 입력해주세요.
-                        </a>
-                    </div>
-                    <div class="spacer-xs"></div>
-                    <div>
-                        <a class="user-profile-url" href="{% url 'profile:home' user.id %}">
-                            www.travel-maker.kr{% url 'profile:home' user.id %}
-                        </a>
-                    </div>
-                    <div class="spacer-xs"></div>
-                    <div class="update-profile hidden">
-                        <button class="btn btn-tm" data-toggle="modal" data-target="#profile-update-modal">
-                            회원 정보 설정
-                        </button>
-                    </div>
-                </div>
+                {% include 'account/snippets/user_info.html' %}
             </div>
-
         </div>
     </header>
 {% endblock %}
 
 {% block content %}
     <div class="container">
-        <div class="modal fade" id="profile-update-modal" tabindex="-1" role="dialog"
-             aria-labelledby="profile-update-modal-label">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="profile-update-modal-label">회원 정보 설정</h4>
-                    </div>
-                    <form action="" method="post" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        <div class="modal-body">
-                            {{ form|crispy }}
-                            <div class="delete-user">
-                                <a href="javascript:void(0)" data-toggle="modal"
-                                   data-target="#profile-delete-modal" data-dismiss="modal">
-                                    회원탈퇴
-                                </a>
-                            </div>
-                            <div class="spacer-sm"></div>
-                        </div>
-                        <div class="modal-footer">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <button type="submit" class="btn btn-block btn-tm">
-                                        확인
-                                    </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button type="button" class="btn btn-block btn-default" data-dismiss="modal">
-                                        취소
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="profile-delete-modal" tabindex="-1" role="dialog"
-             aria-labelledby="profile-delete-modal-label">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="profile-update-modal-label">정말 탈퇴하실 건가요..? ㅠㅠ</h4>
-                    </div>
-                    <div class="modal-body">
-                        <p>
-                            더 만족스러운 여행 서비스가 되기 위해 트래블메이커는 지속적으로 노력하고 있습니다.
-                            서비스에 대한 고객님의 소중한 의견을 travel-maker@gmail.com 에 알려주시면 개선하고 반영하겠습니다.
-
-                            그래도 떠나시려면 아래 "회원탈퇴" 버튼을 눌러주세요..ㅠㅠ
-                        </p>
-                    </div>
-                    <div class="modal-footer">
-                        <div class="row">
-                            <form action="{% url 'profile:delete' user.id %}" method="post">
-                                {% csrf_token %}
-                                <div class="col-md-6">
-                                    <button type="submit" class="btn btn-block btn-danger" data-toggle="modal"
-                                            data-target="#profile-delete-modal">
-                                        회원탈퇴!
-                                    </button>
-                                </div>
-                                <div class="col-md-6">
-                                    <button type="button" class="btn btn-block btn-default" data-dismiss="modal">
-                                        취소
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
-                                aria-hidden="true">&times;</span></button>
-                        <h4 class="modal-title" id="delete-modal-label">여행 일정 삭제</h4>
-                    </div>
-                    <div class="modal-body">
-                        여행 일정을 정말 삭제하시겠습니까?
-                    </div>
-                    <div class="modal-footer">
-                        <form action="{% url 'travel_schedule:delete' 0 %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">삭제</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+        {% include 'account/snippets/profile_update_modal.html' %}
+        {% include 'account/snippets/profile_delete_modal.html' %}
+        {% include 'account/snippets/schedule_delete_modal.html' %}
         <div class="row">
             <div class="col-md-2"></div>
             <div class="col-md-10">
                 <div class="spacer-lg"></div>
                 <div class="row">
-                    {% for schedule in travelschedule_list %}
-                        <div class="col-md-6">
-                            <a class="schedule-item-link" href="{{ schedule.get_absolute_url }}">
-                                <div class="schedule-item">
-                                    <div class="schedule-item-bg">
-                                        <div class="owner-info">
-                                            <span>
-                                                <img class="img-thumbnail owner-img"
-                                                     src="{{ schedule.owner.thumbnail.url }}">
-                                            </span>
-                                            <span class="owner-name">{{ schedule.owner.email }}</span>
-                                            <button class="btn btn-danger btn-xs hidden delete-schedule"
-                                                    data-toggle="modal"
-                                                    data-target="#delete-modal" data-id="{{ schedule.id }}"
-                                                    data-title="{{ schedule.title }}">
-                                                <i class="fa fa-trash"></i>
-                                            </button>
-                                        </div>
-                                        <div class="center">
-                                            <h2 class="schedule-item-title">{{ schedule.title }}</h2>
-                                            <div class="schedule-item-overview">
-                                                <div>{{ schedule.start }} ~ {{ schedule.end }}
-                                                    ({{ schedule.duration_days }}일)
-                                                </div>
-                                                <div class="spacer-xs"></div>
-                                                <div>여행인원 {{ schedule.people_count }}명</div>
-                                                <div class="spacer-xs"></div>
-                                                <div>{{ schedule.tags.all|join:', ' }}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </a>
-                        </div>
-                    {% empty %}
-                        <div class="center">
-                            <img class="empty-img" src="{% static 'img/empty.png' %}">
-                            <div class="spacer-sm"></div>
-                            <div class="empty-text">아직 여행 일정이 없습니다</div>
-                        </div>
-                    {% endfor %}
+                    {% include 'account/snippets/schedule_list.html' %}
                 </div>
                 <div class="spacer-sm"></div>
                 <div class="row">

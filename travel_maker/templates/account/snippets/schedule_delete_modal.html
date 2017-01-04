@@ -1,0 +1,22 @@
+<div class="modal fade" id="schedule-delete-modal" tabindex="-1" role="dialog"
+     aria-labelledby="schedule-delete-modal-label">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="schedule-delete-modal-label">여행 일정 삭제</h4>
+            </div>
+            <div class="modal-body">
+                여행 일정을 정말 삭제하시겠습니까?
+            </div>
+            <div class="modal-footer">
+                <form action="{% url 'travel_schedule:delete' 0 %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">삭제</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

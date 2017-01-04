@@ -1,0 +1,45 @@
+{% load static %}
+
+{% if google_reviews %}
+    <div class="row">
+        <div id="item-reviews-info">
+            <h3>유저 평가</h3>
+            <div class="spacer-sm"></div>
+            {% for review in google_reviews %}
+                <div class="row">
+                    <div class="col-md-1">
+                        {% if review.profile_photo_url %}
+                            <img class="review-user-profile-img img-circle"
+                                 src="https:{{ review.profile_photo_url }}" alt="">
+                        {% else %}
+                            <img class="review-user-profile-img img-circle"
+                                 src="{% static 'img/no-photo.png' %}" alt="">
+                        {% endif %}
+                    </div>
+                    <div class="row col-md-11">
+                        <div class="review-user-name row">
+                            {{ review.author_name }}
+                        </div>
+                        <div class="row">
+                            <div class="review-rating col-md-2">
+                                <div id="rating-{{ review.id }}"></div>
+                            </div>
+                            <div class="review-time col-md-10">
+                                {{ review.time }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="spacer-sm"></div>
+                <div class="row">
+                    <div class="col-md-1"></div>
+                    <div class="review-text col-md-11">
+                        {{ review.text }}
+                    </div>
+                </div>
+                <div class="spacer-sm divider"></div>
+                <div class="spacer-sm"></div>
+            {% endfor %}
+        </div>
+    </div>
+{% endif %}

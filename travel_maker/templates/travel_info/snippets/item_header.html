@@ -1,0 +1,70 @@
+<div id="item-header">
+    <div class="container">
+        <div class="spacer-sm"></div>
+        <div id="item-header-top">
+            <div class="row">
+                <div class="item-header-left col-md-9">
+                    <span class="item-title">{{ travelinfo.title }}</span>
+                    <span class="item-primary-tags">
+                            {% for tag in travelinfo.primary_three_tags %}
+                                {{ tag.0 }}{% if forloop.counter < 3 %},{% endif %}
+                            {% endfor %}
+                        </span>
+                </div>
+                <div class="item-header-right col-md-3">
+                    <span id="rating"></span>
+                    {% if google_reviews %}
+                        <span id="rating-text">{{ travelinfo.rating }} 점</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="spacer-xs"></div>
+        <div class="item-header-divider"></div>
+        <div class="spacer-xs"></div>
+        <div id="item-header-bottom">
+            <div class="row">
+                <div class="item-header-left">
+                    <div class="col-md-1">
+                        <div class="item-stat-count">97</div>
+                        <div class="item-stat-title">점수</div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="item-stat-count">
+                            {% if google_reviews %}
+                                {{ google_reviews.count }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="item-stat-title">평가</div>
+                    </div>
+                    <div class="col-md-1">
+                        <div class="item-stat-count">
+                            {% if travelinfo.blogs %}
+                                {{ travelinfo.blogs.count }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
+                        <div class="item-stat-title">블로그</div>
+                    </div>
+                </div>
+                <div class="col-md-5"></div>
+                <div class="item-header-right col-md-4">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <span><i class="fa fa-pencil-square-o fa-lg"></i></span>
+                            <span><a>평가하기</a></span>
+                        </div>
+                        <div class="col-md-8">
+                            <span><i class="fa fa-thumbs-o-up fa-lg"></i></span>
+                            <span><a>관심 여행지에 추가</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="spacer-sm"></div>
+    </div>
+</div>

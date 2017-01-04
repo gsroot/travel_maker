@@ -1,0 +1,49 @@
+<div class="external_events_pannel">
+    <ul class="nav nav-tabs">
+        <li role="presentation" class="nav-tab active"><a href="#">검색</a></li>
+        <li role="presentation" class="nav-tab"><a href="#">관심 여행지</a></li>
+    </ul>
+    <div id="external-events" class="box">
+        <div class="search">
+            <label for="area-search">지역</label>
+            <select class="form-control area-search" id="area-search">
+                <option value="">전체</option>
+                {% for area in area_list %}
+                    <option value="{{ area.id }}">{{ area }}</option>
+                {% endfor %}
+            </select>
+            <div class="spacer-xs"></div>
+            <label for="name-search">이름</label>
+            <input type="text" class="form-control" id="name-search" placeholder="여행지 이름">
+            <div class="spacer-xs"></div>
+            <label for="contenttype-search">여행지타입</label>
+            <div id="contenttype-search">
+                {% for contenttype in contenttype_list %}
+                    <label class="checkbox-inline">
+                        <input type="checkbox" name="contenttype" value="{{ contenttype.id }}">
+                        {{ contenttype }}
+                    </label>
+                {% endfor %}
+            </div>
+        </div>
+        <div id="travel-info-list">
+            {% for travelinfo in travelinfo_list %}
+                <div class="fc-event ui-draggable ui-draggable-handle">
+                    <div class="hidden travelinfo-id">{{ travelinfo.id }}</div>
+                    <div class="row">
+                        <div class="col-md-5 travelinfo-image">
+                            <img class="travelinfo-image" src="{{ travelinfo.thumbnail }}"></div>
+                        <div class="col-md-7 travelinfo-text">
+                            <div class="travelinfo-title">{{ travelinfo.title }}</div>
+                            <div class="travelinfo-sigungu">{{ travelinfo.sigungu }}</div>
+                            <div class="spacer-xs"></div>
+                            <div class="spacer-xs"></div>
+                            <div class="travelinfo-contenttype">{{ travelinfo.contenttype }}</div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <div id="waypoint"></div>
+        </div>
+    </div>
+</div>

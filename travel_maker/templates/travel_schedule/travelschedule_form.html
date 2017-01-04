@@ -4,7 +4,7 @@
 
 {% block css %}
     {{ block.super }}
-    <link href="{% static 'css/accounts.css' %}" rel="stylesheet">
+    <link href="{% static 'css/travelschedule_detail.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block header %}
@@ -18,7 +18,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="spacer-xl"></div>
+    <div class="spacer-md"></div>
     <div class="container">
         <form action="" method="post">
             {% crispy form %}
@@ -32,6 +32,7 @@
             </div>
         </form>
     </div>
+    <div class="spacer-xl"></div>
 {% endblock %}
 
 {% block javascript %}

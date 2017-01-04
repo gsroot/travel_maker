@@ -1,0 +1,29 @@
+<div id="item-base-info" class="col-md-6">
+    {% if travelinfo.tel %}
+        <div id="item-info-tel">
+            <i class="fa fa-phone fa-lg"></i>
+            <span class="item-info-text">
+                전화번호: {{ travelinfo.tel }}
+                {% if travelinfo.traveloverviewinfo.telname %}
+                    ({{ travelinfo.traveloverviewinfo.telname }})
+                {% endif %}
+            </span>
+        </div>
+        <div class="spacer-xs"></div>
+    {% endif %}
+    {% if travelinfo.addr1 %}
+        <div id="item-info-addr">
+            <i class="fa fa-map-marker fa-lg"></i>
+            <span class="item-info-text">주소: {{ travelinfo.addr1 }} {{ travelinfo.addr2 }}</span>
+        </div>
+        <div class="spacer-xs"></div>
+    {% endif %}
+    {% if travelinfo.traveloverviewinfo.homepage %}
+        <div id="item-info-homepage">
+            <i class="fa fa-home fa-lg"></i>
+            <span class="item-info-text">홈페이지: {{ travelinfo.traveloverviewinfo.homepage }}</span>
+        </div>
+        <div class="spacer-xs"></div>
+    {% endif %}
+    {% include 'travel_info/snippets/item_intro_info.html' %}
+</div>

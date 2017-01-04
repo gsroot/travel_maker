@@ -1,0 +1,787 @@
+{% if travelinfo.contenttype.name == "관광지" %}
+    {% with introinfo=travelinfo.tourspotintroinfo %}
+        {% if introinfo.accomcount %}
+            <div id="item-info-accomcount">
+                <i class="fa fa-users fa-lg"></i>
+                <span class="item-info-text">수용인원: {{ introinfo.accomcount }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkbabycarriage and introinfo.chkbabycarriage != "없음" %}
+            <div id="item-info-chkbabycarriage">
+                <i class="material-icons">child_friendly</i>
+                <span class="item-info-text">유모차 대여 여부: {{ introinfo.chkbabycarriage }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkcreditcard and introinfo.chkcreditcard != "없음" %}
+            <div id="item-info-chkcreditcard">
+                <i class="fa fa-credit-card fa-lg"></i>
+                <span class="item-info-text">신용카드 가능 여부: {{ introinfo.chkcreditcard }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkpet and introinfo.chkpet != "없음" %}
+            <div id="item-info-chkpet">
+                <i class="fa fa-paw fa-lg"></i>
+                <span class="item-info-text">애완동물 동반 가능 여부: {{ introinfo.chkpet }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.parking %}
+            <div id="item-info-parking">
+                <i class="material-icons">local_parking</i>
+                <span class="item-info-text">주차시설: {{ introinfo.parking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.expagerange %}
+            <div id="item-info-expagerange">
+                <i class="fa fa-check-square-o fa-lg"></i>
+                <span class="item-info-text">체험 가능 연령: {{ introinfo.expagerange }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.opendate %}
+            <div id="item-info-opendate">
+                <i class="fa fa-calendar-check-o fa-lg"></i>
+                <span class="item-info-text">개장일: {{ introinfo.opendate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.restdate %}
+            <div id="item-info-restdate">
+                <i class="fa fa-calendar-times-o fa-lg"></i>
+                <span class="item-info-text">쉬는날: {{ introinfo.restdate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.useseason %}
+            <div id="item-info-useseason">
+                <i class="material-icons">date_range</i>
+                <span class="item-info-text">이용시기: {{ introinfo.useseason }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.usetime %}
+            <div id="item-info-usetime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">이용시간: {{ introinfo.usetime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+    {% endwith %}
+{% elif travelinfo.contenttype.name == "문화시설" %}
+    {% with introinfo=travelinfo.culturalfacilityintroinfo %}
+        {% if introinfo.accomcount %}
+            <div id="item-info-accomcount">
+                <i class="fa fa-users fa-lg"></i>
+                <span class="item-info-text">수용인원: {{ introinfo.accomcount }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkbabycarriage and introinfo.chkbabycarriage != "없음" %}
+            <div id="item-info-chkbabycarriage">
+                <i class="material-icons">child_friendly</i>
+                <span class="item-info-text">유모차 대여 여부: {{ introinfo.chkbabycarriage }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkcreditcard and introinfo.chkcreditcard != "없음" %}
+            <div id="item-info-chkcreditcard">
+                <i class="fa fa-credit-card fa-lg"></i>
+                <span class="item-info-text">신용카드 가능 여부: {{ introinfo.chkcreditcard }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkpet and introinfo.chkpet != "없음" %}
+            <div id="item-info-chkpet">
+                <i class="fa fa-paw fa-lg"></i>
+                <span class="item-info-text">애완동물 동반 가능 여부: {{ introinfo.chkpet }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.discountinfo %}
+            <div id="item-info-discountinfo">
+                <i class="fa fa-angle-down fa-lg"></i>
+                <span class="item-info-text">할인정보: {{ introinfo.discountinfo }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.parking %}
+            <div id="item-info-parking">
+                <i class="material-icons">local_parking</i>
+                <span class="item-info-text">주차시설: {{ introinfo.parking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.parkingfee %}
+            <div id="item-info-parkingfee">
+                <i class="fa fa-krw fa-lg"></i>
+                <span class="item-info-text">주차요금: {{ introinfo.parking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.restdate %}
+            <div id="item-info-restdate">
+                <i class="fa fa-calendar-times-o fa-lg"></i>
+                <span class="item-info-text">쉬는날: {{ introinfo.restdate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.usefee %}
+            <div id="item-info-usefee">
+                <i class="fa fa-krw fa-lg"></i>
+                <span class="item-info-text">이용요금: {{ introinfo.usefee }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.usetime %}
+            <div id="item-info-usetime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">이용시간: {{ introinfo.usetime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.scale %}
+            <div id="item-info-scale">
+                <i class="fa fa-th-large fa-lg"></i>
+                <span class="item-info-text">규모: {{ introinfo.scale }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.spendtime %}
+            <div id="item-info-spendtime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">관람 소요시간: {{ introinfo.spendtime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+    {% endwith %}
+{% elif travelinfo.contenttype.name == "행사/공연/축제" %}
+    {% with introinfo=travelinfo.festivalintroinfo %}
+        {% if introinfo.agelimit %}
+            <div id="item-info-agelimit">
+                <i class="fa fa-check-square-o fa-lg"></i>
+                <span class="item-info-text">관람 가능연령: {{ introinfo.agelimit }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.bookingplace %}
+            <div id="item-info-bookingplace">
+                <i class="material-icons">place</i>
+                <span class="item-info-text">예매처: {{ introinfo.bookingplace }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.discountinfo %}
+            <div id="item-info-discountinfo">
+                <i class="fa fa-angle-down fa-lg"></i>
+                <span class="item-info-text">할인정보: {{ introinfo.discountinfo }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.eventstartdate %}
+            <div id="item-info-eventstartdate">
+                <i class="fa fa-calendar-check-o fa-lg"></i>
+                <span class="item-info-text">행사 시작일: {{ introinfo.eventstartdate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.eventenddate %}
+            <div id="item-info-eventenddate">
+                <i class="fa fa-calendar-times-o fa-lg"></i>
+                <span class="item-info-text">행사 종료일: {{ introinfo.eventenddate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.eventhomepage %}
+            <div id="item-info-eventhomepage">
+                <i class="fa fa-home fa-lg"></i>
+                <span class="item-info-text">행사 홈페이지: {{ introinfo.eventhomepage }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.eventplace %}
+            <div id="item-info-eventplace">
+                <i class="material-icons">place</i>
+                <span class="item-info-text">행사 장소: {{ introinfo.eventplace }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.grade %}
+            <div id="item-info-grade">
+                <i class="material-icons">equalizer</i>
+                <span class="item-info-text">축제등급: {{ introinfo.grade }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.placeinfo %}
+            <div id="item-info-placeinfo">
+                <i class="fa fa-location-arrow fa-lg"></i>
+                <span class="item-info-text">행사장 위치안내: {{ introinfo.placeinfo }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.playtime %}
+            <div id="item-info-playtime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">공연시간: {{ introinfo.playtime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.program %}
+            <div id="item-info-program">
+                <i class="material-icons">event_note</i>
+                <span class="item-info-text">행사 프로그램: {{ introinfo.program }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.spendtime %}
+            <div id="item-info-spendtime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">관람 소요시간: {{ introinfo.spendtime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.sponsor1 %}
+            <div id="item-info-sponsor1">
+                <i class="material-icons">person</i>
+                <span class="item-info-text">주최자 정보: {{ introinfo.sponsor1 }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.sponsor1tel %}
+            <div id="item-info-sponsor1tel">
+                <i class="fa fa-phone fa-lg"></i>
+                <span class="item-info-text">주최자 연락처: {{ introinfo.sponsor1tel }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.sponsor2 %}
+            <div id="item-info-sponsor2">
+                <i class="material-icons">group</i>
+                <span class="item-info-text">주관사 정보: {{ introinfo.sponsor2 }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.sponsor2tel %}
+            <div id="item-info-sponsor2tel">
+                <i class="fa fa-phone fa-lg"></i>
+                <span class="item-info-text">주관사 연락처: {{ introinfo.sponsor2tel }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.subevent %}
+            <div id="item-info-subevent">
+                <i class="material-icons">subtitles</i>
+                <span class="item-info-text">부대행사: {{ introinfo.subevent }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.usefee %}
+            <div id="item-info-usefee">
+                <i class="fa fa-krw fa-lg"></i>
+                <span class="item-info-text">이용요금: {{ introinfo.usefee }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+    {% endwith %}
+{% elif travelinfo.contenttype.name == "여행코스" %}
+    {% with introinfo=travelinfo.tourcourseintroinfo %}
+        {% if introinfo.distance %}
+            <div id="item-info-distance">
+                <i class="fa fa-map-signs fa-lg"></i>
+                <span class="item-info-text">코스 총거리: {{ introinfo.distance }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.schedule %}
+            <div id="item-info-schedule">
+                <i class="material-icons">timeline</i>
+                <span class="item-info-text">코스 일정: {{ introinfo.schedule }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.taketime %}
+            <div id="item-info-taketime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">코스 총 소요시간: {{ introinfo.taketime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.theme %}
+            <div id="item-info-theme">
+                <i class="material-icons">style</i>
+                <span class="item-info-text">코스 테마: {{ introinfo.theme }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+    {% endwith %}
+{% elif travelinfo.contenttype.name == "레포츠" %}
+    {% with introinfo=travelinfo.leportsintroinfo %}
+        {% if introinfo.accomcount %}
+            <div id="item-info-accomcount">
+                <i class="fa fa-users fa-lg"></i>
+                <span class="item-info-text">수용인원: {{ introinfo.accomcount }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkbabycarriage and introinfo.chkbabycarriage != "없음" %}
+            <div id="item-info-chkbabycarriage">
+                <i class="material-icons">child_friendly</i>
+                <span class="item-info-text">유모차 대여 여부: {{ introinfo.chkbabycarriage }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkcreditcard and introinfo.chkcreditcard != "없음" %}
+            <div id="item-info-chkcreditcard">
+                <i class="fa fa-credit-card fa-lg"></i>
+                <span class="item-info-text">신용카드 가능 여부: {{ introinfo.chkcreditcard }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkpet and introinfo.chkpet != "없음" %}
+            <div id="item-info-chkpet">
+                <i class="fa fa-paw fa-lg"></i>
+                <span class="item-info-text">애완동물 동반 가능 여부: {{ introinfo.chkpet }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.expagerange %}
+            <div id="item-info-expagerange">
+                <i class="fa fa-check-square-o fa-lg"></i>
+                <span class="item-info-text">체험 가능 연령: {{ introinfo.expagerange }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.openperiod %}
+            <div id="item-info-openperiod">
+                <i class="material-icons">date_range</i>
+                <span class="item-info-text">이용시기: {{ introinfo.openperiod }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.parking %}
+            <div id="item-info-parking">
+                <i class="material-icons">local_parking</i>
+                <span class="item-info-text">주차시설: {{ introinfo.parking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.parkingfee %}
+            <div id="item-info-parkingfee">
+                <i class="fa fa-krw fa-lg"></i>
+                <span class="item-info-text">주차요금: {{ introinfo.parking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.reservation %}
+            <div id="item-info-reservation">
+                <i class="material-icons">first_page</i>
+                <span class="item-info-text">예약안내: {{ introinfo.reservation }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.restdate %}
+            <div id="item-info-restdate">
+                <i class="fa fa-calendar-times-o fa-lg"></i>
+                <span class="item-info-text">쉬는날: {{ introinfo.restdate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.usefee %}
+            <div id="item-info-usefee">
+                <i class="fa fa-krw fa-lg"></i>
+                <span class="item-info-text">이용요금: {{ introinfo.usefee }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.usetime %}
+            <div id="item-info-usetime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">이용시간: {{ introinfo.usetime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.scale %}
+            <div id="item-info-scale">
+                <i class="fa fa-th-large fa-lg"></i>
+                <span class="item-info-text">규모: {{ introinfo.scale }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+    {% endwith %}
+{% elif travelinfo.contenttype.name == "숙박" %}
+    {% with introinfo=travelinfo.lodgingintroinfo %}
+        {% if introinfo.accomcount %}
+            <div id="item-info-accomcount">
+                <span class="item-info-text">수용인원: {{ introinfo.accomcount }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.benikia %}
+            <div id="item-info-benikia">
+                <span class="item-info-text">베니키아 여부: {{ introinfo.benikia }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.checkintime %}
+            <div id="item-info-checkintime">
+                <span class="item-info-text">입실 시간: {{ introinfo.checkintime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.checkouttime %}
+            <div id="item-info-checkouttime">
+                <span class="item-info-text">퇴실 시간: {{ introinfo.checkouttime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkcooking %}
+            <div id="item-info-chkcooking">
+                <span class="item-info-text">객실내 취사 여부: {{ introinfo.chkcooking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.foodplace %}
+            <div id="item-info-foodplace">
+                <span class="item-info-text">식음료장: {{ introinfo.foodplace }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.goodstay %}
+            <div id="item-info-goodstay">
+                <span class="item-info-text">굿스테이 여부: {{ introinfo.goodstay }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.hanok %}
+            <div id="item-info-hanok">
+                <span class="item-info-text">한옥 여부: {{ introinfo.hanok }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.goodstay %}
+            <div id="item-info-goodstay">
+                <span class="item-info-text">굿스테이 여부: {{ introinfo.goodstay }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.parking %}
+            <div id="item-info-parking">
+                <span class="item-info-text">주차시설: {{ introinfo.parking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.pickup %}
+            <div id="item-info-pickup">
+                <span class="item-info-text">픽업 서비스: {{ introinfo.pickup }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.roomcount %}
+            <div id="item-info-pickup">
+                <span class="item-info-text">객실수: {{ introinfo.roomcount }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.reservation %}
+            <div id="item-info-reservation">
+                <span class="item-info-text">예약안내: {{ introinfo.reservation }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.reservationurl %}
+            <div id="item-info-reservationurl">
+                <span class="item-info-text">예약안내 홈페이지: {{ introinfo.reservationurl }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.roomtype %}
+            <div id="item-info-roomtype">
+                <span class="item-info-text">객실유형: {{ introinfo.roomtype }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.scale %}
+            <div id="item-info-scale">
+                <span class="item-info-text">규모: {{ introinfo.scale }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.subfacility %}
+            <div id="item-info-subfacility">
+                <span class="item-info-text">부대시설 (기타): {{ introinfo.subfacility }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.barbecue %}
+            <div id="item-info-barbecue">
+                <span class="item-info-text">바비큐장 여부: {{ introinfo.barbecue }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.beauty %}
+            <div id="item-info-beauty">
+                <span class="item-info-text">뷰티시설 정보: {{ introinfo.beauty }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.beverage %}
+            <div id="item-info-beverage">
+                <span class="item-info-text">식음료장 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.bicycle %}
+            <div id="item-info-bicycle">
+                <span class="item-info-text">자전거 대여 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.campfire %}
+            <div id="item-info-campfire">
+                <span class="item-info-text">캠프파이어 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.fitness %}
+            <div id="item-info-fitness">
+                <span class="item-info-text">휘트니스 센터 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.karaoke %}
+            <div id="item-info-karaoke">
+                <span class="item-info-text">노래방 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.publicbath %}
+            <div id="item-info-publicbath">
+                <span class="item-info-text">공용 샤워실 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.publicpc %}
+            <div id="item-info-publicpc">
+                <span class="item-info-text">공용 PC실 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.sauna %}
+            <div id="item-info-sauna">
+                <span class="item-info-text">사우나실 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.seminar %}
+            <div id="item-info-seminar">
+                <span class="item-info-text">세미나실 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.sports %}
+            <div id="item-info-sports">
+                <span class="item-info-text">스포츠 시설 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+    {% endwith %}
+{% elif travelinfo.contenttype.name == "쇼핑" %}
+    {% with introinfo=travelinfo.shoppingintroinfo %}
+        {% if introinfo.chkbabycarriage and introinfo.chkbabycarriage != "없음" %}
+            <div id="item-info-chkbabycarriage">
+                <i class="material-icons">child_friendly</i>
+                <span class="item-info-text">유모차 대여 여부: {{ introinfo.chkbabycarriage }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkcreditcard and introinfo.chkcreditcard != "없음" %}
+            <div id="item-info-chkcreditcard">
+                <i class="fa fa-credit-card fa-lg"></i>
+                <span class="item-info-text">신용카드 가능 여부: {{ introinfo.chkcreditcard }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.chkpet and introinfo.chkpet != "없음" %}
+            <div id="item-info-chkpet">
+                <i class="fa fa-paw fa-lg"></i>
+                <span class="item-info-text">애완동물 동반 가능 여부: {{ introinfo.chkpet }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.fairday %}
+            <div id="item-info-fairday">
+                <i class="fa fa-calendar-check-o fa-lg"></i>
+                <span class="item-info-text">장서는 날: {{ introinfo.fairday }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.opendate %}
+            <div id="item-info-opendate">
+                <i class="fa fa-calendar-check-o fa-lg"></i>
+                <span class="item-info-text">개장일: {{ introinfo.opendate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.opentime %}
+            <div id="item-info-opentime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">영업시간: {{ introinfo.opentime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.parking %}
+            <div id="item-info-parking">
+                <i class="material-icons">local_parking</i>
+                <span class="item-info-text">주차시설: {{ introinfo.parking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.restdate %}
+            <div id="item-info-restdate">
+                <i class="fa fa-calendar-times-o fa-lg"></i>
+                <span class="item-info-text">쉬는날: {{ introinfo.restdate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.restroom %}
+            <div id="item-info-restroom">
+                <i class="material-icons">wc</i>
+                <span class="item-info-text">화장실: {{ introinfo.restroom }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.saleitem %}
+            <div id="item-info-saleitem">
+                <i class="material-icons">check_box</i>
+                <span class="item-info-text">판매 품목: {{ introinfo.saleitem }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.saleitemcost %}
+            <div id="item-info-saleitemcost">
+                <i class="fa fa-krw fa-lg"></i>
+                <span class="item-info-text">판매 품목별 가격: {{ introinfo.saleitemcost }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.scale %}
+            <div id="item-info-scale">
+                <i class="fa fa-th-large fa-lg"></i>
+                <span class="item-info-text">규모: {{ introinfo.scale }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.shopguide %}
+            <div id="item-info-shopguide">
+                <i class="fa fa-info fa-lg"></i>
+                <span class="item-info-text">매장안내: {{ introinfo.shopguide }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+    {% endwith %}
+{% elif travelinfo.contenttype.name == "음식점" %}
+    {% with introinfo=travelinfo.restaurantintroinfo %}
+        {% if introinfo.chkcreditcard and introinfo.chkcreditcard != "없음" %}
+            <div id="item-info-chkcreditcard">
+                <i class="fa fa-credit-card fa-lg"></i>
+                <span class="item-info-text">신용카드 가능 여부: {{ introinfo.chkcreditcard }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.discountinfo %}
+            <div id="item-info-discountinfo">
+                <i class="fa fa-angle-down fa-lg"></i>
+                <span class="item-info-text">할인정보: {{ introinfo.discountinfo }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.firstmenu %}
+            <div id="item-info-firstmenu">
+                <i class="fa fa-cutlery fa-lg"></i>
+                <span class="item-info-text">대표 메뉴: {{ introinfo.firstmenu }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.kidsfacility %}
+            <div id="item-info-kidsfacility">
+                <i class="fa fa-child fa-lg"></i>
+                <span class="item-info-text">어린이 놀이방 있음</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.opendate %}
+            <div id="item-info-opendate">
+                <i class="fa fa-calendar-check-o fa-lg"></i>
+                <span class="item-info-text">개장일: {{ introinfo.opendate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.opentime %}
+            <div id="item-info-opentime">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">영업시간: {{ introinfo.opentime }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.packing %}
+            <div id="item-info-packing">
+                <i class="fa fa-clock-o fa-lg"></i>
+                <span class="item-info-text">포장 가능 여부: {{ introinfo.packing }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.parking %}
+            <div id="item-info-parking">
+                <i class="material-icons">local_parking</i>
+                <span class="item-info-text">주차시설: {{ introinfo.parking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.reservation %}
+            <div id="item-info-reservation">
+                <i class="material-icons">first_page</i>
+                <span class="item-info-text">예약안내: {{ introinfo.reservation }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.restdate %}
+            <div id="item-info-restdate">
+                <i class="fa fa-calendar-times-o fa-lg"></i>
+                <span class="item-info-text">쉬는날: {{ introinfo.restdate }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.scale %}
+            <div id="item-info-scale">
+                <i class="fa fa-th-large fa-lg"></i>
+                <span class="item-info-text">규모: {{ introinfo.scale }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.seat %}
+            <div id="item-info-seat">
+                <i class="fa fa-th-large fa-lg"></i>
+                <span class="item-info-text">좌석수: {{ introinfo.seat }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.smoking %}
+            <div id="item-info-smoking">
+                <i class="material-icons">smoking_rooms</i>
+                <span class="item-info-text">금연/흡연 여부: {{ introinfo.smoking }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+        {% if introinfo.treatmenu %}
+            <div id="item-info-treatmenu">
+                <i class="material-icons">restaurant_menu</i>
+                <span class="item-info-text">취급 메뉴: {{ introinfo.treatmenu }}</span>
+            </div>
+            <div class="spacer-xs"></div>
+        {% endif %}
+    {% endwith %}
+{% endif %}

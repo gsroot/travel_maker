@@ -165,3 +165,8 @@ a {
 	text-align: center;
 	text-decoration: none;
 }
+
+#item-base-info {
+    height: 350px;
+    overflow: auto;
+}

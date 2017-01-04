@@ -1,0 +1,27 @@
+{% load static %}
+
+<div class="user-info">
+    <img class="img-thumbnail profile-img"
+           src="{% if user.thumbnail %}{{ user.thumbnail.url }}{% else %}{% static 'img/no-photo.png' %}{% endif %}">
+    <div>
+        <h3>{{ user.email }}</h3>
+    </div>
+    <div>
+        <a class="update-profile-introduction" role="button" data-toggle="modal"
+           data-target="#profile-update-modal">
+            자기소개를 입력해주세요.
+        </a>
+    </div>
+    <div class="spacer-xs"></div>
+    <div>
+        <a class="user-profile-url" href="{% url 'profile:home' user.id %}">
+            www.travel-maker.kr{% url 'profile:home' user.id %}
+        </a>
+    </div>
+    <div class="spacer-xs"></div>
+    <div class="update-profile hidden">
+        <button class="btn btn-tm" data-toggle="modal" data-target="#profile-update-modal">
+            회원 정보 설정
+        </button>
+    </div>
+</div>

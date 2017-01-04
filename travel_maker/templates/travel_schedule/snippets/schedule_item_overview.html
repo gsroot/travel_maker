@@ -1,0 +1,13 @@
+<div class="center box schedule-item-overview">
+    <div>
+        <span>여행 첫날: {{ travelschedule.start }}</span>
+        <span>여행 마지막날: {{ travelschedule.end }}</span>
+        <span>여행 인원: {{ travelschedule.people_count }}</span>
+    </div>
+    <div class="spacer-xs"></div>
+    <div>
+        {{ travelschedule.tags.all|join:', ' }}
+    </div>
+    <div class="spacer-xs"></div>
+    <p>{{ travelschedule.description }}</p>
+</div>

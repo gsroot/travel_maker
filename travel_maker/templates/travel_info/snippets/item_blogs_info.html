@@ -1,0 +1,35 @@
+{% if travelinfo.blogs %}
+    <div class="row">
+        <div id="item-blogs-info">
+            <h3>추천 블로그</h3>
+            <div class="spacer-sm"></div>
+            {% for blog in travelinfo.primary_blogs %}
+                <div class="row">
+                    <div class="col-md-1"></div>
+                    <div class="col-md-8">
+                        <div>
+                            <a href="{{ blog.link }}">{{ blog.title }}</a>
+                        </div>
+                        <div class="spacer-xs"></div>
+                        <div>
+                            {{ blog.description }}
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div>
+                            DATE: {{ blog.postdate }}
+                        </div>
+                        <div>
+                            FROM: <a href="{{ blog.bloggerlink }}">{{ blog.bloggername }}</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="spacer-sm divider"></div>
+                <div class="spacer-sm"></div>
+            {% endfor %}
+        </div>
+        <div id="more_blogs">
+            <a href="javascript:void(0)">블로그 더 보기 <i class="fa fa-angle-down"></i></a>
+        </div>
+    </div>
+{% endif %}
