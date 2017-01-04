@@ -12,23 +12,22 @@
     <title>{% block title %}Travel Maker{% endblock title %}</title>
 
     {% block css %}
-    <!-- Bootstrap Core CSS -->
-    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css'%}" rel="stylesheet">
-    <link href="{% static 'vendor/bootstrap/css/bootstrap-theme.min.css'%}" rel="stylesheet">
+        <!-- Bootstrap Core CSS -->
+        <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+        <link href="{% static 'vendor/bootstrap/css/bootstrap-theme.min.css' %}" rel="stylesheet">
 
-    <!-- Custom Fonts -->
-    <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
-    <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+        <!-- Custom Fonts -->
+        <link href="{% static 'vendor/font-awesome/css/font-awesome.min.css' %}" rel="stylesheet" type="text/css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800'
+              rel='stylesheet' type='text/css'>
+        <link href='https://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic'
+              rel='stylesheet' type='text/css'>
 
-    <!-- Plugin CSS -->
-    <link href="{% static 'vendor/magnific-popup/magnific-popup.css' %}" rel="stylesheet">
+        <!-- jquery-ui CSS -->
+        <link href="{% static 'vendor/jquery-ui/themes/base/jquery-ui.css' %}" rel="stylesheet">
 
-    <!-- jquery-ui CSS -->
-    <link href="{% static 'vendor/jquery-ui/themes/base/jquery-ui.css' %}" rel="stylesheet">
-
-    <link href="{% static 'css/base.css' %}" rel="stylesheet">
+        <link href="{% static 'css/base.css' %}" rel="stylesheet">
     {% endblock css %}
 
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
@@ -40,7 +39,7 @@
 </head>
 
 <body id="page-top">
-    {% block nav %}
+{% block nav %}
     <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
         <div class="container-fluid navbar-inner">
             <!-- Brand and toggle get grouped for better mobile display -->
@@ -65,7 +64,8 @@
                                 {% if user.thumbnail %}
                                     <img class="img-circle img-thumbnail user-thumbnail" src="{{ user.thumbnail.url }}">
                                 {% else %}
-                                    <img class="img-circle img-thumbnail user-thumbnail" src="{% static 'img/no-photo.png' %}">
+                                    <img class="img-circle img-thumbnail user-thumbnail"
+                                         src="{% static 'img/no-photo.png' %}">
                                 {% endif %}
                                 {{ user.email }} <span class="caret"></span>
                             </a>
@@ -89,20 +89,22 @@
         </div>
         <!-- /.container-fluid -->
     </nav>
-    {% endblock nav %}
+{% endblock nav %}
 
-    {% block header %}
-    {% endblock header %}
+{% block header %}
+{% endblock header %}
 
-    {% block content %}
-    {% endblock content %}
+{% block content %}
+{% endblock content %}
 
-    {% block javascript %}
+{% block javascript %}
+
     <!-- jQuery -->
     <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
 
     <!-- Bootstrap Core JavaScript -->
     <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+
     <!-- Raty JavaScript -->
     <script src="{% static 'vendor/raty/jquery.raty.js' %}"></script>
 
@@ -111,7 +113,10 @@
 
     <!-- js-cookie JavaScript -->
     <script src="{% static 'vendor/js-cookie/src/js.cookie.js' %}"></script>
-    {% endblock javascript %}
+
+    <script src="{% static 'js/base.js' %}"></script>
+
+{% endblock javascript %}
 </body>
 
 </html>

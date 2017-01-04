@@ -4,6 +4,7 @@
 
 {% block css %}
     {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/magnific-popup/magnific-popup.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/fullcalendar/dist/fullcalendar.css' %}">
     <link rel="stylesheet" href="{% static 'css/travel_schedule/travel_schedule_detail.css' %}">
 {% endblock %}
@@ -33,16 +34,16 @@
             </div>
         </div>
     </div>
-
 {% endblock %}
 
 {% block javascript %}
     {% get_or_create_calendar travelschedule as calendar %}
     {{ block.super }}
-    <script type='text/javascript' src="{% static 'vendor/moment/moment.js' %}"></script>
-    <script type='text/javascript' src="{% static 'vendor/fullcalendar/dist/fullcalendar.js' %}"></script>
-    <script type="text/javascript" src="{% static 'vendor/fullcalendar/dist/locale/ko.js' %}"></script>
-    <script type='text/javascript'>
+    <script src="{% static 'vendor/magnific-popup/jquery.magnific-popup.min.js' %}"></script>
+    <script src="{% static 'vendor/moment/moment.js' %}"></script>
+    <script src="{% static 'vendor/fullcalendar/dist/fullcalendar.js' %}"></script>
+    <script src="{% static 'vendor/fullcalendar/dist/locale/ko.js' %}"></script>
+    <script>
         $(document).ready(function () {
             /* initialize the calendar
              -----------------------------------------------------------------*/
@@ -71,10 +72,23 @@
                             title: '{{ event.event.title }}',
                             start: '{{ event.event.start|date:"c" }}',
                             end: '{{ event.event.end|date:"c" }}',
+                            travel_info: {{ event.travel_info.id }},
                             allDay: false
                         },
                     {% endfor %}
-                ]
+                ],
+                eventClick: function (event, jsEvent, view) {
+                    var url = "{% url 'travel_info:detail' 0 %}".replace('0', event.travel_info);
+                    url += '?viewtype=popup';
+                    $.magnificPopup.open({
+                        items: [
+                            {
+                                src: url,
+                                type: 'iframe'
+                            }
+                        ]
+                    });
+                }
             });
         });
     </script>

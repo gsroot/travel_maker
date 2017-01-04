@@ -87,7 +87,7 @@ a:hover {
 
 .travelinfo-text {
     margin-left: 10px;
-    padding-right: 0px;
+    padding-right: 0;
 }
 
 .travelinfo-title {
@@ -119,4 +119,9 @@ a:hover {
 
 .search {
     margin-top: 10px;
+}
+
+.mfp-iframe-holder .mfp-content {
+    max-width: none;
+    width: 80%;
 }

@@ -62,6 +62,7 @@ class TravelInfoDV(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        context['viewtype'] = self.request.GET.get('viewtype')
         context['naverapi_client_id'] = NAVER_API_CLIENT_ID
 
         if GooglePlaceInfo.objects.filter(travel_info=context['travelinfo']).exists() \
