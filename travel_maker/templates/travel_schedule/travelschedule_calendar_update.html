@@ -76,6 +76,12 @@
                 });
             };
 
+            var initialize_external_events = function () {
+                Waypoint.destroyAll();
+                page = 1;
+                $('#travel-info-list .fc-event').remove();
+            };
+
             var get_travelinfos = function () {
                 $.ajax({
                     type: 'GET',
@@ -106,9 +112,7 @@
             };
 
             var search = function () {
-                Waypoint.destroyAll();
-                page = 1;
-                $('.fc-event').remove();
+                initialize_external_events();
                 get_travelinfos();
             };
 
@@ -138,7 +142,7 @@
             });
 
             $('#contenttype-search input').change(function () {
-                contenttype_list = []
+                contenttype_list = [];
                 $("#contenttype-search input:checked").each(function () {
                     contenttype_list.push($(this).val());
                 });
@@ -168,7 +172,8 @@
             $('.fc-event').click(function () {
                 title = $(this).data('event').title;
                 travel_info = $(this).data('event').travel_info;
-                $('#del-event').hide();
+
+                $('#event-btns').hide();
                 $('#show-event-add-modal').show();
                 $('#event-control-modal').modal();
             });
@@ -186,7 +191,6 @@
             $('#add-event').click(function () {
                 var start = moment($('#datetimepicker-start').val());
                 var end = moment($('#datetimepicker-end').val());
-                console.log(start, end, title, travel_info);
                 $('#calendar').fullCalendar('renderEvent', {
                     'title': title,
                     'travel_info': travel_info,
@@ -200,6 +204,83 @@
                 $('#calendar').fullCalendar('removeEvents', eventid);
             });
 
+            $('#show-nearby-items').click(function () {
+                var url = "{% url 'travel_info:nearby_list_api' 0 %}".replace('0', travel_info);
+                initialize_external_events();
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    contentType: 'application/json',
+                    dataType: 'html',
+                    data: {
+                        page: page
+                    },
+                    success: function (result) {
+                        Waypoint.destroyAll();
+                        if (result.toString().length == 0) {
+                            return;
+                        }
+                        $('#waypoint').before(result);
+                        page += 1;
+                        setTimeout(function () {
+                            set_waypoint();
+                        }, 2000);
+                    },
+                    error: function (req, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+
+            $('#save').click(function () {
+                var travelinfoevent_set = [];
+                $.each(
+                    $('#calendar').fullCalendar('clientEvents'),
+                    function (i, val) {
+                        var client_event = val;
+
+                        var event = {
+                            'start': client_event.start ? client_event.start.format('') : '',
+                            'end': client_event.end ? client_event.end.format('') :
+                                moment(client_event.start).add(2, 'hours').format(''),
+                            'title': client_event.title,
+                            'calendar': {{ calendar.id }}
+                        };
+                        if (client_event.event_id) {
+                            event['id'] = client_event.event_id;
+                        }
+
+                        var travelinfo_event = {
+                            'event': event,
+                            'travel_schedule': {{ travelschedule.id }},
+                            'travel_info': client_event.travel_info
+                        };
+                        if (client_event.id) {
+                            travelinfo_event['id'] = client_event.id;
+                        }
+                        travelinfoevent_set.push(travelinfo_event);
+                    }
+                );
+                var data = {
+                    'calendar': {{ calendar.id }},
+                    'travelinfoevent_set': travelinfoevent_set
+                };
+                $.ajax({
+                    type: 'PUT',
+                    url: "{% url 'travel_schedule:calendar_update_api' travelschedule.id %}",
+                    contentType: 'application/json',
+                    dataType: 'json',
+                    data: JSON.stringify(data),
+                    success: function (result) {
+                        alert('저장 되었습니다');
+                        location.reload();
+                    },
+                    error: function (req, status, error) {
+                        alert('여행 일정 저장에 실패 했습니다. 관리자에게 문의 하세요.');
+                        location.reload();
+                    }
+                });
+            });
 
             /* initialize the external events
              -----------------------------------------------------------------*/
@@ -260,7 +341,7 @@
                     travel_info = event.travel_info;
                     $('#del-event').data('eventid', event._id);
                     $('#show-event-add-modal').hide();
-                    $('#del-event').show();
+                    $('#event-btns').show();
                     $('#event-control-modal').modal();
                 },
                 viewRender: function (view, element) {
@@ -271,56 +352,6 @@
                         element.css('width', width_percent);
                     }
                 }
-            });
-
-            $('#save').click(function () {
-                var travelinfoevent_set = [];
-                $.each(
-                    $('#calendar').fullCalendar('clientEvents'),
-                    function (i, val) {
-                        var client_event = val;
-
-                        var event = {
-                            'start': client_event.start ? client_event.start.format('') : '',
-                            'end': client_event.end ? client_event.end.format('') :
-                                moment(client_event.start).add(2, 'hours').format(''),
-                            'title': client_event.title,
-                            'calendar': {{ calendar.id }}
-                        };
-                        if (client_event.event_id) {
-                            event['id'] = client_event.event_id;
-                        }
-
-                        var travelinfo_event = {
-                            'event': event,
-                            'travel_schedule': {{ travelschedule.id }},
-                            'travel_info': client_event.travel_info
-                        };
-                        if (client_event.id) {
-                            travelinfo_event['id'] = client_event.id;
-                        }
-                        travelinfoevent_set.push(travelinfo_event);
-                    }
-                );
-                var data = {
-                    'calendar': {{ calendar.id }},
-                    'travelinfoevent_set': travelinfoevent_set
-                };
-                $.ajax({
-                    type: 'PUT',
-                    url: "{% url 'travel_schedule:calendar_update_api' travelschedule.id %}",
-                    contentType: 'application/json',
-                    dataType: 'json',
-                    data: JSON.stringify(data),
-                    success: function (result) {
-                        alert('저장 되었습니다');
-                        location.reload();
-                    },
-                    error: function (req, status, error) {
-                        alert('여행 일정 저장에 실패 했습니다. 관리자에게 문의 하세요.');
-                        location.reload();
-                    }
-                });
             });
         });
     </script>

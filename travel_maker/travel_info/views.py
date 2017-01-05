@@ -96,6 +96,20 @@ class TravelInfoList(APIView):
         return Response({'travelinfo_list': self.get_queryset()})
 
 
+class NearbyTravelInfoList(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'travel_info/travelinfo_list_by_api.html'
+
+    def get_queryset(self, pk):
+        queryset = TravelInfo.objects.filter(contenttype__name__in=['관광지', '숙박', '쇼핑', '음식점'])
+        page = int(self.request.query_params.get('page', 1))
+        queryset = queryset[20 * (page - 1):20 * page]
+        return queryset
+
+    def get(self, request, pk):
+        return Response({'travelinfo_list': self.get_queryset(pk)})
+
+
 class BlogList(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'travel_info/blog_list_by_api.html'
