@@ -6,6 +6,7 @@ from urllib.parse import urlparse, parse_qs, urlunparse
 
 import requests
 from bs4 import BeautifulSoup
+from django.db import DataError
 from django.db import IntegrityError
 
 from config.settings.base import NAVER_API_CLIENT_ID, NAVER_API_CLIENT_SECRET
@@ -91,39 +92,35 @@ class BlogDataCollector(WebCollector):
 
             elif parse_result.netloc.endswith('tistory.com'):
                 response = requests.get(blog['link'])
-                try:
-                    soup = BeautifulSoup(response.text, 'html.parser')
-                except NotImplementedError as e:
-                    print(e)
-                else:
-                    content_div = soup.find('div', class_='tt_article_useless_p_margin')
+                soup = BeautifulSoup(response.text, 'html.parser')
+                content_div = soup.find('div', class_='tt_article_useless_p_margin')
 
-                    if not content_div:
-                        content_div = soup.find('div', class_='article')
-                    if not content_div:
-                        content_div = soup.find('div', class_='area_view')
-                    if not content_div:
-                        content_div = soup.find('div', class_='desc')
-                    if not content_div:
-                        content_div = soup.find('div', class_='content_data_main_data_desc')
-                    if not content_div:
-                        continue
+                if not content_div:
+                    content_div = soup.find('div', class_='article')
+                if not content_div:
+                    content_div = soup.find('div', class_='area_view')
+                if not content_div:
+                    content_div = soup.find('div', class_='desc')
+                if not content_div:
+                    content_div = soup.find('div', class_='content_data_main_data_desc')
+                if not content_div:
+                    continue
 
-                    [f.extract() for f in content_div.find_all('fieldset')]
-                    [d.extract() for d in content_div.find_all('div')]
+                [f.extract() for f in content_div.find_all('fieldset')]
+                [d.extract() for d in content_div.find_all('div')]
 
-                    blog['text'] = content_div.get_text().strip()
+                blog['text'] = content_div.get_text().strip()
 
-                    tags_div = soup.find('div', class_='tagTrail')
-                    if not tags_div:
-                        tags_div = soup.find('dl', class_='list_tag')
-                    if not tags_div:
-                        tags_div = soup.find('div', class_='tag')
-                    if not tags_div:
-                        tags_div = soup.find('div', class_='content_data_bottom_tag')
+                tags_div = soup.find('div', class_='tagTrail')
+                if not tags_div:
+                    tags_div = soup.find('dl', class_='list_tag')
+                if not tags_div:
+                    tags_div = soup.find('div', class_='tag')
+                if not tags_div:
+                    tags_div = soup.find('div', class_='content_data_bottom_tag')
 
-                    if tags_div:
-                        tags = [tag.get_text() for tag in tags_div.find_all('a')]
+                if tags_div:
+                    tags = [tag.get_text() for tag in tags_div.find_all('a')]
 
             elif parse_result.netloc.endswith('egloos.com'):
                 response = requests.get(blog['link'])
@@ -166,7 +163,7 @@ class BlogDataCollector(WebCollector):
                 if res_dict['total'] > 0:
                     blogs = res_dict['items']
                     self.parse_blogs(blogs, travel_info)
-            except (JSONDecodeError, UnicodeEncodeError, IntegrityError) as e:
+            except (JSONDecodeError, UnicodeEncodeError, IntegrityError, NotImplementedError, DataError) as e:
                 print(e)
             finally:
                 progress.item_complete_count += 1

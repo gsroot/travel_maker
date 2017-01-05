@@ -6,6 +6,8 @@
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'vendor/magnific-popup/magnific-popup.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/fullcalendar/dist/fullcalendar.css' %}">
+    <link rel="stylesheet"
+          href="{% static 'vendor/eonasdan-bootstrap-datetimepicker/build/css/bootstrap-datetimepicker.min.css' %}"/>
     <link rel="stylesheet" href="{% static 'css/travel_schedule/travel_schedule_detail.css' %}">
 {% endblock %}
 
@@ -41,6 +43,7 @@
         </div>
     </div>
     {% include 'travel_schedule/snippets/event_control_modal.html' %}
+    {% include 'travel_schedule/snippets/event_add_modal.html' %}
 {% endblock %}
 
 {% block javascript %}
@@ -49,11 +52,17 @@
     <script src="{% static 'vendor/moment/moment.js' %}"></script>
     <script src="{% static 'vendor/fullcalendar/dist/fullcalendar.js' %}"></script>
     <script src="{% static 'vendor/fullcalendar/dist/locale/ko.js' %}"></script>
+    <script src="{% static 'vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js' %}"></script>
     <script src="{% static 'vendor/waypoints/lib/noframework.waypoints.js' %}"></script>
     {% get_or_create_calendar travelschedule as calendar %}
     <script>
         $(document).ready(function () {
             var page = 2;
+            var contenttype_list = [];
+            var schedule_start = moment('{{ travelschedule.start|date:"c" }}');
+            var schedule_end = moment('{{ travelschedule.end|date:"c" }}');
+            var title;
+            var travel_info;
 
             var set_waypoint = function () {
                 new Waypoint({
@@ -66,10 +75,6 @@
                     offset: '110%'
                 });
             };
-
-            set_waypoint();
-
-            var contenttype_list = [];
 
             var get_travelinfos = function () {
                 $.ajax({
@@ -120,6 +125,8 @@
                 });
             };
 
+            set_waypoint();
+
             $('#area-search').change(function () {
                 search();
             });
@@ -138,20 +145,61 @@
                 search();
             });
 
+            $('#datetimepicker-start').datetimepicker({
+                minDate: schedule_start,
+                maxDate: moment(schedule_end).add(1, 'days').subtract(1, 'second'),
+                format: 'YYYY-MM-DD HH:mm'
+            });
+
+            $('#datetimepicker-end').datetimepicker({
+                minDate: schedule_start,
+                maxDate: moment(schedule_end).add(1, 'days').subtract(1, 'second'),
+                format: 'YYYY-MM-DD HH:mm'
+            });
+
+            $('#datetimepicker-start').on("dp.change", function (e) {
+                $('#datetimepicker-end').data("DateTimePicker").minDate(e.date);
+            });
+
+            $('#datetimepicker-end').on("dp.change", function (e) {
+                $('#datetimepicker-start').data("DateTimePicker").maxDate(e.date);
+            });
+
             $('.fc-event').click(function () {
-                var travel_info = $(this).data('event').travel_info;
-                show_travel_info(travel_info);
+                title = $(this).data('event').title;
+                travel_info = $(this).data('event').travel_info;
+                $('#del-event').hide();
+                $('#show-event-add-modal').show();
+                $('#event-control-modal').modal();
             });
 
             $('#show-travelinfo').click(function () {
-                var travel_info = $(this).data('travelinfo');
                 show_travel_info(travel_info);
+            });
+
+            $('#show-event-add-modal').click(function () {
+                $('#datetimepicker-start').val('');
+                $('#datetimepicker-end').val('');
+                $('#event-add-modal').modal();
+            });
+
+            $('#add-event').click(function () {
+                var start = moment($('#datetimepicker-start').val());
+                var end = moment($('#datetimepicker-end').val());
+                console.log(start, end, title, travel_info);
+                $('#calendar').fullCalendar('renderEvent', {
+                    'title': title,
+                    'travel_info': travel_info,
+                    'start': start,
+                    'end': end
+                }, true);
             });
 
             $('#del-event').click(function () {
                 var eventid = $(this).data('eventid');
                 $('#calendar').fullCalendar('removeEvents', eventid);
             });
+
 
             /* initialize the external events
              -----------------------------------------------------------------*/
@@ -187,7 +235,7 @@
                         duration: {days: {{ travelschedule.duration_days }}}
                     }
                 },
-                defaultDate: moment('{{ travelschedule.start|date:"c" }}'),
+                defaultDate: schedule_start,
                 defaultView: 'agendaDuration',
                 contentHeight: 'auto',
                 lang: 'ko',
@@ -209,8 +257,10 @@
                     {% endfor %}
                 ],
                 eventClick: function (event, jsEvent, view) {
-                    $('#show-travelinfo').data('travelinfo', event.travel_info);
+                    travel_info = event.travel_info;
                     $('#del-event').data('eventid', event._id);
+                    $('#show-event-add-modal').hide();
+                    $('#del-event').show();
                     $('#event-control-modal').modal();
                 },
                 viewRender: function (view, element) {

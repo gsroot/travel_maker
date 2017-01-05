@@ -30,6 +30,9 @@ class TravelSchedule(models.Model):
     )
     is_public = BooleanField(default=False)
 
+    class Meta:
+        ordering = ['-id']
+
     def __str__(self):
         return self.title
 
@@ -41,8 +44,11 @@ class TravelSchedule(models.Model):
         return self.travelinfoevent_set.all()
 
     def clean(self):
-        if self.start and self.end and self.start > self.end:
-            raise ValidationError(_('여행 첫째날이 여행 마지막 날보다 같거나 빨라야 합니다'))
+        if self.start and self.end:
+            if self.start > self.end:
+                raise ValidationError(_('여행 첫째날이 여행 마지막 날보다 같거나 빨라야 합니다'))
+            if (self.end - self.start).days >= 30:
+                raise ValidationError(_('여행 기간은 최대 30일 까지 가능합니다'))
 
 
 class TravelEvent(models.Model):
