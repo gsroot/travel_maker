@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.core.urlresolvers import reverse
+from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import ForeignKey, CharField, TextField, PositiveSmallIntegerField, DateField, BooleanField
 from django.db.models import OneToOneField
@@ -18,7 +20,9 @@ class TravelSchedule(models.Model):
     description = TextField(max_length=5000, blank=True, verbose_name=_('여행에 대해 기록하고 싶은 세부 내용을 적어보세요'))
     start = DateField(verbose_name=_('여행 첫째날'))
     end = DateField(verbose_name=_('여행 마지막날'))
-    people_count = PositiveSmallIntegerField(default=1, verbose_name=_('여행 인원'))
+    people_count = PositiveSmallIntegerField(
+        default=1, validators=[MinValueValidator(1), MaxValueValidator(100)], verbose_name=_('여행 인원')
+    )
     tags = TaggableManager(
         blank=True,
         verbose_name=_('여행의 특징을 태그로 남겨보세요'),
@@ -35,6 +39,10 @@ class TravelSchedule(models.Model):
     @property
     def events(self):
         return self.travelinfoevent_set.all()
+
+    def clean(self):
+        if self.start and self.end and self.start > self.end:
+            raise ValidationError(_('여행 첫째날이 여행 마지막 날보다 같거나 빨라야 합니다'))
 
 
 class TravelEvent(models.Model):

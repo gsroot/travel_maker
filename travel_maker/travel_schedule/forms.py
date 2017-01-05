@@ -1,6 +1,6 @@
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Div
-from django.forms import ModelForm, DateInput
+from django.forms import ModelForm, DateInput, NumberInput
 
 from travel_maker.travel_schedule.models import TravelSchedule
 
@@ -12,6 +12,7 @@ class TravelScheduleForm(ModelForm):
         widgets = {
             'start': DateInput(attrs={'readonly': 'true'}),
             'end': DateInput(attrs={'readonly': 'true'}),
+            'people_count': NumberInput(attrs={'min': '1', 'max': '100'}),
         }
 
     def __init__(self, *args, **kwargs):
