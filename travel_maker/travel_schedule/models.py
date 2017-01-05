@@ -1,6 +1,6 @@
 from django.core.urlresolvers import reverse
 from django.db import models
-from django.db.models import ForeignKey, CharField, TextField, PositiveSmallIntegerField, DateField
+from django.db.models import ForeignKey, CharField, TextField, PositiveSmallIntegerField, DateField, BooleanField
 from django.db.models import OneToOneField
 from django.utils.translation import ugettext_lazy as _
 from schedule.models import Calendar
@@ -24,6 +24,7 @@ class TravelSchedule(models.Model):
         verbose_name=_('여행의 특징을 태그로 남겨보세요'),
         help_text=_('각 태그는 쉼표(,)로 구분됩니다')
     )
+    is_public = BooleanField(default=False)
 
     def __str__(self):
         return self.title

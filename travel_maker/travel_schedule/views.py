@@ -12,7 +12,7 @@ from rest_framework.generics import UpdateAPIView
 from travel_maker.public_data_collector.models import TravelInfo, Area, ContentType
 from travel_maker.travel_schedule.forms import TravelScheduleForm
 from travel_maker.travel_schedule.models import TravelSchedule
-from travel_maker.travel_schedule.serializers import TravelScheduleSerializer
+from travel_maker.travel_schedule.serializers import TravelCalendarSerializer, TravelScheduleSerializer
 
 
 class TravelScheduleListView(LoginRequiredMixin, ListView):
@@ -41,7 +41,6 @@ class TravelScheduleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
 class TravelScheduleCreateView(LoginRequiredMixin, CreateView):
     model = TravelSchedule
     form_class = TravelScheduleForm
-    success_url = reverse_lazy('travel_schedule:calendar_update')
 
     def form_valid(self, form):
         instance = form.save(commit=False)
@@ -49,6 +48,9 @@ class TravelScheduleCreateView(LoginRequiredMixin, CreateView):
         instance.save()
 
         return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('travel_schedule:detail', args=(self.object.id,))
 
 
 class TravelScheduleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -92,6 +94,14 @@ class TravelScheduleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
 class TravelScheduleUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateAPIView):
     queryset = TravelSchedule.objects.all()
     serializer_class = TravelScheduleSerializer
+
+    def test_func(self, user):
+        return user == self.get_object().owner
+
+
+class TravelCalendarUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateAPIView):
+    queryset = TravelSchedule.objects.all()
+    serializer_class = TravelCalendarSerializer
 
     def test_func(self, user):
         return user == self.get_object().owner

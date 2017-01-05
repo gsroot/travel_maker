@@ -27,7 +27,7 @@ class TravelInfoEventSerializer(ModelSerializer):
         fields = ('id', 'event', 'travel_schedule', 'travel_info')
 
 
-class TravelScheduleSerializer(ModelSerializer):
+class TravelCalendarSerializer(ModelSerializer):
     travelinfoevent_set = TravelInfoEventSerializer(many=True)
 
     class Meta:
@@ -42,11 +42,11 @@ class TravelScheduleSerializer(ModelSerializer):
         event_id_list = [
             travelinfoevent['event']['id'] for travelinfoevent in travel_info_events_data
             if travelinfoevent['event'].get('id')
-        ]
+            ]
         travelinfoevent_id_list = [
             travelinfoevent['id'] for travelinfoevent in travel_info_events_data
             if travelinfoevent.get('id')
-        ]
+            ]
         Event.objects.exclude(id__in=event_id_list).delete()
         TravelInfoEvent.objects.exclude(id__in=travelinfoevent_id_list).delete()
 
@@ -60,3 +60,9 @@ class TravelScheduleSerializer(ModelSerializer):
                 TravelInfoEvent.objects.create(event=event, **data)
 
         return instance
+
+
+class TravelScheduleSerializer(ModelSerializer):
+    class Meta:
+        model = TravelSchedule
+        fields = ('is_public',)

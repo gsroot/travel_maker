@@ -6,10 +6,7 @@
             <div class="schedule-item">
                 <div class="schedule-item-bg">
                     <div class="owner-info">
-                                            <span>
-                                                <img class="img-thumbnail owner-img"
-                                                     src="{{ schedule.owner.thumbnail.url }}">
-                                            </span>
+                        <span><img class="img-thumbnail owner-img" src="{{ schedule.owner.thumbnail.url }}"></span>
                         <span class="owner-name">{{ schedule.owner.email }}</span>
                         <button class="btn btn-danger btn-xs hidden delete-schedule"
                                 data-toggle="modal"
@@ -33,6 +30,7 @@
                 </div>
             </div>
         </a>
+        <div class="spacer-sm"></div>
     </div>
 {% empty %}
     <div class="center">

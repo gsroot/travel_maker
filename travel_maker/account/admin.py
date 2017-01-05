@@ -19,8 +19,8 @@ class TmUserAdmin(UserAdmin):
             'fields': ('email', 'username', 'password1', 'password2')}
          ),
     )
-    list_display = ('username', 'email', 'is_staff')
-    search_fields = ('username', 'email')
+    list_display = ('email', 'username', 'is_staff')
+    search_fields = ('email', 'username')
 
 
 admin.site.register(TmUser, TmUserAdmin)

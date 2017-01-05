@@ -8,12 +8,18 @@
             <button class="btn btn-block btn-tm" type="submit">여행 일정표 수정</button>
         </a>
         <div class="spacer-xs"></div>
-        <div class="btn-group btn-group-justified" role="group">
+        <div class="btn-group btn-group-justified btn-group-ispublic" role="group">
             <div class="btn-group btn-group" role="group">
-                <button class="btn btn-inactive">공개</button>
+                <button id="btn-ispublic-true"
+                        class="btn {% if travelschedule.is_public %}btn-active{% else %}btn-inactive{% endif %}">
+                    공개
+                </button>
             </div>
             <div class="btn-group btn-group" role="group">
-                <button class="btn btn-active">비공개</button>
+                <button id="btn-ispublic-false"
+                        class="btn {% if travelschedule.is_public %}btn-inactive{% else %}btn-active{% endif %}">
+                    비공개
+                </button>
             </div>
         </div>
     </div>

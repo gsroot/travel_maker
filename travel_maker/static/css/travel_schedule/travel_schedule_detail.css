@@ -121,6 +121,10 @@ a:hover {
     margin-top: 10px;
 }
 
+#calendar-box {
+    overflow: auto;
+}
+
 .mfp-iframe-holder .mfp-content {
     max-width: none;
     width: 80%;

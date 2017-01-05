@@ -5,3 +5,4 @@
 **/.env
 /bower_components/
 /resource/
+/todo.py

@@ -34,7 +34,9 @@
                 {% include 'travel_schedule/snippets/external_events_panel.html' %}
             </div>
             <div class="col-md-8">
-                <div id="calendar" class="box"></div>
+                <div id="calendar-box" class="box">
+                    <div id="calendar"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -105,7 +107,7 @@
                 get_travelinfos();
             };
 
-            var show_travel_info = function(travel_info) {
+            var show_travel_info = function (travel_info) {
                 var url = "{% url 'travel_info:detail' 0 %}".replace('0', travel_info);
                 url += '?viewtype=popup';
                 $.magnificPopup.open({
@@ -182,7 +184,7 @@
                 views: {
                     agendaDuration: {
                         type: 'agenda',
-                        duration: {days: {{ travelschedule.duration_days }}},
+                        duration: {days: {{ travelschedule.duration_days }}}
                     }
                 },
                 defaultDate: moment('{{ travelschedule.start|date:"c" }}'),
@@ -209,6 +211,14 @@
                     $('#show-travelinfo').data('travelinfo', event.travel_info);
                     $('#del-event').data('eventid', event._id);
                     $('#event-control-modal').modal();
+                },
+                viewRender: function (view, element) {
+                    var days = {{ travelschedule.duration_days }};
+
+                    if (days > 3) {
+                        var width_percent = (days * 25) + '%';
+                        element.css('width', width_percent);
+                    }
                 }
             });
 

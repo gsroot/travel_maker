@@ -30,7 +30,9 @@
             <div class="col-md-9">
                 {% include 'travel_schedule/snippets/schedule_item_overview.html' %}
                 <div class="spacer-xs"></div>
-                <div id="calendar" class="box"></div>
+                <div id="calendar-box" class="box">
+                    <div id="calendar"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -45,6 +47,31 @@
     <script src="{% static 'vendor/fullcalendar/dist/locale/ko.js' %}"></script>
     <script>
         $(document).ready(function () {
+            $('.btn-group-ispublic button').click(function () {
+               var is_public = ($(this).attr('id') == 'btn-ispublic-true');
+               var active_elm = $(this);
+               $.ajax({
+                    type: 'PUT',
+                    url: "{% url 'travel_schedule:update_api' travelschedule.id %}",
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        'is_public': is_public
+                    }),
+                    success: function (result) {
+                        var msg = is_public ? '여행 일정이 공개 되었습니다.' : '여행 일정이 비공개 되었습니다.';
+                        active_elm.removeClass('btn-inactive');
+                        active_elm.addClass('btn-active');
+                        var inactive_elm = is_public ? $('#btn-ispublic-false') : $('#btn-ispublic-true');
+                        inactive_elm.removeClass('btn-active');
+                        inactive_elm.addClass('btn-inactive');
+                        alert(msg);
+                    },
+                    error: function (req, status, error) {
+                        alert('공개/비공개 상태 변경에 문제가 있습니다. 관리자에게 문의하세요.');
+                    }
+                });
+            });
+
             /* initialize the calendar
              -----------------------------------------------------------------*/
             $('#calendar').fullCalendar({
@@ -88,6 +115,14 @@
                             }
                         ]
                     });
+                },
+                viewRender: function (view, element) {
+                    var days = {{ travelschedule.duration_days }};
+
+                    if (days > 3) {
+                        var width_percent = (days * 25) + '%';
+                        element.css('width', width_percent);
+                    }
                 }
             });
         });
