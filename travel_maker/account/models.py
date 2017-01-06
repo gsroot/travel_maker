@@ -43,14 +43,11 @@ class TmUser(AbstractBaseUser, PermissionsMixin):
     username_validator = UnicodeUsernameValidator() if six.PY3 else ASCIIUsernameValidator()
 
     username = models.CharField(
-        _('사용자 이름'),
+        _('닉네임'),
         max_length=150,
         default='',
         help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
         validators=[username_validator],
-        error_messages={
-            'unique': _("A user with that username already exists."),
-        },
     )
     email = models.EmailField(_('email address'), max_length=255, unique=True)
     image_width = PositiveIntegerField(editable=False, null=True)

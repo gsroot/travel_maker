@@ -3,7 +3,6 @@ from braces.views import UserPassesTestMixin
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
-from django.views.generic import DetailView
 from django.views.generic import UpdateView
 
 from travel_maker.account.forms import UserUpdateForm

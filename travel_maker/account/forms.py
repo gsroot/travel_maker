@@ -1,10 +1,12 @@
+from allauth.account import app_settings
 from allauth.account.forms import LoginForm, SignupForm
+from allauth.socialaccount.forms import SignupForm as SocialSignupForm
 from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, HTML
 from django.core.exceptions import ValidationError
 from django.core.files.images import get_image_dimensions
-from django.forms import ModelForm, Textarea
+from django.forms import ModelForm, Textarea, CharField, TextInput
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
 
@@ -12,10 +14,14 @@ from travel_maker.account.models import TmUser
 
 
 class UserSignupForm(SignupForm):
+    username = CharField(
+        label=_("닉네임"), min_length=app_settings.USERNAME_MIN_LENGTH,
+        widget=TextInput(attrs={'placeholder': _('닉네임'), 'autofocus': 'autofocus'})
+    )
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.helper = FormHelper()
-        self.helper.form_action = reverse('account_signup')
         self.helper.layout = Layout(
             Fieldset(
                 '',
@@ -26,7 +32,7 @@ class UserSignupForm(SignupForm):
 
             ),
             FormActions(
-                HTML('<button class="btn btn-primary btn-block" id="id-signup" type="submit">회원가입</button>'),
+                HTML('<button class="btn btn-tm btn-block" id="id-signup" type="submit">회원가입</button>'),
                 css_class='text-center'
             ),
         )
@@ -44,7 +50,7 @@ class UserLoginForm(LoginForm):
                 'password',
             ),
             FormActions(
-                HTML('<button class="btn btn-primary btn-block" id="id-login" type="submit">로그인</button>'),
+                HTML('<button class="btn btn-tm btn-block" id="id-login" type="submit">로그인</button>'),
                 css_class='text-center'
             ),
         )
@@ -94,3 +100,26 @@ class UserUpdateForm(ModelForm):
             )
 
         return image
+
+
+class SocialUserSignupForm(SocialSignupForm):
+    username = CharField(
+        label=_("닉네임"), min_length=app_settings.USERNAME_MIN_LENGTH,
+        widget=TextInput(attrs={'placeholder': _('닉네임'), 'autofocus': 'autofocus'})
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(
+                '',
+                'email',
+                'username',
+
+            ),
+            FormActions(
+                HTML('<button class="btn btn-tm btn-block" id="id-signup" type="submit">회원가입</button>'),
+                css_class='text-center'
+            ),
+        )

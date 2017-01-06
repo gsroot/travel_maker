@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
 import environ
+from django.urls import reverse_lazy
 
 ROOT_DIR = environ.Path(__file__) - 3  # (travel_maker/config/settings/base.py - 3 = travel_maker/)
 APPS_DIR = ROOT_DIR.path('travel_maker')
@@ -167,6 +168,7 @@ MEDIA_ROOT = str(RESOURCE_DIR.path('media'))
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
+
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
@@ -179,7 +181,7 @@ SITE_ID = 1
 
 AUTH_USER_MODEL = 'tm_account.TmUser'
 
-ACCOUNT_ADAPTER = 'travel_maker.account.adapter.AccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'travel_maker.account.adapter.SocialAccountAdapter'
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'email'
 ACCOUNT_EMAIL_REQUIRED = True
@@ -190,3 +192,8 @@ ACCOUNT_FORMS = {
     'signup': 'travel_maker.account.forms.UserSignupForm',
     'login': 'travel_maker.account.forms.UserLoginForm',
 }
+SOCIALACCOUNT_FORMS = {
+    'signup': 'travel_maker.account.forms.SocialUserSignupForm',
+}
+
+LOGIN_REDIRECT_URL = reverse_lazy('home')
