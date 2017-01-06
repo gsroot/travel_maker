@@ -67,7 +67,12 @@
                                     <img class="img-circle user-thumbnail"
                                          src="{% static 'img/no-photo.png' %}">
                                 {% endif %}
-                                {{ user.email }} <span class="caret"></span>
+                                {% if user.username %}
+                                    {{ user.username }}
+                                {% else %}
+                                    {{ user.email }}
+                                {% endif %}
+                                <span class="caret"></span>
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li><a class="page-scroll" href="{% url 'profile:home' user.id %}">마이페이지</a></li>

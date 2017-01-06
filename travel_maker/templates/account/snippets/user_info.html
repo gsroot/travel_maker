@@ -2,9 +2,15 @@
 
 <div class="user-info">
     <img class="img-thumbnail profile-img"
-           src="{% if user.thumbnail %}{{ user.thumbnail.url }}{% else %}{% static 'img/no-photo.png' %}{% endif %}">
+         src="{% if user.thumbnail %}{{ user.thumbnail.url }}{% else %}{% static 'img/no-photo.png' %}{% endif %}">
     <div>
-        <h3>{{ user.email }}</h3>
+        <h3>
+            {% if user.username %}
+                {{ user.username }}
+            {% else %}
+                {{ user.email }}
+            {% endif %}
+        </h3>
     </div>
     <div>
         <a class="update-profile-introduction" role="button" data-toggle="modal"

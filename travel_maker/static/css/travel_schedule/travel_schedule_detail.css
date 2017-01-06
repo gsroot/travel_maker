@@ -33,10 +33,10 @@ a:hover {
     height: 100px;
 }
 
-.owner-email {
+.owner-username {
     display: inline-block;
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 800;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, .35);
     word-break: break-all;
 }

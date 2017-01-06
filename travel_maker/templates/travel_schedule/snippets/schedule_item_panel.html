@@ -30,7 +30,13 @@
         </a>
         <div class="spacer-xs"></div>
         <a href="{% url 'profile:home' user.id %}">
-            <div class="owner-email">{{ user.email }}</div>
+            <div class="owner-username">
+                {% if user.username %}
+                    {{ user.username }}
+                {% else %}
+                    {{ user.email }}
+                {% endif %}
+            </div>
         </a>
     </div>
 </div>
