@@ -49,6 +49,15 @@ class UserLoginForm(LoginForm):
             ),
         )
 
+    def clean_login(self):
+        login = super().clean_login()
+        users = TmUser.objects.filter(email=login)
+        if users.exists() and users[0].socialaccount_set.all():
+            raise ValidationError('해당 이메일은 연동된 소셜 계정이 존재합니다. 소셜 계정으로 로그인 해주세요.')
+
+        return login
+
+
 
 class UserUpdateForm(ModelForm):
     class Meta:
