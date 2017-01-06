@@ -22,9 +22,6 @@
 
 {% block content %}
     <div class="container">
-        {% include 'account/snippets/profile_update_modal.html' %}
-        {% include 'account/snippets/profile_delete_modal.html' %}
-        {% include 'account/snippets/schedule_delete_modal.html' %}
         <div class="row">
             <div class="col-md-2"></div>
             <div class="col-md-10">
@@ -41,6 +38,9 @@
             </div>
         </div>
     </div>
+    {% include 'account/snippets/profile_update_modal.html' %}
+    {% include 'account/snippets/profile_delete_modal.html' %}
+    {% include 'account/snippets/schedule_delete_modal.html' %}
 {% endblock %}
 
 {% block javascript %}
@@ -48,6 +48,14 @@
 
     <script>
         $(document).ready(function () {
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.level >= DEFAULT_MESSAGE_LEVELS.WARNING %}
+                        alert('{{ message }}');
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
             $('.schedule-item').hover(
                 function () {
                     $(this).find('.delete-schedule').removeClass('hidden');

@@ -1,5 +1,7 @@
 from braces.views import LoginRequiredMixin
 from braces.views import UserPassesTestMixin
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
@@ -51,6 +53,13 @@ class TravelScheduleCreateView(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse('travel_schedule:detail', args=(self.object.id,))
+
+    def get(self, request, *args, **kwargs):
+        travel_schedule_cnt = self.model.objects.filter(owner=request.user).count()
+        if travel_schedule_cnt >= 20:
+            messages.warning(request, '계정당 최대 20개까지만 여행 일정을 만들 수 있습니다.')
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        return super().get(request, *args, **kwargs)
 
 
 class TravelScheduleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):

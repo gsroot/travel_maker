@@ -58,7 +58,6 @@ class UserLoginForm(LoginForm):
         return login
 
 
-
 class UserUpdateForm(ModelForm):
     class Meta:
         model = TmUser
