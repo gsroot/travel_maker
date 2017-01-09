@@ -15,6 +15,7 @@ from travel_maker.blog_data_collector.models import BlogData
 from travel_maker.google_data_collector.models import GooglePlaceInfo
 from travel_maker.public_data_collector.models import TravelInfo, Area
 from travel_maker.travel_info.forms import TravelInfoSearchForm
+from travel_maker.travel_review.models import TravelReview
 
 
 class TravelInfoLV(ListView):
@@ -68,6 +69,10 @@ class TravelInfoDV(DetailView):
         if GooglePlaceInfo.objects.filter(travel_info=context['travelinfo']).exists() \
                 and context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all():
             context['google_reviews'] = context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all()
+
+        if TravelReview.objects.filter(travel_info=context['travelinfo']).exists() \
+                and context['travelinfo'].travelreview_set.all():
+            context['travel_reviews'] = context['travelinfo'].travelreview_set.all()
 
         return context
 

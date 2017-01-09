@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% load static i18n crispy_forms_tags %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/travel_schedule/travel_schedule_detail.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+    <header>
+        <div class="spacer-xl"></div>
+        <div class="spacer-md"></div>
+        <div class="header-title">
+            평가하기
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div class="spacer-md"></div>
+    <div class="container">
+        <form action="" method="post">
+            <div id="rating"></div>
+            {% crispy form %}
+            <div class="col-md-6">
+                <button class="btn btn-block btn-tm" id="id-submit" type="submit">확인</button>
+            </div>
+            <div class="col-md-6">
+                <a class="btn btn-block btn-default" href="#">
+                    취소
+                </a>
+            </div>
+        </form>
+    </div>
+    <div class="spacer-xl"></div>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            var _getFirstDecimal = function (number) {
+                var
+                    decimal = number.toString().split('.')[1],
+                    result = 0;
+
+                if (decimal) {
+                    result = parseInt(decimal.charAt(0), 10);
+
+                    if (decimal.slice(1, 5) === '9999') {
+                        result++;
+                    }
+                }
+
+                return result;
+            };
+
+            $.fn.raty.defaults.path = '/static/vendor/raty/images/';
+            $('#rating').raty({
+                half: true,
+                hints: ['최악', '별로..', '보통', '좋아요', '최고!'],
+                starHalf: 'star-half-big.png',
+                starOff: 'star-off-big.png',
+                starOn: 'star-on-big.png',
+                click: function (score, evt) {
+                    var integer = parseInt(score, 10),
+                        decimal = _getFirstDecimal.call(this, score);
+
+                    if (decimal !== 0) {
+                        decimal = decimal > 5 ? 1 : 0.5;
+                    }
+
+                    $('#id_rating').val(integer + decimal);
+                }
+            });
+        })
+    </script>
+{% endblock %}

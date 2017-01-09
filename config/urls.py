@@ -30,5 +30,7 @@ urlpatterns = [
     url(r'^accounts/profile/(?P<pk>\d+)/', include('travel_maker.account.urls', namespace='profile')),
     url(r'^accounts/', include('allauth.urls')),
     url(r'^travel-info/', include('travel_maker.travel_info.urls', namespace='travel_info')),
+    url(r'^travel-review/', include('travel_maker.travel_review.urls', namespace='travel_review')),
     url(r'^travel-schedule/', include('travel_maker.travel_schedule.urls', namespace='travel_schedule')),
+    url(r'^summernote/', include('django_summernote.urls')),
 ] + staticfiles_urlpatterns() + static(MEDIA_URL, document_root=MEDIA_ROOT)

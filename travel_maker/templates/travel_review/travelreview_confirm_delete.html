@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form action="" method="post">
+        {% csrf_token %}
+    </form>
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            var sel = confirm("여행지 평가를 정말 삭제하시겠습니까?");
+            if (sel == true) {
+                $('form').submit();
+            } else {
+                history.back();
+            }
+        });
+    </script>
+{% endblock %}

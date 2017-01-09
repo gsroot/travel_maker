@@ -1,6 +1,6 @@
 {% load static %}
 
-{% if google_reviews %}
+{% if google_reviews or travel_reviews %}
     <div class="row">
         <div id="item-reviews-info">
             <h3>유저 평가</h3>
@@ -22,7 +22,7 @@
                         </div>
                         <div class="row">
                             <div class="review-rating col-md-2">
-                                <div id="rating-{{ review.id }}"></div>
+                                <div id="google-rating-{{ review.id }}"></div>
                             </div>
                             <div class="review-time col-md-10">
                                 {{ review.time }}
@@ -35,6 +35,46 @@
                     <div class="col-md-1"></div>
                     <div class="review-text col-md-11">
                         {{ review.text }}
+                    </div>
+                </div>
+                <div class="spacer-sm divider"></div>
+                <div class="spacer-sm"></div>
+            {% endfor %}
+            {% for review in travel_reviews %}
+                <div class="row">
+                    <div class="col-md-1">
+                        {% if review.owner.thumbnail %}
+                            <img class="review-user-profile-img img-circle"
+                                 src="{{ review.owner.thumbnail.url }}" alt="">
+                        {% else %}
+                            <img class="review-user-profile-img img-circle"
+                                 src="{% static 'img/no-photo.png' %}" alt="">
+                        {% endif %}
+                    </div>
+                    <div class="row col-md-11">
+                        <div class="review-user-name row">
+                            {{ review.owner.username }}
+                        </div>
+                        <div class="row">
+                            <div class="review-rating col-md-2">
+                                <div id="travel-rating-{{ review.id }}"></div>
+                            </div>
+                            <div class="review-time col-md-9">
+                                {{ review.updated }}
+                            </div>
+                            <div class="review-del col-md-1">
+                                {% if user == review.owner %}
+                                    <a href="{% url 'travel_review:delete' review.id %}">삭제</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="spacer-sm"></div>
+                <div class="row">
+                    <div class="col-md-1"></div>
+                    <div class="review-text col-md-11">
+                        {{ review.content|safe }}
                     </div>
                 </div>
                 <div class="spacer-sm divider"></div>

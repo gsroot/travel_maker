@@ -123,18 +123,20 @@
     <script type="text/javascript"
             src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId={{ naverapi_client_id }}"></script>
     <script>
-        var mapOptions = {
-            center: new naver.maps.LatLng({{ center_mapy }}, {{ center_mapx }}),
-            zoom: 3
-        };
+        $(document).ready(function () {
+            var mapOptions = {
+                center: new naver.maps.LatLng({{ center_mapy }}, {{ center_mapx }}),
+                zoom: 3
+            };
 
-        var map = new naver.maps.Map('map', mapOptions);
+            var map = new naver.maps.Map('map', mapOptions);
 
-        {% for area in map_areas %}
-            var marker = new naver.maps.Marker({
-                position: new naver.maps.LatLng({{ area.info.mapy }}, {{ area.info.mapx }}),
-                map: map
-            });
-        {% endfor %}
+            {% for area in map_areas %}
+                var marker = new naver.maps.Marker({
+                    position: new naver.maps.LatLng({{ area.info.mapy }}, {{ area.info.mapx }}),
+                    map: map
+                });
+            {% endfor %}
+        })
     </script>
 {% endblock %}

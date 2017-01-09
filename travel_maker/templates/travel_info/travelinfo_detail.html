@@ -61,81 +61,91 @@
     <script type="text/javascript"
             src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId={{ naverapi_client_id }}"></script>
     <script>
-        var mapOptions = {
-            center: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
-            zoom: 6
-        };
+        $(document).ready(function () {
+            var mapOptions = {
+                center: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
+                zoom: 6
+            };
 
-        var map = new naver.maps.Map('map', mapOptions);
+            var map = new naver.maps.Map('map', mapOptions);
 
-        var marker = new naver.maps.Marker({
-            position: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
-            map: map
-        });
-
-        $('#map-extend button').click(function () {
-            var map_elm = $('#map');
-            map_elm.toggleClass('extend');
-            if (map_elm.hasClass('extend')) {
-                $(this).html('지도 작게 보기 <i class="fa fa-caret-up"></i>');
-            }
-            else {
-                $(this).html('지도 크게 보기 <i class="fa fa-caret-down"></i>');
-            }
-
-            map.destroy();
-            map = new naver.maps.Map('map', mapOptions);
             var marker = new naver.maps.Marker({
                 position: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
                 map: map
             });
-        });
 
-        $.fn.raty.defaults.path = '/static/vendor/raty/images/';
-
-        {% if travelinfo.rating %}
-            $('#rating').raty({
-                readOnly: true,
-                space: false,
-                half: true,
-                starHalf: 'star-half-big.png',
-                starOff: 'star-off-big.png',
-                starOn: 'star-on-big.png',
-                score: {{ travelinfo.rating }}
-            });
-        {% endif %}
-
-        {% for review in google_reviews %}
-            $('#rating-{{ review.id }}').raty({
-                readOnly: true,
-                space: false,
-                score: {{ review.rating }}
-            });
-        {% endfor %}
-
-        var page = 2;
-
-        $('#more_blogs a').click(function (e) {
-            $.ajax({
-                type: 'GET',
-                url: "{% url 'travel_info:blog_list_api' travelinfo.id %}",
-                contentType: 'application/json',
-                dataType: 'html',
-                data: {
-                    page: page
-                },
-                success: function (result) {
-                    if (result.toString().length == 0) {
-                        $('#more_blogs').remove();
-                        return;
-                    }
-                    $('#item-blogs-info').append(result);
-                    page += 1;
-                },
-                error: function (req, status, error) {
-                    console.log(error);
+            $('#map-extend button').click(function () {
+                var map_elm = $('#map');
+                map_elm.toggleClass('extend');
+                if (map_elm.hasClass('extend')) {
+                    $(this).html('지도 작게 보기 <i class="fa fa-caret-up"></i>');
                 }
+                else {
+                    $(this).html('지도 크게 보기 <i class="fa fa-caret-down"></i>');
+                }
+
+                map.destroy();
+                map = new naver.maps.Map('map', mapOptions);
+                var marker = new naver.maps.Marker({
+                    position: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
+                    map: map
+                });
             });
-        });
+
+            $.fn.raty.defaults.path = '/static/vendor/raty/images/';
+
+            {% if travelinfo.rating %}
+                $('#rating').raty({
+                    readOnly: true,
+                    space: false,
+                    half: true,
+                    starHalf: 'star-half-big.png',
+                    starOff: 'star-off-big.png',
+                    starOn: 'star-on-big.png',
+                    score: {{ travelinfo.rating }}
+                });
+            {% endif %}
+
+            {% for review in google_reviews %}
+                $('#google-rating-{{ review.id }}').raty({
+                    readOnly: true,
+                    space: false,
+                    score: {{ review.rating }}
+                });
+            {% endfor %}
+
+            {% for review in travel_reviews %}
+                $('#travel-rating-{{ review.id }}').raty({
+                    readOnly: true,
+                    space: false,
+                    score: {{ review.rating }}
+                });
+            {% endfor %}
+
+            var page = 2;
+
+            $('#more_blogs a').click(function (e) {
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'travel_info:blog_list_api' travelinfo.id %}",
+                    contentType: 'application/json',
+                    dataType: 'html',
+                    data: {
+                        page: page
+                    },
+                    success: function (result) {
+                        if (result.toString().length == 0) {
+                            $('#more_blogs').remove();
+                            return;
+                        }
+                        $('#item-blogs-info').append(result);
+                        page += 1;
+                    },
+                    error: function (req, status, error) {
+                        console.log(error);
+                    }
+                });
+            });
+        })
     </script>
 {% endblock %}

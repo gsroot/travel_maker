@@ -64,12 +64,14 @@ INSTALLED_APPS = [
     'bootstrap_pagination',
     'schedule',
     'rest_framework',
+    'django_summernote',
 
     'travel_maker.public_data_collector.apps.PublicDataCollectorConfig',
     'travel_maker.google_data_collector.apps.GoogleDataCollectorConfig',
     'travel_maker.blog_data_collector.apps.BlogDataCollectorConfig',
     'travel_maker.account.apps.AccountConfig',
     'travel_maker.travel_info.apps.TravelInfoConfig',
+    'travel_maker.travel_review.apps.TravelReviewConfig',
     'travel_maker.travel_schedule.apps.TravelScheduleConfig',
     'travel_maker.data_analysis.apps.DataAnalysisConfig',
 ]
