@@ -4,7 +4,6 @@
 
 {% block css %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'vendor/magnific-popup/magnific-popup.css' %}">
     <link rel="stylesheet" href="{% static 'vendor/fullcalendar/dist/fullcalendar.css' %}">
     <link rel="stylesheet" href="{% static 'css/travel_schedule/travel_schedule_detail.css' %}">
 {% endblock %}
@@ -41,7 +40,6 @@
 {% block javascript %}
     {% get_or_create_calendar travelschedule as calendar %}
     {{ block.super }}
-    <script src="{% static 'vendor/magnific-popup/jquery.magnific-popup.min.js' %}"></script>
     <script src="{% static 'vendor/moment/moment.js' %}"></script>
     <script src="{% static 'vendor/fullcalendar/dist/fullcalendar.js' %}"></script>
     <script src="{% static 'vendor/fullcalendar/dist/locale/ko.js' %}"></script>

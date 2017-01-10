@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% load static i18n %}
+
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'vendor/fullcalendar/dist/fullcalendar.css' %}">
+    <link rel="stylesheet" href="{% static 'css/travel_schedule/travel_schedule_detail.css' %}">
+{% endblock %}
+
+{% block header %}
+    <header>
+        <div class="spacer-xl"></div>
+        <div class="spacer-md"></div>
+        <div class="header-title">
+            ...
+        </div>
+    </header>
+{% endblock %}
+
+{% block content %}
+    <div class="spacer-md"></div>
+    <div class="container">
+        <div class="row">
+            <div class="center">
+                {{ travelreview.content|safe }}
+            </div>
+        </div>
+    </div>
+{% endblock %}

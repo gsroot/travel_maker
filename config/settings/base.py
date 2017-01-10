@@ -199,3 +199,22 @@ SOCIALACCOUNT_FORMS = {
 }
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')
+
+
+SUMMERNOTE_CONFIG = {
+    'lang': 'ko-KR',
+    'attachment_filesize_limit': 1024 * 1024,
+    'toolbar': [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'superscript', 'subscript',
+                      'strikethrough', 'clear']],
+            ['fontname', ['fontname']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['height', ['height']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video', 'hr']],
+            ['view', ['fullscreen', 'codeview']],
+    ],
+}

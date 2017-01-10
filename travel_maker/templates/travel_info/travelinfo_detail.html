@@ -74,6 +74,8 @@
                 map: map
             });
 
+            var page = 2;
+
             $('#map-extend button').click(function () {
                 var map_elm = $('#map');
                 map_elm.toggleClass('extend');
@@ -122,7 +124,16 @@
                 });
             {% endfor %}
 
-            var page = 2;
+            $('.review-content').each(function () {
+                var height = $(this).height();
+                var max_height = parseInt($(this).css('max-height'));
+                if (height >= max_height) {
+                    var url = "{% url 'travel_review:detail' 0 %}".replace('0', $(this).find('.travel-review-id').val());
+                    var more_review = '<a class="btn btn-block btn-default more-review" href="' + url + '">더보기</a>';
+                    $(this).append(more_review);
+                }
+            });
+
 
             $('#more_blogs a').click(function (e) {
                 $.ajax({

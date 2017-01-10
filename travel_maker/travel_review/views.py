@@ -3,10 +3,15 @@ from braces.views import UserPassesTestMixin
 from django.urls import reverse
 from django.views.generic import CreateView
 from django.views.generic import DeleteView
+from django.views.generic import DetailView
 
 from travel_maker.public_data_collector.models import TravelInfo
 from travel_maker.travel_review.forms import TravelReviewCreateForm
 from travel_maker.travel_review.models import TravelReview
+
+
+class TravelReviewDetailView(DetailView):
+    model = TravelReview
 
 
 class TravelReviewCreateView(LoginRequiredMixin, CreateView):
@@ -22,8 +27,8 @@ class TravelReviewCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        self.kwargs['id'] = self.kwargs['travel_info'];
-        reverse('travel_info:detail', kwargs=self.kwargs)
+        self.kwargs['pk'] = self.kwargs.pop('travel_info')
+        return reverse('travel_info:detail', kwargs=self.kwargs)
 
 
 class TravelReviewDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):

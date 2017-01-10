@@ -118,8 +118,13 @@ class TravelInfo(models.Model):
 
     @property
     def rating(self):
-        if self.googleplaceinfo and self.googleplaceinfo.googleplacereviewinfo_set.all():
-            return mean([review.rating for review in self.googleplaceinfo.googleplacereviewinfo_set.all()])
+        if (hasattr(self, 'googleplaceinfo') and self.googleplaceinfo.googleplacereviewinfo_set.all()) \
+                or self.travelreview_set.all():
+            google_ratings = [
+                review.rating for review in self.googleplaceinfo.googleplacereviewinfo_set.all()
+            ] if hasattr(self, 'googleplaceinfo') else []
+            travel_ratings = [review.rating for review in self.travelreview_set.all()]
+            return round(mean(google_ratings + travel_ratings), 2)
         else:
             return None
 

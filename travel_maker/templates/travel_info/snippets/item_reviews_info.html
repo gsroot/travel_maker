@@ -33,7 +33,7 @@
                 <div class="spacer-sm"></div>
                 <div class="row">
                     <div class="col-md-1"></div>
-                    <div class="review-text col-md-11">
+                    <div class="review-content col-md-11">
                         {{ review.text }}
                     </div>
                 </div>
@@ -73,8 +73,11 @@
                 <div class="spacer-sm"></div>
                 <div class="row">
                     <div class="col-md-1"></div>
-                    <div class="review-text col-md-11">
-                        {{ review.content|safe }}
+                    <div class="col-md-11 review-content">
+                        <input class="travel-review-id" type="hidden" value="{{ review.id }}">
+                        <div>
+                            {{ review.content|safe }}
+                        </div>
                     </div>
                 </div>
                 <div class="spacer-sm divider"></div>

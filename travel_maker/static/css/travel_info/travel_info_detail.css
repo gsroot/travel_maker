@@ -45,6 +45,17 @@
     font-size: 12px;
 }
 
+.review-content {
+    max-height: 500px;
+    overflow:hidden;
+}
+
+.more-review {
+	position: absolute;
+	bottom: 0;
+	width: 90%;
+}
+
 #rating-text {
     margin-left: 10px;
     font-size: 18px;

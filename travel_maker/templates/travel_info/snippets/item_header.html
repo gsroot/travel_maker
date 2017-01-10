@@ -13,7 +13,7 @@
                 </div>
                 <div class="item-header-right col-md-3">
                     <span id="rating"></span>
-                    {% if google_reviews %}
+                    {% if google_reviews or travel_reviews %}
                         <span id="rating-text">{{ travelinfo.rating }} 점</span>
                     {% endif %}
                 </div>
