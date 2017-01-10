@@ -97,13 +97,17 @@
                         </div>
                         <div class="spacer-sm"></div>
                         <div class="row">
-                            <a href="#">
-                                <div class="col-md-1">
-                                    <i class="fa fa-thumbs-o-up fa-lg" aria-hidden="true"></i>
-                                </div>
-                                <div class="col-md-11">
-                                    <p>관심 여행지에 추가</p>
-                                </div>
+                            <a class="travelbookmark-creation" href="javascript:void(0)">
+                                <form action="{% url 'travel_bookmark:create' %}" method="post">
+                                    {% csrf_token %}
+                                    <input name="travel_info" type="hidden" value="{{ info.id }}">
+                                    <div class="col-md-1">
+                                        <i class="fa fa-thumbs-o-up fa-lg" aria-hidden="true"></i>
+                                    </div>
+                                    <div class="col-md-11">
+                                        <p>관심 여행지에 추가</p>
+                                    </div>
+                                </form>
                             </a>
                         </div>
                     </div>
@@ -137,6 +141,10 @@
                     map: map
                 });
             {% endfor %}
+
+            $('.travelbookmark-creation').click(function () {
+                $(this).find('form').submit();
+            })
         })
     </script>
 {% endblock %}

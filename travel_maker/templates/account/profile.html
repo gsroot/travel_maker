@@ -6,6 +6,7 @@
     {{ block.super }}
     <link href="{% static 'css/account/profile.css' %}" rel="stylesheet">
     <link href="{% static 'css/travel_schedule/travel_schedule_list.css' %}" rel="stylesheet">
+    <link href="{% static 'css/travel_bookmark/travel_bookmark_list.css' %}" rel="stylesheet">
 {% endblock %}
 
 {% block header %}
@@ -22,19 +23,12 @@
 
 {% block content %}
     <div class="container">
+        <div class="spacer-lg"></div>
         <div class="row">
-            <div class="col-md-2"></div>
-            <div class="col-md-10">
-                <div class="spacer-lg"></div>
-                <div class="row">
-                    {% include 'account/snippets/schedule_list.html' %}
-                </div>
-                <div class="spacer-sm"></div>
-                <div class="row">
-                    <div class="center">
-                        <a class="btn btn-tm" href="{% url 'travel_schedule:create' %}">여행 일정 만들기</a>
-                    </div>
-                </div>
+            <div class="col-md-3">
+                {% include 'account/snippets/menu.html' %}
+            </div>
+            <div id="items" class="col-md-9">
             </div>
         </div>
     </div>
@@ -42,6 +36,7 @@
     {% include 'account/snippets/profile_password_change_modal.html' %}
     {% include 'account/snippets/profile_delete_modal.html' %}
     {% include 'account/snippets/schedule_delete_modal.html' %}
+    {% include 'account/snippets/bookmark_delete_modal.html' %}
 {% endblock %}
 
 {% block javascript %}
@@ -57,18 +52,6 @@
                 {% endfor %}
             {% endif %}
 
-            $('.schedule-item').hover(
-                function () {
-                    $(this).find('.delete-schedule').removeClass('hidden');
-                }, function () {
-                    $(this).find('.delete-schedule').addClass('hidden');
-                }
-            );
-
-            $('.delete-schedule').click(function (e) {
-                e.preventDefault();
-            });
-
             $('.user-info').hover(
                 function () {
                     $(this).find('.update-profile').removeClass('hidden');
@@ -81,12 +64,65 @@
                 location.href = "{% url 'profile:home' 0 %}".replace('0', '{{ user.id }}')
             });
 
+            $(document).on('mouseover', '.item', function () {
+                $(this).find('.delete').removeClass('hidden');
+            });
+
+            $(document).on('mouseleave', '.item', function () {
+                $(this).find('.delete').addClass('hidden');
+            });
+
+            $(document).on('click', '.delete', function (e) {
+                e.preventDefault();
+            });
+
+            $('#schedule-delete-modal, #bookmark-delete-modal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var id = button.data('id');
+                var form = $(this).find('form');
+                form.attr('action', form.attr('action').replace('0', id));
+            });
+
             {% if form.errors %}
                 $('.update-profile button').click();
             {% endif %}
             {% if passwordchangeform.errors %}
                 $('.change-pwd a').click();
             {% endif %}
+
+            var menu_click = function (elm) {
+                $('#menu .active').removeClass('active');
+                elm.addClass('active');
+            };
+
+            var get_items = function (url) {
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    contentType: 'application/json',
+                    dataType: 'html',
+                    success: function (result) {
+                        $('#items').html(result);
+                    },
+                    error: function (req, status, error) {
+                        console.log(error);
+                    }
+                });
+            };
+
+            get_items("{% url 'travel_schedule:list' %}");
+
+            $('#travelschedule').click(function () {
+                menu_click($(this));
+                var url = "{% url 'travel_schedule:list' %}";
+                get_items(url);
+            });
+
+            $('#travelbookmark').click(function () {
+                menu_click($(this));
+                var url = "{% url 'travel_bookmark:list' %}";
+                get_items(url);
+            });
         })
     </script>
 {% endblock %}

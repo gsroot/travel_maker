@@ -18,7 +18,7 @@ from travel_maker.travel_info.forms import TravelInfoSearchForm
 from travel_maker.travel_review.models import TravelReview
 
 
-class TravelInfoLV(ListView):
+class TravelInfoListView(ListView):
     template_name = "travel_info/travelinfo_list.html"
     paginate_by = 10
 
@@ -56,7 +56,7 @@ class TravelInfoLV(ListView):
         return context
 
 
-class TravelInfoDV(DetailView):
+class TravelInfoDetailView(DetailView):
     model = TravelInfo
     template_name = "travel_info/travelinfo_detail.html"
 

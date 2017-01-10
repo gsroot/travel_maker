@@ -19,7 +19,7 @@ body {
     right: 25px;
 }
 
-.schedule-item-link:hover {
+.bookmark-item-link:hover {
     text-decoration:none;
 }
 
@@ -30,28 +30,18 @@ body {
     background-size: 100%;
 }
 
-.schedule-item-bg {
+.bookmark-item-bg {
     height: 100%;
     background: rgba(0, 0, 0, .0);
     padding: 15px 15px 15px 15px;
 }
 
-.schedule-item-title {
+.bookmark-item-title {
     text-shadow: 2px 2px 2px rgba(0, 0, 0, .6);
 }
 
-.schedule-item-overview {
+.bookmark-item-overview {
     margin-top: 20px;
     font-weight: 600;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, .6);
-}
-
-.owner-img {
-    width: 30px;
-    height: 30px;
-}
-
-.owner-name {
-    font-size: 14px;
-    font-weight: 500;
 }

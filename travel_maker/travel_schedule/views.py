@@ -57,7 +57,7 @@ class TravelScheduleCreateView(LoginRequiredMixin, CreateView):
     def get(self, request, *args, **kwargs):
         travel_schedule_cnt = self.model.objects.filter(owner=request.user).count()
         if travel_schedule_cnt >= 20:
-            messages.warning(request, '계정당 최대 20개까지만 여행 일정을 만들 수 있습니다.')
+            messages.warning(request, '계정당 최대 20개까지만 여행 일정을 만들 수 있습니다')
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
         return super().get(request, *args, **kwargs)
 
@@ -94,10 +94,12 @@ class TravelCalendarUpdateView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
 
 class TravelScheduleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = TravelSchedule
-    success_url = reverse_lazy('travel_schedule:list')
 
     def test_func(self, user):
         return user == self.get_object().owner
+
+    def get_success_url(self):
+        return reverse('profile:home', args=(self.request.user.id,))
 
 
 class TravelScheduleUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateAPIView):

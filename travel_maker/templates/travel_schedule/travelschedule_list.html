@@ -1,133 +1,52 @@
-{% extends "base.html" %}
+{% load static %}
 
-{% load static i18n %}
-
-{% block css %}
-    {{ block.super }}
-    <link href="{% static 'css/travel_schedule/travel_schedule_list.css' %}" rel="stylesheet">
-{% endblock %}
-
-{% block header %}
-    <header>
-        <div class="spacer-lg"></div>
-        <div class="row">
-            <div class="col-md-4"></div>
-            <div class="col-md-4">
-                <div class="user-info">
-                    <image class="img-thumbnail profile-img"
-                           src="{% if user.thumbnail %}
-                                    {{ user.thumbnail.url }}
+<div class="row">
+    {% for schedule in travelschedule_list %}
+        <div class="col-md-6">
+            <a class="schedule-item-link" href="{{ schedule.get_absolute_url }}">
+                <div class="item">
+                    <div class="schedule-item-bg">
+                        <div class="owner-info">
+                            <span><img class="img-thumbnail owner-img" src="{{ schedule.owner.thumbnail.url }}"></span>
+                            <span class="owner-name">
+                                {% if schedule.owner.username %}
+                                    {{ schedule.owner.username }}
                                 {% else %}
-                                    {% static 'img/no-photo.png' %}
-                                {% endif %}">
-                    </image>
-                    <div>
-                        <h3>{{ user.username }}</h3>
-                    </div>
-                    <div>
-                        <a class="update-profile-introduction" role="button" data-toggle="modal">자기소개를 입력해주세요.</a>
-                    </div>
-                    <div class="spacer-xs"></div>
-                    <div>
-                        <a class="user-page-url" href="{% url 'profile:home' user.id %}">
-                            www.travel-maker.kr{% url 'profile:home' user.id %}
-                        </a>
-                    </div>
-                    <div class="spacer-xs"></div>
-                    <div class="update-profile hidden">
-                        <button class="btn btn-tm">프로필 수정</button>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </header>
-{% endblock %}
-
-{% block content %}
-    <div class="spacer-xl"></div>
-    <div class="container">
-        <div class="row">
-            {% for schedule in travelschedule_list %}
-                <div class="col-md-6">
-                    <a href="{{ schedule.get_absolute_url }}">
-                        <div class="schedule-item text-center">
-                            <h1>{{ schedule.title }}</h1>
-                            <button class="btn btn-danger btn-xs hidden delete-schedule" data-toggle="modal"
-                                    data-target="#delete-modal" data-id="{{ schedule.id }}"
+                                    {{ schedule.owner.email }}
+                                {% endif %}
+                            </span>
+                            <button class="btn btn-danger btn-xs hidden delete"
+                                    data-toggle="modal" data-target="#schedule-delete-modal" data-id="{{ schedule.id }}"
                                     data-title="{{ schedule.title }}">
                                 <i class="fa fa-trash"></i>
                             </button>
                         </div>
-                    </a>
-                </div>
-            {% empty %}
-                여행 일정이 없습니다
-            {% endfor %}
-        </div>
-        <div>
-            <a href="{% url 'travel_schedule:create' %}">여행 일정 만들기</a>
-        </div>
-
-        <div class="modal fade" id="delete-modal" tabindex="-1" role="dialog" aria-labelledby="delete-modal-label">
-            <div class="modal-dialog" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <h4 class="modal-title" id="delete-modal-label">여행 일정 삭제</h4>
-                    </div>
-                    <div class="modal-body">
-                        여행 일정을 정말 삭제하시겠습니까?
-                    </div>
-                    <div class="modal-footer">
-                        <form action="{% url 'travel_schedule:delete' 0 %}" method="post">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-danger">삭제</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
-                        </form>
+                        <div class="center">
+                            <h2 class="schedule-item-title">{{ schedule.title }}</h2>
+                            <div class="schedule-item-overview">
+                                <div>{{ schedule.start }} ~ {{ schedule.end }}
+                                    ({{ schedule.duration_days }}일)
+                                </div>
+                                <div class="spacer-xs"></div>
+                                <div>여행인원 {{ schedule.people_count }}명</div>
+                                <div class="spacer-xs"></div>
+                                <div>{{ schedule.tags.all|join:', ' }}</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
+            </a>
+            <div class="spacer-sm"></div>
         </div>
-    </div>
-{% endblock %}
-
-{% block javascript %}
-    {{ block.super }}
-
-    <script>
-        $(document).ready(function () {
-            $('.schedule-item').hover(
-                function () {
-                    $(this).find('.delete-schedule').removeClass('hidden');
-                }, function () {
-                    $(this).find('.delete-schedule').addClass('hidden');
-                }
-            );
-
-            $('.delete-schedule').click(function (e) {
-                e.preventDefault();
-            });
-
-            $('#delete-modal').on('show.bs.modal', function (e) {
-                var button = $(e.relatedTarget);
-                var id = button.data('id');
-                var title = button.data('title');
-                var modal = $(this);
-                var form = modal.find('.modal-footer form');
-                form.attr('action', form.attr('action').slice(0, -2) + id + '/');
-                modal.find('.modal-title').text('여행 일정 "' + title + '" 삭제');
-            });
-
-            $('.user-info').hover(
-                function () {
-                    $(this).find('.update-profile').removeClass('hidden');
-                }, function () {
-                    $(this).find('.update-profile').addClass('hidden');
-                }
-            );
-        })
-    </script>
-{% endblock %}
+    {% empty %}
+        <div class="center">
+            <img class="empty-img" src="{% static 'img/empty.png' %}">
+            <div class="spacer-sm"></div>
+            <div class="empty-text">여행 일정이 없습니다</div>
+        </div>
+    {% endfor %}
+</div>
+<div class="spacer-sm"></div>
+<div class="center">
+    <a class="btn btn-tm" href="{% url 'travel_schedule:create' %}">여행 일정 만들기</a>
+</div>

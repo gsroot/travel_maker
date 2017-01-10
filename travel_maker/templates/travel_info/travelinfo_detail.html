@@ -108,6 +108,10 @@
                 });
             {% endif %}
 
+            $('.travelbookmark-creation').click(function () {
+                $(this).find('form').submit();
+            })
+
             {% for review in google_reviews %}
                 $('#google-rating-{{ review.id }}').raty({
                     readOnly: true,
