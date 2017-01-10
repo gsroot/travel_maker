@@ -260,8 +260,3 @@ header a {
 .navbar-right a {
     font-size: 14px !important;
 }
-
-.delete-user a {
-    float: right;
-    color: grey;
-}

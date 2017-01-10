@@ -26,3 +26,11 @@
     text-align: center;
     word-break: break-all;
 }
+
+#profile-update-ext {
+    float: right;
+}
+
+#profile-update-ext span, #profile-update-ext a {
+    color: grey;
+}

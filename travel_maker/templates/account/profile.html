@@ -39,6 +39,7 @@
         </div>
     </div>
     {% include 'account/snippets/profile_update_modal.html' %}
+    {% include 'account/snippets/profile_password_change_modal.html' %}
     {% include 'account/snippets/profile_delete_modal.html' %}
     {% include 'account/snippets/schedule_delete_modal.html' %}
 {% endblock %}
@@ -76,11 +77,15 @@
                 }
             );
 
-            $('#profile-update-modal').on('show.bs.modal', function (e) {
+            $('#pwd-change-modal').on('hidden.bs.modal', function () {
+                location.href = "{% url 'profile:home' 0 %}".replace('0', '{{ user.id }}')
             });
 
             {% if form.errors %}
                 $('.update-profile button').click();
+            {% endif %}
+            {% if passwordchangeform.errors %}
+                $('.change-pwd a').click();
             {% endif %}
         })
     </script>

@@ -1,3 +1,5 @@
+from allauth.account.forms import ChangePasswordForm
+from allauth.account.views import PasswordChangeView
 from braces.views import LoginRequiredMixin
 from braces.views import UserPassesTestMixin
 from django.urls import reverse
@@ -20,11 +22,22 @@ class ProfileHomeView(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
+        context['passwordchangeform'] = ChangePasswordForm()
         context['travelschedule_list'] = TravelSchedule.objects.filter(owner=self.request.user)
         for schedule in context['travelschedule_list']:
             schedule.duration_days = (schedule.end - schedule.start).days + 1
 
         return context
+
+
+class ProfilePasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+    template_name = 'account/profile.html'
+
+    def get_success_url(self):
+        return reverse('profile:home', kwargs=self.kwargs)
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data(form=UserUpdateForm(), passwordchangeform=form))
 
 
 class ProfileDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
