@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% load static i18n %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'vendor/bootstrap-social/bootstrap-social.css' %}" rel="stylesheet">
+    <link href="{% static 'css/account/account.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="spacer-xl"></div>
+
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <h1>{% trans "SNS 연동" %}</h1>
+            {% if form.accounts %}
+                <p>{% blocktrans %}다음 SNS 계정 중 하나로 로그인 하실 수 있습니다{% endblocktrans %}</p>
+                <form method="post" action="{% url 'socialaccount_connections' %}">
+                    {% csrf_token %}
+                    <fieldset>
+                        {% if form.non_field_errors %}
+                            <div id="errorMsg">{{ form.non_field_errors }}</div>
+                        {% endif %}
+                        {% for base_account in form.accounts %}
+                            {% with base_account.get_provider_account as account %}
+                                <div>
+                                    <label for="id_account_{{ base_account.id }}">
+                                        <input id="id_account_{{ base_account.id }}" type="radio" name="account"
+                                               value="{{ base_account.id }}"/>
+                                        <span class="socialaccount_provider {{ base_account.provider }} {{ account.get_brand.id }}">{{ account.get_brand.name }}</span>
+                                        {{ account }}
+                                    </label>
+                                </div>
+                            {% endwith %}
+                        {% endfor %}
+                        <div>
+                            <button type="submit">{% trans 'Remove' %}</button>
+                        </div>
+                    </fieldset>
+                </form>
+            {% else %}
+                <p>{% trans 'You currently have no social network accounts connected to this account.' %}</p>
+            {% endif %}
+            <h2>{% trans '소셜 계정을 추가하세요' %}</h2>
+            <ul class="socialaccount_providers">
+                {% include "socialaccount/snippets/provider_list.html" with process="connect" %}
+            </ul>
+            {% include "socialaccount/snippets/login_extra.html" %}
+        </div>
+    </div>
+{% endblock %}

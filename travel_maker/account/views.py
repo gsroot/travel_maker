@@ -9,7 +9,6 @@ from django.views.generic import UpdateView
 
 from travel_maker.account.forms import UserUpdateForm
 from travel_maker.account.models import TmUser
-from travel_maker.travel_schedule.models import TravelSchedule
 
 
 class ProfileHomeView(LoginRequiredMixin, UpdateView):

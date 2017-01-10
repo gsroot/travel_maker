@@ -78,6 +78,11 @@
                             </a>
                             <ul class="dropdown-menu" aria-labelledby="dropdownMenu">
                                 <li><a class="page-scroll" href="{% url 'profile:home' user.id %}">마이페이지</a></li>
+                                <li>
+                                    <a class="page-scroll" href="{% url 'socialaccount_connections' %}">
+                                        SNS 연동
+                                    </a>
+                                </li>
                                 <li role="separator" class="divider"></li>
                                 <li><a class="page-scroll" href="{% url 'account_logout' %}">로그아웃</a></li>
                             </ul>
