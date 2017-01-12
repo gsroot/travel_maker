@@ -1,5 +1,16 @@
+from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.utils import user_email, user_username
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from django.forms import forms
+
+
+class AccountAdapter(DefaultAccountAdapter):
+    def clean_username(self, username, shallow=False):
+        if not self.username_regex.match(username):
+            raise forms.ValidationError(
+                self.error_messages['invalid_username'])
+
+        return username
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):

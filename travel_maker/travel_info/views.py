@@ -49,10 +49,6 @@ class TravelInfoListView(ListView):
         context['form'] = TravelInfoSearchForm(self.request.GET) \
             if any([v != '' for v in self.request.GET.values()]) else TravelInfoSearchForm()
 
-        for info in context['travelinfo_list']:
-            info.google_reviews_cnt = info.googleplaceinfo.googleplacereviewinfo_set.count() \
-                if GooglePlaceInfo.objects.filter(travel_info=info).exists() else 0
-
         return context
 
 

@@ -184,6 +184,7 @@ SITE_ID = 1
 
 AUTH_USER_MODEL = 'tm_account.TmUser'
 
+ACCOUNT_ADAPTER = 'travel_maker.account.adapter.AccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'travel_maker.account.adapter.SocialAccountAdapter'
 ACCOUNT_AUTHENTICATED_LOGIN_REDIRECTS = True
 ACCOUNT_USER_MODEL_USERNAME_FIELD = 'username'

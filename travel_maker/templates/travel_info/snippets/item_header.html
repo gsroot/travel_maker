@@ -31,11 +31,7 @@
                     </div>
                     <div class="col-md-1">
                         <div class="item-stat-count">
-                            {% if google_reviews %}
-                                {{ google_reviews.count }}
-                            {% else %}
-                                0
-                            {% endif %}
+                            {{ travelinfo.reviews_cnt }}
                         </div>
                         <div class="item-stat-title">평가</div>
                     </div>

@@ -117,6 +117,13 @@ class TravelInfo(models.Model):
         return self.title
 
     @property
+    def reviews_cnt(self):
+        googlereview_cnt = self.googleplaceinfo.googleplacereviewinfo_set.count() \
+            if hasattr(self, 'googleplaceinfo') else 0
+        travelreview_cnt = self.travelreview_set.count()
+        return googlereview_cnt + travelreview_cnt
+
+    @property
     def rating(self):
         if (hasattr(self, 'googleplaceinfo') and self.googleplaceinfo.googleplacereviewinfo_set.all()) \
                 or self.travelreview_set.all():
