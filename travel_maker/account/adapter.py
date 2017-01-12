@@ -16,6 +16,7 @@ class AccountAdapter(DefaultAccountAdapter):
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def get_signup_form_initial_data(self, sociallogin):
         user = sociallogin.user
+        user.is_social = True
         initial = {
             'email': user_email(user) or '',
             'username': user_username(user).split('@')[0] or '',

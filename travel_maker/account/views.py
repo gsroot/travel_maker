@@ -26,8 +26,11 @@ class ProfileHomeView(LoginRequiredMixin, UpdateView):
         return context
 
 
-class ProfilePasswordChangeView(LoginRequiredMixin, PasswordChangeView):
+class ProfilePasswordChangeView(LoginRequiredMixin, UserPassesTestMixin, PasswordChangeView):
     template_name = 'account/profile.html'
+
+    def test_func(self, user):
+        return not user.is_social
 
     def get_success_url(self):
         return reverse('profile:home', kwargs=self.kwargs)

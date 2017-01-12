@@ -61,6 +61,11 @@ class TmUser(AbstractBaseUser, PermissionsMixin):
         upload_to=thumbnail_path, height_field='thumbnail_height', width_field='thumbnail_width', blank=True
     )
     introduction = models.CharField(max_length=2000, blank=True)
+    is_social = models.BooleanField(
+        _('소셜 회원가입'),
+        default=False,
+        help_text=_('사용자 계정의 소셜 회원가입 여부를 나타냅니다.'),
+    )
     is_staff = models.BooleanField(
         _('staff status'),
         default=False,
