@@ -2,6 +2,7 @@ from collections import Counter
 from statistics import mean
 
 from django.db import models
+from django.urls import reverse
 
 
 class District(models.Model):
@@ -154,6 +155,9 @@ class TravelInfo(models.Model):
     @property
     def primary_six_tags(self):
         return sorted(Counter(self.tags).items(), key=lambda pair: pair[1], reverse=True)[:6]
+
+    def get_absolute_url(self):
+        return reverse('travel_info:detail', args=(self.id,))
 
 
 class TravelOverviewInfo(models.Model):

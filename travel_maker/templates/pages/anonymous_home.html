@@ -4,7 +4,7 @@
 
 {% block css %}
     {{ block.super }}
-    <link href="{% static 'css/pages/home.css' %}" rel="stylesheet">
+    <link href="{% static 'css/pages/anonymous_home.css' %}" rel="stylesheet">
     <link href="{% static 'vendor/bootstrap-social/bootstrap-social.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -128,7 +128,7 @@
     <section class="no-padding" id="portfolio">
         <div class="container-fluid">
             <div class="row no-gutter popup-gallery">
-                {% for tourspot in top6_tourspot_list %}
+                {% for tourspot in popular_tourspot_list_2 %}
                     <div class="col-lg-4 col-sm-6">
                         <a href="{{ tourspot.image }}" class="portfolio-box">
                             <img src="{{ tourspot.image }}" class="img-responsive" alt="">

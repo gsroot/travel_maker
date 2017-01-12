@@ -8,24 +8,169 @@
     <link rel="stylesheet" href="{% static 'css/pages/home.css' %}">
 {% endblock %}
 
-{% block javascript %}
-    {{ block.super }}
-
-    <!-- Plugin JavaScript -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
-    <script src="{% static 'vendor/scrollreveal/scrollreveal.min.js' %}"></script>
-    <script src="{% static 'js/home.js' %}"></script>
-{% endblock %}
-
 {% block header %}
-    <header>
-        <div class="spacer-lg"></div>
-        <div class="row">
-            {# TODO #}
-        </div>
-    </header>
 {% endblock header %}
 
 {% block content %}
+    <div class="spacer-xl"></div>
+    <div class="container">
+        <h3 class="item-list-title">관광지</h3>
+        <div class="spacer-xs"></div>
+        <div class="divider-bold"></div>
+        <div class="spacer-sm"></div>
+        <div class="row">
+            {% for tourspot in popular_tourspot_list_1 %}
+                <div class="col-md-3">
+                    <a href="{{ tourspot.get_absolute_url }}" class="portfolio-box">
+                        <img src="{{ tourspot.image }}" class="img-responsive" alt="">
+                        <div class="portfolio-box-caption">
+                            <div class="portfolio-box-caption-content">
+                                <div class="project-category text-faded">
+                                    {{ tourspot.sigungu }}
+                                </div>
+                                <div class="project-name">
+                                    {{ tourspot.title }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-title">{{ tourspot.title }}</div>
+                        <div class="item-ext">{{ tourspot.sigungu }} | {{ tourspot.contenttype }}</div>
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
 
+        <div class="spacer-sm"></div>
+        {% if popular_travelschedule_list %}
+            <h3 class="item-list-title">여행일정</h3>
+            <div class="spacer-xs"></div>
+            <div class="divider-bold"></div>
+            <div class="spacer-sm"></div>
+            <div class="row">
+                {% for schedule in popular_travelschedule_list %}
+                    <div class="col-md-4">
+                        <a class="schedule-item-link" href="{{ schedule.get_absolute_url }}">
+                            <div class="item">
+                                <div class="schedule-item-bg">
+                                    <div class="owner-info">
+                                        <span><img class="img-thumbnail owner-img"
+                                                   src="{{ schedule.owner.thumbnail.url }}"></span>
+                                        <span class="owner-name">
+                                            {% if schedule.owner.username %}
+                                                {{ schedule.owner.username }}
+                                            {% else %}
+                                                {{ schedule.owner.email }}
+                                            {% endif %}
+                                        </span>
+                                        <button class="btn btn-danger btn-xs hidden delete"
+                                                data-toggle="modal" data-target="#schedule-delete-modal"
+                                                data-id="{{ schedule.id }}"
+                                                data-title="{{ schedule.title }}">
+                                            <i class="fa fa-trash"></i>
+                                        </button>
+                                    </div>
+                                    <div class="center">
+                                        <h3 class="schedule-item-title">{{ schedule.title }}</h3>
+                                        <div class="schedule-item-overview">
+                                            <div>{{ schedule.start }} ~ {{ schedule.end }}
+                                                ({{ schedule.duration_days }}일)
+                                            </div>
+                                            <div class="spacer-xs"></div>
+                                            <div>여행인원 {{ schedule.people_count }}명</div>
+                                            <div class="spacer-xs"></div>
+                                            <div>{{ schedule.tags.all|join:', ' }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <div class="spacer-sm"></div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <div class="spacer-md"></div>
+        {% if recent_review_list %}
+            <h3 class="item-list-title">새로 올라온 여행지 리뷰</h3>
+            <div class="spacer-xs"></div>
+            <div class="divider-bold"></div>
+            <div class="spacer-sm"></div>
+            <div class="row">
+                {% for review in recent_review_list %}
+                    <div class="row">
+                        <div class="col-md-3">
+                            {% with review.travel_info as info %}
+                                <a href="{{ info.get_absolute_url }}">
+                                    <div class="item-title">{{ info.title }}</div>
+                                </a>
+                                <div class="item-ext">{{ info.sigungu }} | {{ info.contenttype }}</div>
+                            {% endwith %}
+                        </div>
+                        <div class="col-md-9">
+                            <div class="spacer-sm"></div>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    {% if review.owner.thumbnail %}
+                                        <img class="review-user-profile-img img-circle"
+                                             src="{{ review.owner.thumbnail.url }}" alt="">
+                                    {% else %}
+                                        <img class="review-user-profile-img img-circle"
+                                             src="{% static 'img/no-photo.png' %}" alt="">
+                                    {% endif %}
+                                </div>
+                                <div class="row col-md-11">
+                                    <div class="review-user-name row">
+                                        {{ review.owner.username }}
+                                    </div>
+                                    <div class="row">
+                                        <div class="review-rating col-md-2">
+                                            <div id="travel-rating-{{ review.id }}"></div>
+                                        </div>
+                                        <div class="review-time col-md-9">
+                                            {{ review.updated }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="spacer-sm"></div>
+                            <div class="row">
+                                <div class="col-md-1"></div>
+                                <div class="col-md-11 review-content">
+                                    <input class="travel-review-id" type="hidden" value="{{ review.id }}">
+                                    <div>
+                                        {{ review.text|safe }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="spacer-sm divider"></div>
+                    <div class="spacer-sm"></div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.3/jquery.easing.min.js"></script>
+    <script src="{% static 'vendor/scrollreveal/scrollreveal.min.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            $.fn.raty.defaults.path = '/static/vendor/raty/images/';
+
+            {% for review in recent_review_list %}
+                $('#travel-rating-{{ review.id }}').raty({
+                    readOnly: true,
+                    space: false,
+                    score: {{ review.rating }}
+                });
+            {% endfor %}
+        })
+    </script>
+{% endblock %}

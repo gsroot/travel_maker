@@ -126,8 +126,8 @@ hr.light {
 }
 
 .img-responsive {
-    width: 100%;
-    height: 175px;
+    width: 650px;
+    height: 350px;
 }
 
 .call-to-action h3 {
@@ -135,88 +135,5 @@ hr.light {
 }
 
 .no-padding {
-    padding: 0;
-}
-
-.item-list-title {
-    font-size: 24px;
-    font-weight: 700;
-}
-
-.item-title {
-    font-size: 17px;
-    color: #333;
-    font-weight: 700;
-    margin-top: 20px;
-    margin-left: 10px;
-    word-wrap: break-word;
-}
-
-.item-ext {
-    font-size: 15px;
-    font-weight: 400;
-    color: #888;
-    margin-top: 10px;
-    margin-left: 10px;
-    margin-bottom: 50px;
-}
-
-.schedule-item-link:hover {
-    text-decoration: none;
-}
-
-.item {
-    height: 200px;
-    color: #fff;
-    background: url("../../img/schedule_item_bg.jpg");
-    background-size: 100%;
-}
-
-.schedule-item-bg {
-    height: 100%;
-    background: rgba(0, 0, 0, .3);
-    padding: 15px 15px 15px 15px;
-}
-
-.schedule-item-title {
-    text-shadow: 2px 2px 2px rgba(0, 0, 0, .6);
-    margin-top: 0px !important;
-}
-
-.schedule-item-overview {
-    margin-top: 10px;
-    font-size: 13px;
-    font-weight: 600;
-    text-shadow: 1px 1px 1px rgba(0, 0, 0, .6);
-}
-
-.owner-img {
-    width: 30px;
-    height: 30px;
-}
-
-.owner-name {
-    font-size: 14px;
-    font-weight: 500;
-}
-
-.review-user-profile-img {
-    width: 40px;
-    height: 40px;
-}
-
-.review-user-name {
-    color: #122b40;
-    font-size: 15px;
-    font-weight: bold;
-}
-
-.review-time {
-    color: #23527c;
-    font-size: 12px;
-}
-
-#rating-text {
-    margin-left: 10px;
-    font-size: 18px;
+	padding: 0;
 }

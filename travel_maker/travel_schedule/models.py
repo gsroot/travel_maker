@@ -36,12 +36,12 @@ class TravelSchedule(models.Model):
     def __str__(self):
         return self.title
 
-    def get_absolute_url(self):
-        return reverse('travel_schedule:detail', args=(self.id,))
-
     @property
     def events(self):
         return self.travelinfoevent_set.all()
+
+    def get_absolute_url(self):
+        return reverse('travel_schedule:detail', args=(self.id,))
 
     def clean(self):
         if self.start and self.end:

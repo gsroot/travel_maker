@@ -20,6 +20,14 @@ body {
     -webkit-box-shadow: 1px 1px 1px 1px rgba(125, 125, 125, .6);
 }
 
+.divider {
+    border-bottom: 1px solid #cecece;
+}
+
+.divider-bold {
+    border-bottom: 3px solid #303a50;
+}
+
 .spacer-xs {
     padding-bottom: 10px;
 }

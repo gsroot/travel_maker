@@ -1,6 +1,8 @@
+from bs4 import BeautifulSoup
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
+from django.urls import reverse
 
 from travel_maker.account.models import TmUser
 from travel_maker.public_data_collector.models import TravelInfo
@@ -13,6 +15,17 @@ class TravelReview(models.Model):
     content = models.CharField(max_length=5000)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+
+    @property
+    def text(self):
+        soup = BeautifulSoup(self.content, 'html.parser')
+        [s.extract() for s in soup('img')]
+        text = " ".join(soup.strings)
+        text = text[:100] + '..' if len(text) > 100 else text
+        return text
+
+    def get_absolute_url(self):
+        return reverse('travel_review:detail', args=(self.id,))
 
     def clean(self):
         if not self.rating:
