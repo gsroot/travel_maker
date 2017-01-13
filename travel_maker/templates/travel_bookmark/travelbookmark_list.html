@@ -1,28 +1,32 @@
-{% load static %}
+{% load static bootstrap_pagination %}
 
-{% for bookmark in travelbookmark_list %}
-    <div class="col-md-6">
-        <a class="bookmark-item-link" href="{{ bookmark.get_absolute_url }}">
-            <div class="item">
-                <div class="bookmark-item-bg">
-                    {% if user == bookmark.owner %}
-                        <button class="btn btn-danger btn-xs hidden delete"
-                                data-toggle="modal" data-target="#bookmark-delete-modal" data-id="{{ bookmark.id }}">
-                            <i class="fa fa-trash"></i>
-                        </button>
-                    {% endif %}
-                    <div class="center">
-                        <h2 class="bookmark-item-title">{{ bookmark.travel_info.title }}</h2>
+<div class="row">
+    {% for bookmark in travelbookmark_list %}
+        <div class="col-md-6">
+            <a class="bookmark-item-link" href="{{ bookmark.get_absolute_url }}">
+                <div class="bookmark-item-bg" style="background: url('{{ bookmark.travel_info.image }}'); background-size: 100%;">
+                    <div class="bookmark-item">
+                        {% if user == bookmark.owner %}
+                            <button class="btn btn-danger btn-xs hidden delete"
+                                    data-toggle="modal" data-target="#bookmark-delete-modal"
+                                    data-id="{{ bookmark.id }}">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        {% endif %}
+                        <div class="center">
+                            <h2 class="bookmark-item-title">{{ bookmark.travel_info.title }}</h2>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </a>
+            </a>
+            <div class="spacer-sm"></div>
+        </div>
+    {% empty %}
+        <div class="center">
+            <img class="empty-img" src="{% static 'img/empty.png' %}">
+            <div class="spacer-sm"></div>
+            <div class="empty-text">관심 여행지가 없습니다</div>
+        </div>
         <div class="spacer-sm"></div>
-    </div>
-{% empty %}
-    <div class="center">
-        <img class="empty-img" src="{% static 'img/empty.png' %}">
-        <div class="spacer-sm"></div>
-        <div class="empty-text">관심 여행지가 없습니다</div>
-    </div>
-{% endfor %}
+    {% endfor %}
+</div>

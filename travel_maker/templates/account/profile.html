@@ -64,11 +64,11 @@
                 location.href = '{{ user.get_absolute_url }}';
             });
 
-            $(document).on('mouseover', '.item', function () {
+            $(document).on('mouseover', '.schedule-item, .bookmark-item', function () {
                 $(this).find('.delete').removeClass('hidden');
             });
 
-            $(document).on('mouseleave', '.item', function () {
+            $(document).on('mouseleave', '.schedule-item, .bookmark-item', function () {
                 $(this).find('.delete').addClass('hidden');
             });
 

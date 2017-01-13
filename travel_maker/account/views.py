@@ -55,7 +55,6 @@ class ProfileDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
 class ProfileScheduleListView(LoginRequiredMixin, ListView):
     template_name = 'travel_schedule/snippets/profileschedule_list.html'
-    paginate_by = 10
 
     def get_queryset(self):
         is_mine = self.request.user.id == int(self.kwargs['pk'])
@@ -70,8 +69,6 @@ class ProfileScheduleListView(LoginRequiredMixin, ListView):
 
 
 class ProfileBookmarkListView(LoginRequiredMixin, ListView):
-    paginate_by = 10
-
     def get_queryset(self):
         queryset = TravelBookmark.objects.filter(owner=self.kwargs['pk'])
         return queryset

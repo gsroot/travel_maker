@@ -4,8 +4,8 @@
     {% for schedule in travelschedule_list %}
         <div class="col-md-6">
             <a class="schedule-item-link" href="{{ schedule.get_absolute_url }}">
-                <div class="item">
-                    <div class="schedule-item-bg">
+                <div class="schedule-item-bg">
+                    <div class="schedule-item">
                         <div class="owner-info">
                             <span><img class="img-thumbnail owner-img" src="{{ schedule.owner.thumbnail.url }}"></span>
                             <span class="owner-name">

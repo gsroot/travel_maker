@@ -23,15 +23,13 @@ body {
     text-decoration:none;
 }
 
-.item {
-    height: 260px;
-    color: #fff;
-    background: url("../../img/schedule_item_bg.jpg");
-    background-size: 100%;
-}
-
 .bookmark-item-bg {
     height: 100%;
+}
+
+.bookmark-item {
+    height: 260px;
+    color: #fff;
     background: rgba(0, 0, 0, .3);
     padding: 15px 15px 15px 15px;
 }
