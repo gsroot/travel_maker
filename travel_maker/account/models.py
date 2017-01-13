@@ -9,6 +9,7 @@ from django.core.files.base import ContentFile
 from django.core.mail import send_mail
 from django.db import models
 from django.db.models import ImageField, PositiveIntegerField
+from django.urls import reverse
 from django.utils import six
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -102,6 +103,9 @@ class TmUser(AbstractBaseUser, PermissionsMixin):
         new_obj = super().from_db(db, field_names, values)
         new_obj._loaded_image = values[field_names.index('image')]
         return new_obj
+
+    def get_absolute_url(self):
+        return reverse('profile:home', args=(self.id,))
 
     def get_full_name(self):
         return self.username

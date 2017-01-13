@@ -2,13 +2,13 @@
 
 <div class="user-info">
     <img class="img-thumbnail profile-img"
-         src="{% if user.thumbnail %}{{ user.thumbnail.url }}{% else %}{% static 'img/no-photo.png' %}{% endif %}">
+         src="{% if tmuser.thumbnail %}{{ tmuser.thumbnail.url }}{% else %}{% static 'img/no-photo.png' %}{% endif %}">
     <div>
         <h3>
-            {% if user.username %}
-                {{ user.username }}
+            {% if tmuser.username %}
+                {{ tmuser.username }}
             {% else %}
-                {{ user.email }}
+                {{ tmuser.email }}
             {% endif %}
         </h3>
     </div>
@@ -20,14 +20,16 @@
     </div>
     <div class="spacer-xs"></div>
     <div>
-        <a class="user-profile-url" href="{% url 'profile:home' user.id %}">
-            www.travel-maker.kr{% url 'profile:home' user.id %}
+        <a class="user-profile-url" href="{{ tmuser.get_absolute_url }}">
+            www.travel-maker.kr{{ tmuser.get_absolute_url }}
         </a>
     </div>
     <div class="spacer-xs"></div>
-    <div class="update-profile hidden">
-        <button class="btn btn-tm" data-toggle="modal" data-target="#profile-update-modal">
-            회원 정보 설정
-        </button>
-    </div>
+    {% if user == tmuser %}
+        <div class="update-profile hidden">
+            <button class="btn btn-tm" data-toggle="modal" data-target="#profile-update-modal">
+                회원 정보 설정
+            </button>
+        </div>
+    {% endif %}
 </div>

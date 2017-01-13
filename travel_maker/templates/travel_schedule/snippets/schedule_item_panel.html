@@ -27,11 +27,11 @@
         <div class="spacer-xs"></div>
     {% endif %}
     <div class="box center">
-        <a href="{% url 'profile:home' travelschedule.owner.id %}">
+        <a href="{{ travelschedule.owner.get_absolute_url }}">
             <img class="owner-img" src="{{ travelschedule.owner.thumbnail.url }}">
         </a>
         <div class="spacer-xs"></div>
-        <a href="{% url 'profile:home' travelschedule.owner.id %}">
+        <a href="{{ travelschedule.owner.get_absolute_url }}">
             <div class="owner-username">
                 {% if travelschedule.owner.username %}
                     {{ travelschedule.owner.username }}

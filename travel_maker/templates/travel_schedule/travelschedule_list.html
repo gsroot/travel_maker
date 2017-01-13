@@ -44,7 +44,7 @@
                     <div class="col-md-4">
                         <div class="spacer-xs"></div>
                         <div class="row">
-                            <a href="{% url 'profile:home' schedule.owner.id %}">
+                            <a href="{{ schedule.owner.get_absolute_url }}">
                                 <div class="owner-info">
                                 <span><img class="img-thumbnail owner-img"
                                            src="{{ schedule.owner.thumbnail.url }}"></span>

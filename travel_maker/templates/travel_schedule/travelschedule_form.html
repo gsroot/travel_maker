@@ -26,7 +26,7 @@
                 <button class="btn btn-block btn-tm" id="id-submit" type="submit">여행 일정 생성</button>
             </div>
             <div class="col-md-6">
-                <a class="btn btn-block btn-default" href="{% url 'profile:home' user.id %}">
+                <a class="btn btn-block btn-default" href="{{ user.get_absolute_url }}">
                     취소
                 </a>
             </div>

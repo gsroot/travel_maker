@@ -10,6 +10,7 @@ from django.views.generic import UpdateView
 
 from travel_maker.account.forms import UserUpdateForm
 from travel_maker.account.models import TmUser
+from travel_maker.travel_bookmark.models import TravelBookmark
 from travel_maker.travel_schedule.models import TravelSchedule
 
 
@@ -24,6 +25,9 @@ class ProfileHomeView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
         context['passwordchangeform'] = ChangePasswordForm()
+        user_id = self.kwargs['pk']
+        context['schedule_cnt'] = TravelSchedule.objects.filter(owner=user_id).count()
+        context['bookmark_cnt'] = TravelBookmark.objects.filter(owner=user_id).count()
 
         return context
 
@@ -54,6 +58,20 @@ class ProfileScheduleListView(LoginRequiredMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = TravelSchedule.objects.filter(owner=self.request.user)
+        is_mine = self.request.user.id == int(self.kwargs['pk'])
+        queryset = TravelSchedule.objects.filter(owner=self.kwargs['pk']) \
+            if is_mine else TravelSchedule.objects.filter(owner=self.kwargs['pk'], is_public=True)
+        return queryset
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        context['tmuser'] = TmUser.objects.get(id=self.kwargs['pk'])
+        return context
+
+
+class ProfileBookmarkListView(LoginRequiredMixin, ListView):
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = TravelBookmark.objects.filter(owner=self.kwargs['pk'])
         return queryset

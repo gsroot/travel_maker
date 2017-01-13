@@ -15,11 +15,14 @@
                                     {{ schedule.owner.email }}
                                 {% endif %}
                             </span>
-                            <button class="btn btn-danger btn-xs hidden delete"
-                                    data-toggle="modal" data-target="#schedule-delete-modal" data-id="{{ schedule.id }}"
-                                    data-title="{{ schedule.title }}">
-                                <i class="fa fa-trash"></i>
-                            </button>
+                            {% if user == schedule.owner %}
+                                <button class="btn btn-danger btn-xs hidden delete"
+                                        data-toggle="modal" data-target="#schedule-delete-modal"
+                                        data-id="{{ schedule.id }}"
+                                        data-title="{{ schedule.title }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                            {% endif %}
                         </div>
                         <div class="center">
                             <h2 class="schedule-item-title">{{ schedule.title }}</h2>
@@ -47,6 +50,9 @@
     {% endfor %}
 </div>
 <div class="spacer-sm"></div>
-<div class="center">
-    <a class="btn btn-tm" href="{% url 'travel_schedule:create' %}">여행 일정 만들기</a>
-</div>
+
+{% if user == tmuser %}
+    <div class="center">
+        <a class="btn btn-tm" href="{% url 'travel_schedule:create' %}">여행 일정 만들기</a>
+    </div>
+{% endif %}

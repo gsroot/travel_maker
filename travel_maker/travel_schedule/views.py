@@ -127,7 +127,7 @@ class TravelScheduleDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
         return user == self.get_object().owner
 
     def get_success_url(self):
-        return reverse('profile:home', args=(self.request.user.id,))
+        return self.request.user.get_absolute_url()
 
 
 class TravelScheduleUpdate(LoginRequiredMixin, UserPassesTestMixin, UpdateAPIView):

@@ -61,7 +61,7 @@
             );
 
             $('#pwd-change-modal').on('hidden.bs.modal', function () {
-                location.href = "{% url 'profile:home' 0 %}".replace('0', '{{ user.id }}')
+                location.href = '{{ user.get_absolute_url }}';
             });
 
             $(document).on('mouseover', '.item', function () {
@@ -110,8 +110,8 @@
                 });
             };
 
-            var schedule_url = "{% url 'profile:schedule_list' user.id %}";
-            var bookmark_url = "{% url 'travel_bookmark:list' %}";
+            var schedule_url = "{% url 'profile:schedule_list' tmuser.id %}";
+            var bookmark_url = "{% url 'profile:bookmark_list' tmuser.id %}";
             get_items(schedule_url);
 
             $('#travelschedule').click(function () {

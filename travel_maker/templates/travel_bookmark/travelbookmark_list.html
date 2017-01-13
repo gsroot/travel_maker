@@ -5,10 +5,12 @@
         <a class="bookmark-item-link" href="{{ bookmark.get_absolute_url }}">
             <div class="item">
                 <div class="bookmark-item-bg">
-                    <button class="btn btn-danger btn-xs hidden delete"
-                            data-toggle="modal" data-target="#bookmark-delete-modal" data-id="{{ bookmark.id }}">
-                        <i class="fa fa-trash"></i>
-                    </button>
+                    {% if user == bookmark.owner %}
+                        <button class="btn btn-danger btn-xs hidden delete"
+                                data-toggle="modal" data-target="#bookmark-delete-modal" data-id="{{ bookmark.id }}">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    {% endif %}
                     <div class="center">
                         <h2 class="bookmark-item-title">{{ bookmark.travel_info.title }}</h2>
                     </div>
