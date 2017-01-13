@@ -130,14 +130,14 @@
         $(document).ready(function () {
             var mapOptions = {
                 center: new naver.maps.LatLng({{ center_mapy }}, {{ center_mapx }}),
-                zoom: 3
+                zoom: 2
             };
 
             var map = new naver.maps.Map('map', mapOptions);
 
-            {% for area in map_areas %}
+            {% for spot in travelinfo_list %}
                 var marker = new naver.maps.Marker({
-                    position: new naver.maps.LatLng({{ area.info.mapy }}, {{ area.info.mapx }}),
+                    position: new naver.maps.LatLng({{ spot.mapy }}, {{ spot.mapx }}),
                     map: map
                 });
             {% endfor %}
