@@ -1,40 +1,42 @@
 <div class="scedule-item-pannel">
-    <div class="box schedule-update">
-        <a href="{% url 'travel_schedule:update' travelschedule.id %}">
-            <button class="btn btn-block btn-tm" type="submit">여행 일정 정보 수정</button>
-        </a>
-        <div class="spacer-xs"></div>
-        <a href="{% url 'travel_schedule:calendar_update' travelschedule.id %}">
-            <button class="btn btn-block btn-tm" type="submit">여행 일정표 수정</button>
-        </a>
-        <div class="spacer-xs"></div>
-        <div class="btn-group btn-group-justified btn-group-ispublic" role="group">
-            <div class="btn-group btn-group" role="group">
-                <button id="btn-ispublic-true"
-                        class="btn {% if travelschedule.is_public %}btn-active{% else %}btn-inactive{% endif %}">
-                    공개
-                </button>
-            </div>
-            <div class="btn-group btn-group" role="group">
-                <button id="btn-ispublic-false"
-                        class="btn {% if travelschedule.is_public %}btn-inactive{% else %}btn-active{% endif %}">
-                    비공개
-                </button>
+    {% if user == travelschedule.owner %}
+        <div class="box schedule-update">
+            <a href="{% url 'travel_schedule:update' travelschedule.id %}">
+                <button class="btn btn-block btn-tm" type="submit">여행 일정 정보 수정</button>
+            </a>
+            <div class="spacer-xs"></div>
+            <a href="{% url 'travel_schedule:calendar_update' travelschedule.id %}">
+                <button class="btn btn-block btn-tm" type="submit">여행 일정표 수정</button>
+            </a>
+            <div class="spacer-xs"></div>
+            <div class="btn-group btn-group-justified btn-group-ispublic" role="group">
+                <div class="btn-group btn-group" role="group">
+                    <button id="btn-ispublic-true"
+                            class="btn {% if travelschedule.is_public %}btn-active{% else %}btn-inactive{% endif %}">
+                        공개
+                    </button>
+                </div>
+                <div class="btn-group btn-group" role="group">
+                    <button id="btn-ispublic-false"
+                            class="btn {% if travelschedule.is_public %}btn-inactive{% else %}btn-active{% endif %}">
+                        비공개
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-    <div class="spacer-xs"></div>
+        <div class="spacer-xs"></div>
+    {% endif %}
     <div class="box center">
-        <a href="{% url 'profile:home' user.id %}">
-            <img class="owner-img" src="{{ user.thumbnail.url }}">
+        <a href="{% url 'profile:home' travelschedule.owner.id %}">
+            <img class="owner-img" src="{{ travelschedule.owner.thumbnail.url }}">
         </a>
         <div class="spacer-xs"></div>
-        <a href="{% url 'profile:home' user.id %}">
+        <a href="{% url 'profile:home' travelschedule.owner.id %}">
             <div class="owner-username">
-                {% if user.username %}
-                    {{ user.username }}
+                {% if travelschedule.owner.username %}
+                    {{ travelschedule.owner.username }}
                 {% else %}
-                    {{ user.email }}
+                    {{ travelschedule.owner.email }}
                 {% endif %}
             </div>
         </a>

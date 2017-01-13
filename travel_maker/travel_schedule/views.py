@@ -1,5 +1,6 @@
 from braces.views import LoginRequiredMixin
 from braces.views import UserPassesTestMixin
+from datetime import date
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from django.urls import reverse
@@ -12,18 +13,54 @@ from django.views.generic import UpdateView
 from rest_framework.generics import UpdateAPIView
 
 from travel_maker.public_data_collector.models import TravelInfo, Area, ContentType
-from travel_maker.travel_schedule.forms import TravelScheduleForm
+from travel_maker.travel_schedule.forms import TravelScheduleForm, TravelScheduleSearchForm
 from travel_maker.travel_schedule.models import TravelSchedule
 from travel_maker.travel_schedule.serializers import TravelCalendarSerializer, TravelScheduleSerializer
 
 
 class TravelScheduleListView(LoginRequiredMixin, ListView):
+    template_name = 'travel_schedule/travelschedule_list.html'
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = TravelSchedule.objects.filter(owner=self.request.user)
+        queryset = TravelSchedule.objects.filter(is_public=True)
+
+        travel_status = self.request.GET.get('travel_status')
+        if travel_status:
+            today = date.today()
+            if travel_status == TravelScheduleSearchForm.before:
+                queryset = queryset.filter(start__gt=today)
+            elif travel_status == TravelScheduleSearchForm.ing:
+                queryset = queryset.filter(start__lte=today, end__gte=today)
+            elif travel_status == TravelScheduleSearchForm.after:
+                queryset = queryset.filter(end__lt=today)
+
+        duration_days_min = self.request.GET.get('duration_days_min')
+        if duration_days_min:
+            duration_days_min = int(duration_days_min)
+            queryset = queryset.filter(
+                id__in=[schedule.id for schedule in queryset if schedule.duration_days >= duration_days_min]
+            )
+
+        duration_days_max = self.request.GET.get('duration_days_max')
+        if duration_days_max:
+            duration_days_max = int(duration_days_max)
+            queryset = queryset.filter(
+                id__in=[schedule.id for schedule in queryset if schedule.duration_days <= duration_days_max]
+            )
+
+        keyword = self.request.GET.get('keyword')
+        if keyword:
+            queryset = queryset.filter(title__contains=keyword)
 
         return queryset
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(self.request.GET)
+        context['form'] = TravelScheduleSearchForm(self.request.GET) \
+            if any([v != '' for v in self.request.GET.values()]) else TravelScheduleSearchForm()
+        return context
 
 
 class TravelScheduleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
@@ -31,13 +68,6 @@ class TravelScheduleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
 
     def test_func(self, user):
         return user == self.get_object().owner or self.get_object().is_public
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['travelschedule'].duration_days = \
-            (context['travelschedule'].end - context['travelschedule'].start).days + 1
-
-        return context
 
 
 class TravelScheduleCreateView(LoginRequiredMixin, CreateView):
@@ -83,8 +113,6 @@ class TravelCalendarUpdateView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['travelschedule'].duration_days = \
-            (context['travelschedule'].end - context['travelschedule'].start).days + 1
         context['area_list'] = Area.objects.all()
         context['contenttype_list'] = ContentType.objects.filter(name__in=['관광지', '숙박', '쇼핑', '음식점'])
         context['travelinfo_list'] = TravelInfo.objects.filter(contenttype__in=context['contenttype_list'])[:20]

@@ -28,7 +28,7 @@ class TravelSchedule(models.Model):
         verbose_name=_('여행의 특징을 태그로 남겨보세요'),
         help_text=_('각 태그는 쉼표(,)로 구분됩니다')
     )
-    is_public = BooleanField(default=False)
+    is_public = BooleanField(default=True)
 
     class Meta:
         ordering = ['-id']
@@ -37,8 +37,25 @@ class TravelSchedule(models.Model):
         return self.title
 
     @property
+    def summary(self):
+        summary = self.description[:50] + '..' if len(self.description) > 50 else self.description
+        return summary
+
+    @property
+    def tags_str(self):
+        return ', '.join([tag.name for tag in self.tags.all()])
+
+    @property
     def events(self):
         return self.travelinfoevent_set.all()
+
+    @property
+    def spots(self):
+        return [e.travel_info for e in self.travelinfoevent_set.all().order_by('event__start')]
+
+    @property
+    def duration_days(self):
+        return (self.end - self.start).days + 1
 
     def get_absolute_url(self):
         return reverse('travel_schedule:detail', args=(self.id,))

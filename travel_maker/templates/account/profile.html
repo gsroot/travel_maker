@@ -5,7 +5,7 @@
 {% block css %}
     {{ block.super }}
     <link href="{% static 'css/account/profile.css' %}" rel="stylesheet">
-    <link href="{% static 'css/travel_schedule/travel_schedule_list.css' %}" rel="stylesheet">
+    <link href="{% static 'css/travel_schedule/profile_schedule_list.css' %}" rel="stylesheet">
     <link href="{% static 'css/travel_bookmark/travel_bookmark_list.css' %}" rel="stylesheet">
 {% endblock %}
 
@@ -110,18 +110,18 @@
                 });
             };
 
-            get_items("{% url 'travel_schedule:list' %}");
+            var schedule_url = "{% url 'profile:schedule_list' user.id %}";
+            var bookmark_url = "{% url 'travel_bookmark:list' %}";
+            get_items(schedule_url);
 
             $('#travelschedule').click(function () {
                 menu_click($(this));
-                var url = "{% url 'travel_schedule:list' %}";
-                get_items(url);
+                get_items(schedule_url);
             });
 
             $('#travelbookmark').click(function () {
                 menu_click($(this));
-                var url = "{% url 'travel_bookmark:list' %}";
-                get_items(url);
+                get_items(bookmark_url);
             });
         })
     </script>

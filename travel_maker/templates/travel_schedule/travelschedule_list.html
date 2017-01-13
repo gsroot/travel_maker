@@ -1,52 +1,144 @@
-{% load static %}
+{% extends "base.html" %}
 
-<div class="row">
-    {% for schedule in travelschedule_list %}
-        <div class="col-md-6">
-            <a class="schedule-item-link" href="{{ schedule.get_absolute_url }}">
-                <div class="item">
-                    <div class="schedule-item-bg">
-                        <div class="owner-info">
-                            <span><img class="img-thumbnail owner-img" src="{{ schedule.owner.thumbnail.url }}"></span>
-                            <span class="owner-name">
-                                {% if schedule.owner.username %}
-                                    {{ schedule.owner.username }}
-                                {% else %}
-                                    {{ schedule.owner.email }}
-                                {% endif %}
-                            </span>
-                            <button class="btn btn-danger btn-xs hidden delete"
-                                    data-toggle="modal" data-target="#schedule-delete-modal" data-id="{{ schedule.id }}"
-                                    data-title="{{ schedule.title }}">
-                                <i class="fa fa-trash"></i>
-                            </button>
+{% load static i18n crispy_forms_tags bootstrap_pagination %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/travel_schedule/travel_schedule_list.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block header %}
+{% endblock header %}
+
+{% block content %}
+    <div class="container">
+        <div class="spacer-xl"></div>
+        <div>
+            {% crispy form %}
+        </div>
+        <div class="spacer-sm"></div>
+        <div class="schedule-items">
+            {% for schedule in travelschedule_list %}
+                <div class="row box">
+                    <div class="col-md-4">
+                        <a href="{% url 'travel_schedule:detail' schedule.id %}">
+                            <img class="item-img" src="{% static 'img/schedule_item_bg.jpg' %}" alt="">
+                        </a>
+                    </div>
+                    <div class="col-md-4 stat-area">
+                        <div class="spacer-xs"></div>
+                        <div class="row">
+                            <a class="schedule-title" href="{% url 'travel_schedule:detail' schedule.id %}">
+                                {{ schedule.title }}
+                            </a>
                         </div>
-                        <div class="center">
-                            <h2 class="schedule-item-title">{{ schedule.title }}</h2>
-                            <div class="schedule-item-overview">
-                                <div>{{ schedule.start }} ~ {{ schedule.end }}
-                                    ({{ schedule.duration_days }}일)
+                        <div class="spacer-xs"></div>
+                        <div class="row">
+                            {{ schedule.summary }}
+                        </div>
+                        <div class="spacer-xs"></div>
+                        <div class="row spots">
+                            {{ schedule.spots|join:' --> ' }}
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="spacer-xs"></div>
+                        <div class="row">
+                            <a href="{% url 'profile:home' schedule.owner.id %}">
+                                <div class="owner-info">
+                                <span><img class="img-thumbnail owner-img"
+                                           src="{{ schedule.owner.thumbnail.url }}"></span>
+                                    <span class="owner-name">
+                                    {% if schedule.owner.username %}
+                                        {{ schedule.owner.username }}
+                                    {% else %}
+                                        {{ schedule.owner.email }}
+                                    {% endif %}
+                                </span>
                                 </div>
-                                <div class="spacer-xs"></div>
-                                <div>여행인원 {{ schedule.people_count }}명</div>
-                                <div class="spacer-xs"></div>
-                                <div>{{ schedule.tags.all|join:', ' }}</div>
+                            </a>
+                        </div>
+                        <div class="spacer-xs"></div>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <i class="fa fa-calendar fa-lg"></i>
+                            </div>
+                            <div class="col-md-11">
+                                <p>
+                                    {{ schedule.start }} ~ {{ schedule.end }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="spacer-xs"></div>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <i class="fa fa-users fa-lg"></i>
+                            </div>
+                            <div class="col-md-11">
+                                <p>
+                                    {{ schedule.people_count }}명
+                                </p>
+                            </div>
+                        </div>
+                        <div class="spacer-xs"></div>
+                        <div class="row">
+                            <div class="col-md-1">
+                                <i class="fa fa-tags fa-lg"></i>
+                            </div>
+                            <div class="col-md-11">
+                                <p>
+                                    {{ schedule.tags_str }}
+                                </p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </a>
-            <div class="spacer-sm"></div>
+                <div class="spacer-md"></div>
+            {% endfor %}
         </div>
-    {% empty %}
-        <div class="center">
-            <img class="empty-img" src="{% static 'img/empty.png' %}">
-            <div class="spacer-sm"></div>
-            <div class="empty-text">여행 일정이 없습니다</div>
+
+        <div class="text-center">
+            {% bootstrap_paginate page_obj range=15 previous_label='<' next_label='>' show_first_last='true' first_label='<<' last_label='>>' %}
         </div>
-    {% endfor %}
-</div>
-<div class="spacer-sm"></div>
-<div class="center">
-    <a class="btn btn-tm" href="{% url 'travel_schedule:create' %}">여행 일정 만들기</a>
-</div>
+
+    </div>
+{% endblock content %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            var duration_days = document.getElementById('duration-days');
+
+            var start_min = {% if duration_days_min %}{{ duration_days_min.0 }}{% else %}1{% endif %};
+            var end_min = {% if duration_days_max %}{{ duration_days_max.0 }}{% else %}30{% endif %};
+            noUiSlider.create(duration_days, {
+                start: [start_min, end_min],
+                connect: true,
+                range: {
+                    'min': 1,
+                    'max': 30
+                }
+            });
+
+            var day_min = $('#id_duration_days_min');
+            var day_max = $('#id_duration_days_max');
+            var day_values = [
+                document.getElementById('day-min'),
+                document.getElementById('day-max')
+            ];
+
+            duration_days.noUiSlider.on('update', function (values, handle) {
+                var day = Math.round(values[handle]);
+                day_values[handle].innerHTML = day + '일';
+
+                if (handle) {
+                    day_max.val(day);
+                }
+                else {
+                    day_min.val(day);
+                }
+            });
+        })
+    </script>
+{% endblock %}

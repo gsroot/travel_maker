@@ -5,10 +5,12 @@ from braces.views import UserPassesTestMixin
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
+from django.views.generic import ListView
 from django.views.generic import UpdateView
 
 from travel_maker.account.forms import UserUpdateForm
 from travel_maker.account.models import TmUser
+from travel_maker.travel_schedule.models import TravelSchedule
 
 
 class ProfileHomeView(LoginRequiredMixin, UpdateView):
@@ -45,3 +47,13 @@ class ProfileDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
 
     def test_func(self, user):
         return user == self.get_object()
+
+
+class ProfileScheduleListView(LoginRequiredMixin, ListView):
+    template_name = 'travel_schedule/snippets/profileschedule_list.html'
+    paginate_by = 10
+
+    def get_queryset(self):
+        queryset = TravelSchedule.objects.filter(owner=self.request.user)
+
+        return queryset

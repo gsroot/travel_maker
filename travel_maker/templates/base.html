@@ -27,7 +27,9 @@
         <!-- jquery-ui CSS -->
         <link href="{% static 'vendor/jquery-ui/themes/base/jquery-ui.css' %}" rel="stylesheet">
 
-        <link rel="stylesheet" href="{% static 'vendor/magnific-popup/magnific-popup.css' %}">
+        <link href="{% static 'vendor/magnific-popup/magnific-popup.css' %}" rel="stylesheet" >
+
+        <link href="{% static 'vendor/nouislider/distribute/nouislider.min.css' %}" rel="stylesheet">
 
         <link href="{% static 'css/base.css' %}" rel="stylesheet">
     {% endblock css %}
@@ -56,7 +58,7 @@
                         <a class="page-scroll" href="{% url 'travel_info:list' %}">여행지 검색</a>
                     </li>
                     <li>
-                        <a class="page-scroll" href="{% url 'travel_schedule:list' %}">여행일정 관리</a>
+                        <a class="page-scroll" href="{% url 'travel_schedule:list' %}">여행일정 검색</a>
                     </li>
                     <li id="fat-menu" class="dropdown">
                         {% if user.is_authenticated %}
@@ -127,6 +129,8 @@
     <script src="{% static 'vendor/js-cookie/src/js.cookie.js' %}"></script>
 
     <script src="{% static 'vendor/magnific-popup/jquery.magnific-popup.min.js' %}"></script>
+
+    <script src="{% static 'vendor/nouislider/distribute/nouislider.min.js' %}"></script>
 
     <script src="{% static 'js/base.js' %}"></script>
 
