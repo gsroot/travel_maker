@@ -27,7 +27,7 @@
         <!-- jquery-ui CSS -->
         <link href="{% static 'vendor/jquery-ui/themes/base/jquery-ui.css' %}" rel="stylesheet">
 
-        <link href="{% static 'vendor/magnific-popup/magnific-popup.css' %}" rel="stylesheet" >
+        <link href="{% static 'vendor/magnific-popup/magnific-popup.css' %}" rel="stylesheet">
 
         <link href="{% static 'vendor/nouislider/distribute/nouislider.min.css' %}" rel="stylesheet">
 
@@ -133,6 +133,18 @@
     <script src="{% static 'vendor/nouislider/distribute/nouislider.min.js' %}"></script>
 
     <script src="{% static 'js/base.js' %}"></script>
+
+    <script>
+        $(document).ready(function () {
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.level >= DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                        alert('{{ message }}');
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+        })
+    </script>
 
 {% endblock javascript %}
 </body>

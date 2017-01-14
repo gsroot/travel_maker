@@ -44,13 +44,6 @@
 
     <script>
         $(document).ready(function () {
-            {% if messages %}
-                {% for message in messages %}
-                    {% if message.level >= DEFAULT_MESSAGE_LEVELS.WARNING %}
-                        alert('{{ message }}');
-                    {% endif %}
-                {% endfor %}
-            {% endif %}
 
             $('.user-info').hover(
                 function () {

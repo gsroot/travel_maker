@@ -82,6 +82,7 @@ class TravelScheduleCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
+        messages.success(self.request, '여행 일정이 생성 되었습니다')
         return reverse('travel_schedule:detail', args=(self.object.id,))
 
     def get(self, request, *args, **kwargs):
@@ -101,6 +102,7 @@ class TravelScheduleUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateVi
         return user == self.get_object().owner
 
     def get_success_url(self):
+        messages.success(self.request, '여행 일정 정보가 설정되었습니다')
         return reverse('travel_schedule:detail', kwargs=self.kwargs)
 
 

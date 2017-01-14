@@ -19,8 +19,9 @@ class TravelBookmarkCreateView(LoginRequiredMixin, CreateView):
         instance.owner = self.request.user
         if TravelBookmark.objects.filter(owner=instance.owner, travel_info=instance.travel_info).exists():
             messages.warning(self.request, '이미 관심여행지에 등록되어 있습니다')
-            return HttpResponseRedirect(self.request.user.get_absolute_url())
+            return HttpResponseRedirect(self.request.META.get('HTTP_REFERER'))
         instance.save()
+        messages.success(self.request, '관심 여행지에 등록 되었습니다')
 
         return super().form_valid(form)
 

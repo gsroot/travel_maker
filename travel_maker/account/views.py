@@ -2,6 +2,7 @@ from allauth.account.forms import ChangePasswordForm
 from allauth.account.views import PasswordChangeView
 from braces.views import LoginRequiredMixin
 from braces.views import UserPassesTestMixin
+from django.contrib import messages
 from django.urls import reverse
 from django.urls import reverse_lazy
 from django.views.generic import DeleteView
@@ -20,6 +21,7 @@ class ProfileHomeView(LoginRequiredMixin, UpdateView):
     form_class = UserUpdateForm
 
     def get_success_url(self):
+        messages.success(self.request, '회원 정보가 설정 되었습니다')
         return reverse('profile:home', kwargs=self.kwargs)
 
     def get_context_data(self, **kwargs):
