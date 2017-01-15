@@ -128,6 +128,12 @@
                 });
             {% endfor %}
 
+            {% if viewtype == 'popup' %}
+                $('a').on('click', function (e) {
+                    e.preventDefault();
+                });
+            {% endif %}
+
             $('.review-content').each(function () {
                 var height = $(this).height();
                 var max_height = parseInt($(this).css('max-height'));
@@ -137,7 +143,6 @@
                     $(this).append(more_review);
                 }
             });
-
 
             $('#more_blogs a').click(function (e) {
                 $.ajax({

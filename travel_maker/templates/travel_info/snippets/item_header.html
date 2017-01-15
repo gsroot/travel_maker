@@ -6,10 +6,10 @@
                 <div class="item-header-left col-md-9">
                     <span class="item-title">{{ travelinfo.title }}</span>
                     <span class="item-primary-tags">
-                            {% for tag in travelinfo.primary_three_tags %}
-                                {{ tag.0 }}{% if forloop.counter < 3 %},{% endif %}
-                            {% endfor %}
-                        </span>
+                        {% for tag in travelinfo.primary_three_tags %}
+                            {{ tag.0 }}{% if forloop.counter < 3 %},{% endif %}
+                        {% endfor %}
+                    </span>
                 </div>
                 <div class="item-header-right col-md-3">
                     <span id="rating"></span>
@@ -47,24 +47,26 @@
                     </div>
                 </div>
                 <div class="col-md-5"></div>
-                <div class="item-header-right col-md-4">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <span><i class="fa fa-pencil-square-o fa-lg"></i></span>
-                            <span><a href="{% url 'travel_review:create' travelinfo.id %}">평가하기</a></span>
-                        </div>
-                        <div class="travelbookmark-creation" class="col-md-8">
-                            <a href="javascript:void(0)">
-                                <form action="{% url 'travel_bookmark:create' %}" method="post">
-                                    {% csrf_token %}
-                                    <input name="travel_info" type="hidden" value="{{ travelinfo.id }}">
-                                </form>
-                                <span><i class="fa fa-thumbs-o-up fa-lg"></i></span>
-                                <span>관심 여행지에 추가</span>
-                            </a>
+                {% if viewtype != 'popup' %}
+                    <div class="item-header-right col-md-4">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <span><i class="fa fa-pencil-square-o fa-lg"></i></span>
+                                <span><a href="{% url 'travel_review:create' travelinfo.id %}">평가하기</a></span>
+                            </div>
+                            <div class="travelbookmark-creation" class="col-md-8">
+                                <a href="javascript:void(0)">
+                                    <form action="{% url 'travel_bookmark:create' %}" method="post">
+                                        {% csrf_token %}
+                                        <input name="travel_info" type="hidden" value="{{ travelinfo.id }}">
+                                    </form>
+                                    <span><i class="fa fa-thumbs-o-up fa-lg"></i></span>
+                                    <span>관심 여행지에 추가</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
+                {% endif %}
             </div>
         </div>
         <div class="spacer-sm"></div>
