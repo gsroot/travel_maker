@@ -12,9 +12,7 @@
 
 {% block header %}
     <header>
-        <div id="item-header">
-            <div id="map" style="width:100%;height:300px;"></div>
-        </div>
+        <div id="map" style="width:100%;height:300px;"></div>
     </header>
 {% endblock header %}
 
@@ -124,8 +122,8 @@
 
 {% block javascript %}
     {{ block.super }}
-    <script type="text/javascript"
-            src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId={{ naverapi_client_id }}"></script>
+    <script src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId={{ naverapi_client_id }}"></script>
+    <script src="{% static 'js/map.js' %}"></script>
     <script>
         $(document).ready(function () {
             var mapOptions = {
@@ -135,16 +133,46 @@
 
             var map = new naver.maps.Map('map', mapOptions);
 
+            function getClickHandler(seq) {
+                return function (e) {
+                    var marker = markers[seq],
+                        infoWindow = infoWindows[seq];
+
+                    if (infoWindow.getMap()) {
+                        infoWindow.close();
+                    } else {
+                        infoWindow.open(map, marker);
+                    }
+                }
+            }
+
+            var markers = [];
+            var infoWindows = [];
             {% for spot in travelinfo_list %}
                 var marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng({{ spot.mapy }}, {{ spot.mapx }}),
                     map: map
                 });
+
+                var infoWindow = new naver.maps.InfoWindow({
+                    content: '<div style="width:150px;text-align:center;padding:10px;">{{ spot }}</div>'
+                });
+
+                markers.push(marker);
+                infoWindows.push(infoWindow);
             {% endfor %}
+
+            naver.maps.Event.addListener(map, 'idle', function () {
+                updateMarkers(map, markers);
+            });
+
+            for (var i = 0, mlen = markers.length; i < mlen; i++) {
+                naver.maps.Event.addListener(markers[i], 'click', getClickHandler(i));
+            }
 
             $('.travelbookmark-creation').click(function () {
                 $(this).find('form').submit();
-            })
+            });
         })
     </script>
 {% endblock %}

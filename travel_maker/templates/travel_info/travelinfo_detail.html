@@ -48,8 +48,8 @@
 
 {% block javascript %}
     {{ block.super }}
-    <script type="text/javascript"
-            src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId={{ naverapi_client_id }}"></script>
+    <script src="https://openapi.map.naver.com/openapi/v3/maps.js?clientId={{ naverapi_client_id }}"></script>
+    <script src="{% static 'js/map.js' %}"></script>
     <script>
         $(document).ready(function () {
             var mapOptions = {
@@ -58,29 +58,64 @@
             };
 
             var map = new naver.maps.Map('map', mapOptions);
+            var markers = [];
+            var infoWindows = [];
 
             var page = 2;
 
-            var set_one_marker = function (mapy, mapx) {
+            function getClickHandler(seq) {
+                return function (e) {
+                    var marker = markers[seq],
+                        infoWindow = infoWindows[seq];
+
+                    if (infoWindow.getMap()) {
+                        infoWindow.close();
+                    } else {
+                        infoWindow.open(map, marker);
+                    }
+                }
+            }
+
+            var set_marker = function (mapy, mapx) {
                 var marker = new naver.maps.Marker({
                     position: new naver.maps.LatLng(mapy, mapx),
                     map: map
                 });
+
+                return marker
             };
 
-            var set_marker = function () {
+            var set_markers = function () {
                 {% if travelinfo.contenttype.name == '여행코스' %}
                     {% for info in travelinfo.tourcoursedetailinfo_set.all %}
                         {% if info.sub_travel_info and info.sub_travel_info.mapx and info.sub_travel_info.mapy %}
-                            set_one_marker({{ info.sub_travel_info.mapy }}, {{ info.sub_travel_info.mapx }});
+                            var marker = set_marker({{ info.sub_travel_info.mapy }}, {{ info.sub_travel_info.mapx }});
+                            var infoWindow = new naver.maps.InfoWindow({
+                                content: '<div style="width:150px;text-align:center;padding:10px;">{{ info.sub_travel_info }}</div>'
+                            });
+                            markers.push(marker);
+                            infoWindows.push(infoWindow);
                         {% endif %}
                     {% endfor %}
                 {% else %}
-                    set_one_marker({{ travelinfo.mapy }}, {{ travelinfo.mapx }});
+                    var marker = set_marker({{ travelinfo.mapy }}, {{ travelinfo.mapx }});
+                    var infoWindow = new naver.maps.InfoWindow({
+                        content: '<div style="width:150px;text-align:center;padding:10px;">{{ travelinfo }}</div>'
+                    });
+                    markers.push(marker);
+                    infoWindows.push(infoWindow);
                 {% endif %}
             };
 
-            set_marker();
+            set_markers();
+
+            naver.maps.Event.addListener(map, 'idle', function () {
+                updateMarkers(map, markers);
+            });
+
+            for (var i = 0, mlen = markers.length; i < mlen; i++) {
+                naver.maps.Event.addListener(markers[i], 'click', getClickHandler(i));
+            }
 
             $('#map-extend button').click(function () {
                 var map_elm = $('#map');
@@ -94,7 +129,7 @@
 
                 map.destroy();
                 map = new naver.maps.Map('map', mapOptions);
-                set_marker();
+                set_markers();
             });
 
             $.fn.raty.defaults.path = '/static/vendor/raty/images/';
