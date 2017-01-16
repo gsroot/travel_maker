@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static i18n scheduletags %}
+{% load static i18n scheduletags disqus_tags %}
 
 {% block css %}
     {{ block.super }}
@@ -32,6 +32,8 @@
                 <div id="calendar-box" class="box">
                     <div id="calendar"></div>
                 </div>
+                <div class="spacer-md"></div>
+                {% disqus_show_comments %}
             </div>
         </div>
     </div>
@@ -46,9 +48,9 @@
     <script>
         $(document).ready(function () {
             $('.btn-group-ispublic button').click(function () {
-               var is_public = ($(this).attr('id') == 'btn-ispublic-true');
-               var active_elm = $(this);
-               $.ajax({
+                var is_public = ($(this).attr('id') == 'btn-ispublic-true');
+                var active_elm = $(this);
+                $.ajax({
                     type: 'PUT',
                     url: "{% url 'travel_schedule:update_api' travelschedule.id %}",
                     contentType: 'application/json',

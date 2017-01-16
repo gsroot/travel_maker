@@ -44,6 +44,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'grappelli',
     'filebrowser',
+    'disqus',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -224,3 +225,7 @@ SUMMERNOTE_CONFIG = {
             ['view', ['fullscreen', 'codeview']],
     ],
 }
+
+
+DISQUS_API_KEY = 'FsCjsn3hoMOx9B6AV9FpYycKe6HlUYqUR2fGqxbX4baQBOzKwtvU616EktHR6f4K'
+DISQUS_WEBSITE_SHORTNAME = 'travelmaker'
