@@ -81,3 +81,7 @@
     height: 350px;
     overflow: auto;
 }
+
+.carousel img {
+    width: 100%;
+}

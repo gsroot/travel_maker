@@ -406,6 +406,12 @@ class LodgingDetailInfo(TravelDetailInfo):
     roomimg5 = models.CharField(max_length=500, blank=True, default='')
     roomimg5alt = models.CharField(max_length=500, blank=True, default='')
 
+    @property
+    def images(self):
+        images = [
+            {'src': getattr(self, 'roomimg{}'.format(i))} for i in range(1, 6) if getattr(self, 'roomimg{}'.format(i))]
+        return images
+
 
 class TravelImageInfo(models.Model):
     travel_info = models.ForeignKey(TravelInfo, on_delete=models.PROTECT)

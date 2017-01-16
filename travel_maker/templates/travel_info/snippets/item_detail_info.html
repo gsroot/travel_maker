@@ -20,6 +20,120 @@
                     <p>{{ info.subdetailoverview }}</p>
                     <div class="spacer-md"></div>
                 {% endfor %}
+            {% elif travelinfo.lodgingdetailinfo_set.all %}
+                {% for info in travelinfo.lodgingdetailinfo_set.all %}
+                    <h4>{{ info.roomtitle }}</h4>
+                    <div class="row">
+                        {% if info.images %}
+                            <div class="col-md-6">
+                                <div id="carousel-generic-{{ info.id }}" class="carousel slide" data-ride="carousel">
+                                    <ol class="carousel-indicators">
+                                        <li data-target="#carousel-generic-{{ info.id }}" data-slide-to="0" class="active"></li>
+                                        {% for img in info.images %}
+                                            <li data-target="#carousel-generic-{{ info.id }}"
+                                                data-slide-to="{{ forloop.counter }}"></li>
+                                        {% endfor %}
+                                    </ol>
+                                    <div class="carousel-inner" role="listbox">
+                                        <div class="item active">
+                                            <img src="{{ info.images.0.src }}">
+                                        </div>
+                                        {% for img in info.images %}
+                                            {% if forloop.counter > 1 %}
+                                                <div class="item">
+                                                    <img src="{{ img.src }}">
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                    <a class="left carousel-control" href="#carousel-generic-{{ info.id }}" role="button"
+                                       data-slide="prev">
+                                        <span class="glyphicon glyphicon-chevron-left"></span>
+                                    </a>
+                                    <a class="right carousel-control" href="#carousel-generic-{{ info.id }}" role="button"
+                                       data-slide="next">
+                                        <span class="glyphicon glyphicon-chevron-right"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        {% endif %}
+                        <div class="col-md-3">
+                            {% if info.roomsize1 %}
+                                <div>객실크기(평): {{ info.roomsize1 }}</div>
+                            {% endif %}
+                            {% if info.roomsize2 %}
+                                <div>객실크기(평방미터): {{ info.roomsize2 }}</div>
+                            {% endif %}
+                            {% if info.roomcount %}
+                                <div>객실수: {{ info.roomcount }}</div>
+                            {% endif %}
+                            {% if info.roombasecount %}
+                                <div>기준인원: {{ info.roombasecount }}</div>
+                            {% endif %}
+                            {% if info.roommaxcount %}
+                                <div>최대인원: {{ info.roommaxcount }}</div>
+                            {% endif %}
+                            {% if info.roomoffseasonminfee1 %}
+                                <div>비수기주중최소: {{ info.roomoffseasonminfee1 }}</div>
+                            {% endif %}
+                            {% if info.roomoffseasonminfee2 %}
+                                <div>비수기주말최소: {{ info.roomoffseasonminfee2 }}</div>
+                            {% endif %}
+                            {% if info.roompeakseasonminfee1 %}
+                                <div>성수기주중최소: {{ info.roompeakseasonminfee1 }}</div>
+                            {% endif %}
+                            {% if info.roompeakseasonminfee2 %}
+                                <div>성수기주말최소: {{ info.roompeakseasonminfee2 }}</div>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-3">
+                            {% if info.roombath %}
+                                <div>욕조 있음</div>
+                            {% endif %}
+                            {% if info.roomhometheater %}
+                                <div>홈시어터 있음</div>
+                            {% endif %}
+                            {% if info.roomaircondition %}
+                                <div>에어컨 있음</div>
+                            {% endif %}
+                            {% if info.roomtv %}
+                                <div>TV 있음</div>
+                            {% endif %}
+                            {% if info.roompc %}
+                                <div>PC 있음</div>
+                            {% endif %}
+                            {% if info.roomcable %}
+                                <div>케이블 설치 있음</div>
+                            {% endif %}
+                            {% if info.roominternet %}
+                                <div>인터넷 있음</div>
+                            {% endif %}
+                            {% if info.roomrefrigerator %}
+                                <div>냉장고 있음</div>
+                            {% endif %}
+                            {% if info.roomtoiletries %}
+                                <div>세면도구 있음</div>
+                            {% endif %}
+                            {% if info.roomsofa %}
+                                <div>소파 있음</div>
+                            {% endif %}
+                            {% if info.roomcook %}
+                                <div>취사용품 있음</div>
+                            {% endif %}
+                            {% if info.roomTable %}
+                                <div>테이블 있음</div>
+                            {% endif %}
+                            {% if info.roomhairdryer %}
+                                <div>드라이기 있음</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if info.roomintro %}
+                        <div class="spacer-xs"></div>
+                        <p>객실소개: {{ info.roomintro }}</p>
+                    {% endif %}
+                    <div class="spacer-md"></div>
+                {% endfor %}
             {% endif %}
         </div>
     </div>
