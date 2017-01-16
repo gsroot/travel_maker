@@ -36,21 +36,11 @@
                     {% include 'travel_info/snippets/item_image_info.html' %}
                     {% include 'travel_info/snippets/item_base_info.html' %}
                 </div>
-                <div class="spacer-sm divider"></div>
-                <div class="spacer-sm"></div>
                 {% include 'travel_info/snippets/item_overview_info.html' %}
-                <div class="spacer-sm divider"></div>
-                <div class="spacer-sm"></div>
                 {% include 'travel_info/snippets/item_expguide.html' %}
-                <div class="spacer-sm divider"></div>
-                <div class="spacer-sm"></div>
                 {% include 'travel_info/snippets/item_detail_info.html' %}
-                <div class="spacer-sm divider"></div>
-                <div class="spacer-sm"></div>
                 {% include 'travel_info/snippets/item_reviews_info.html' %}
-                <div class="spacer-sm"></div>
                 {% include 'travel_info/snippets/item_blogs_info.html' %}
-                <div class="spacer-md"></div>
             </div>
         {% endautoescape %}
     </div>
@@ -63,18 +53,34 @@
     <script>
         $(document).ready(function () {
             var mapOptions = {
-                center: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
+                center: new naver.maps.LatLng({{ travelinfo.map_y }}, {{ travelinfo.map_x }}),
                 zoom: 6
             };
 
             var map = new naver.maps.Map('map', mapOptions);
 
-            var marker = new naver.maps.Marker({
-                position: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
-                map: map
-            });
-
             var page = 2;
+
+            var set_one_marker = function (mapy, mapx) {
+                var marker = new naver.maps.Marker({
+                    position: new naver.maps.LatLng(mapy, mapx),
+                    map: map
+                });
+            };
+
+            var set_marker = function () {
+                {% if travelinfo.contenttype.name == '여행코스' %}
+                    {% for info in travelinfo.tourcoursedetailinfo_set.all %}
+                        {% if info.sub_travel_info and info.sub_travel_info.mapx and info.sub_travel_info.mapy %}
+                            set_one_marker({{ info.sub_travel_info.mapy }}, {{ info.sub_travel_info.mapx }});
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    set_one_marker({{ travelinfo.mapy }}, {{ travelinfo.mapx }});
+                {% endif %}
+            };
+
+            set_marker();
 
             $('#map-extend button').click(function () {
                 var map_elm = $('#map');
@@ -88,10 +94,7 @@
 
                 map.destroy();
                 map = new naver.maps.Map('map', mapOptions);
-                var marker = new naver.maps.Marker({
-                    position: new naver.maps.LatLng({{ travelinfo.mapy }}, {{ travelinfo.mapx }}),
-                    map: map
-                });
+                set_marker();
             });
 
             $.fn.raty.defaults.path = '/static/vendor/raty/images/';

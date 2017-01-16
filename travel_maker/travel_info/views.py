@@ -40,8 +40,8 @@ class TravelInfoListView(ListView):
         context = super().get_context_data(**kwargs)
         context.update(self.request.GET)
         travelinfo_list = context['travelinfo_list']
-        context['center_mapx'] = mean([spot.mapx for spot in travelinfo_list])
-        context['center_mapy'] = mean([spot.mapy for spot in travelinfo_list])
+        context['center_mapx'] = mean([spot.mapx for spot in travelinfo_list if spot.mapx])
+        context['center_mapy'] = mean([spot.mapy for spot in travelinfo_list if spot.mapy])
         context['naverapi_client_id'] = NAVER_API_CLIENT_ID
         context['form'] = TravelInfoSearchForm(self.request.GET) \
             if any([v != '' for v in self.request.GET.values()]) else TravelInfoSearchForm()

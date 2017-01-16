@@ -118,6 +118,24 @@ class TravelInfo(models.Model):
         return self.title
 
     @property
+    def map_x(self):
+        if self.contenttype.name == '여행코스':
+            map_x_list = [info.sub_travel_info.mapx for info in self.tourcoursedetailinfo_set.all()
+                     if info.sub_travel_info and info.sub_travel_info.mapx]
+            return mean(map_x_list)
+        else:
+            return self.mapx
+
+    @property
+    def map_y(self):
+        if self.contenttype.name == '여행코스':
+            map_y_list = [info.sub_travel_info.mapy for info in self.tourcoursedetailinfo_set.all()
+                     if info.sub_travel_info and info.sub_travel_info.mapy]
+            return mean(map_y_list)
+        else:
+            return self.mapy
+
+    @property
     def reviews_cnt(self):
         googlereview_cnt = self.googleplaceinfo.googleplacereviewinfo_set.count() \
             if hasattr(self, 'googleplaceinfo') else 0
@@ -130,7 +148,7 @@ class TravelInfo(models.Model):
                 or self.travelreview_set.all():
             google_ratings = [
                 review.rating for review in self.googleplaceinfo.googleplacereviewinfo_set.all()
-            ] if hasattr(self, 'googleplaceinfo') else []
+                ] if hasattr(self, 'googleplaceinfo') else []
             travel_ratings = [review.rating for review in self.travelreview_set.all()]
             return round(mean(google_ratings + travel_ratings), 2)
         else:

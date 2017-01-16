@@ -3,12 +3,26 @@
         <div id="item-detail-info">
             <h3>상세 정보</h3>
             <div class="spacer-sm"></div>
-            {% if travelinfo.contenttype.name == "관광지" %}
-                {% for detailinfo in travelinfo.defaulttraveldetailinfo_set.all %}
-                    <h5>{{ detailinfo.infoname }}</h5>
-                    <p>{{ detailinfo.infotext }}</p>
+            {% if travelinfo.defaulttraveldetailinfo_set.all %}
+                {% for info in travelinfo.defaulttraveldetailinfo_set.all %}
+                    <h4>{{ info.infoname }}</h4>
+                    <p>{{ info.infotext }}</p>
+                    <div class="spacer-sm"></div>
+                {% endfor %}
+            {% elif travelinfo.tourcoursedetailinfo_set.all %}
+                {% for info in travelinfo.tourcoursedetailinfo_set.all %}
+                    <a href="{{ info.sub_travel_info.get_absolute_url }}">
+                        <img src="{{ info.subdetailimg }}" alt="{{ info.subdetailalt }}">
+                    </a>
+                    <a href="{{ info.sub_travel_info.get_absolute_url }}">
+                        <h3>{{ info.subname }}</h3>
+                    </a>
+                    <p>{{ info.subdetailoverview }}</p>
+                    <div class="spacer-md"></div>
                 {% endfor %}
             {% endif %}
         </div>
     </div>
+    <div class="spacer-sm divider"></div>
+    <div class="spacer-sm"></div>
 {% endif %}
