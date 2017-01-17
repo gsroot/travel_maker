@@ -121,7 +121,7 @@ class TravelInfo(models.Model):
     def map_x(self):
         if self.contenttype.name == '여행코스':
             map_x_list = [info.sub_travel_info.mapx for info in self.tourcoursedetailinfo_set.all()
-                     if info.sub_travel_info and info.sub_travel_info.mapx]
+                          if info.sub_travel_info and info.sub_travel_info.mapx]
             return mean(map_x_list)
         else:
             return self.mapx
@@ -130,7 +130,7 @@ class TravelInfo(models.Model):
     def map_y(self):
         if self.contenttype.name == '여행코스':
             map_y_list = [info.sub_travel_info.mapy for info in self.tourcoursedetailinfo_set.all()
-                     if info.sub_travel_info and info.sub_travel_info.mapy]
+                          if info.sub_travel_info and info.sub_travel_info.mapy]
             return mean(map_y_list)
         else:
             return self.mapy
@@ -421,6 +421,15 @@ class TravelImageInfo(models.Model):
 
     class Meta:
         unique_together = ('travel_info', 'serialnum')
+
+
+class NearbySpotInfo(models.Model):
+    center_spot = models.ForeignKey(TravelInfo, on_delete=models.PROTECT, related_name='nearbyspotinfo_set')
+    target_spot = models.ForeignKey(TravelInfo, on_delete=models.PROTECT, related_name='nearbyspotinfo2_set')
+    dist = models.PositiveIntegerField()
+
+    class Meta:
+        unique_together = ('center_spot', 'target_spot')
 
 
 class Progress(models.Model):

@@ -233,6 +233,29 @@ class CategorycodeWebCollector(DepthItemWebCollector):
 
 
 class TravelInfoWebCollector(WebCollector):
+    key_to_column_swithcer = {
+        'contentid': 'id',
+        'addr1': 'addr1',
+        'addr2': 'addr2',
+        'areacode': 'area_code',
+        'sigungucode': 'sigungu_code',
+        'contenttypeid': 'contenttype_id',
+        'cat1': 'cat1_code',
+        'cat2': 'cat2_code',
+        'cat3': 'cat3_code',
+        'title': 'title',
+        'firstimage': 'image',
+        'firstimage2': 'thumbnail',
+        'mapx': 'mapx',
+        'mapy': 'mapy',
+        'mlevel': 'mlevel',
+        'booktour': 'is_booktour',
+        'tel': 'tel',
+        'readcount': 'readcount',
+        'createdtime': 'created',
+        'modifiedtime': 'modified',
+    }
+
     def __init__(self):
         super().__init__()
         self.operation = 'areaBasedList'
@@ -286,33 +309,11 @@ class TravelInfoWebCollector(WebCollector):
 
         raw_travel_info_dicts = res_dict['response']['body']['items']['item']
 
-        key_to_column_swithcer = {
-            'contentid': 'id',
-            'addr1': 'addr1',
-            'addr2': 'addr2',
-            'areacode': 'area_code',
-            'sigungucode': 'sigungu_code',
-            'contenttypeid': 'contenttype_id',
-            'cat1': 'cat1_code',
-            'cat2': 'cat2_code',
-            'cat3': 'cat3_code',
-            'title': 'title',
-            'firstimage': 'image',
-            'firstimage2': 'thumbnail',
-            'mapx': 'mapx',
-            'mapy': 'mapy',
-            'mlevel': 'mlevel',
-            'booktour': 'is_booktour',
-            'tel': 'tel',
-            'readcount': 'readcount',
-            'createdtime': 'created',
-            'modifiedtime': 'modified',
-        }
-
         info_dicts = []
         for raw_info in raw_travel_info_dicts:
             info_dicts.append(
-                {key_to_column_swithcer[key]: val for key, val in raw_info.items() if key in key_to_column_swithcer}
+                {self.key_to_column_swithcer[key]: val for key, val in raw_info.items()
+                 if key in self.key_to_column_swithcer}
             )
 
         infos = []
@@ -447,7 +448,6 @@ class TravelIntroInfoWebCollector(WebCollector):
                     or LodgingIntroInfo.objects.filter(travel_info=travel_info).exists() \
                     or ShoppingIntroInfo.objects.filter(travel_info=travel_info).exists() \
                     or RestaurantIntroInfo.objects.filter(travel_info=travel_info).exists():
-
                 continue
 
             progress.travel_info = travel_info
@@ -537,7 +537,6 @@ class TravelDetailInfoWebCollector(WebCollector):
             if DefaultTravelDetailInfo.objects.filter(travel_info=travel_info).exists() \
                     or TourCourseDetailInfo.objects.filter(travel_info=travel_info).exists() \
                     or LodgingDetailInfo.objects.filter(travel_info=travel_info).exists():
-
                 continue
 
             progress.travel_info = travel_info
@@ -651,6 +650,73 @@ class TravelImageInfoWebCollector(WebCollector):
                         })
 
                         TravelImageInfo.objects.create(**info_dict)
+
+            progress.info_complete_count += 1
+            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
+            progress.save()
+
+    def run(self):
+        super().run()
+        if self.progress.percent >= 100:
+            print("  Nothing to do")
+            return
+        self.request()
+
+
+class NearbySpotInfoWebCollector(WebCollector):
+    def __init__(self):
+        super().__init__()
+        self.operation = 'locationBasedList'
+        self.endpoint = urljoin(self.base_url, self.operation)
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=NearbySpotInfo.__name__)[0]
+
+    def request(self):
+        progress = self.progress
+
+        travel_infos = TravelInfo.objects.filter(mapx__isnull=False, mapy__isnull=False) \
+            if progress.travel_info is None \
+            else TravelInfo.objects.filter(mapx__isnull=False, mapy__isnull=False, id__gte=progress.travel_info.id)
+
+        for travel_info in travel_infos:
+            progress.travel_info = travel_info
+            progress.save()
+
+            query_params = {
+                'numOfRows': 1000,
+                'arrange': 'E',
+                'mapX': travel_info.mapx,
+                'mapY': travel_info.mapy,
+                'radius': '20000',
+            }
+            self.update_url(query_params)
+            response = requests.get(self.url)
+
+            try:
+                res_dict = self.response_to_dict(response)
+            except UserWarning as e:
+                print(e)
+                return
+
+            if res_dict['response']['body']['totalCount'] == 0:
+                continue
+
+            info_dicts = res_dict['response']['body']['items']['item']
+            if type(info_dicts) is not list:
+                info_dicts = [info_dicts]
+
+            infos = [
+                NearbySpotInfo(
+                    center_spot=travel_info, target_spot=TravelInfo.objects.get(id=info['contentid']), dist=info['dist']
+                )
+                for info in info_dicts]
+
+            if NearbySpotInfo.objects.filter(center_spot=travel_info).exists():
+                for info in infos:
+                    spotinfo = NearbySpotInfo.objects.get(center_spot=info.center_spot, target_spot=info.target_spot)
+                    spotinfo.dist = info['dist']
+                    spotinfo.save()
+            else:
+                NearbySpotInfo.objects.bulk_create(infos)
 
             progress.info_complete_count += 1
             progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)

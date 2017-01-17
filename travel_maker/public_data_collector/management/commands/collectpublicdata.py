@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
 
-from config.settings.base import TRAVEL_API_SECRET_KEY
+from config.settings.base import TRAVEL_API_SECRET_KEY_LIST
 from travel_maker.public_data_collector.management.collectors import WebCollector, \
     ContentTypeCollector, AreacodeWebCollector, CategorycodeWebCollector, TravelInfoWebCollector, \
     TravelOverviewInfoWebCollector, TravelIntroInfoWebCollector, TravelDetailInfoWebCollector, \
-    TravelImageInfoWebCollector
+    TravelImageInfoWebCollector, NearbySpotInfoWebCollector
 
 
 class Command(BaseCommand):
@@ -13,7 +13,7 @@ class Command(BaseCommand):
     def __init__(self):
         super(Command, self).__init__()
 
-        WebCollector.service_keys = [TRAVEL_API_SECRET_KEY]
+        WebCollector.service_keys = TRAVEL_API_SECRET_KEY_LIST
         WebCollector.service_key = WebCollector.service_keys[0]
 
         self.collectors = [
@@ -25,6 +25,7 @@ class Command(BaseCommand):
             TravelIntroInfoWebCollector(),
             TravelDetailInfoWebCollector(),
             TravelImageInfoWebCollector(),
+            NearbySpotInfoWebCollector(),
         ]
 
     def handle(self, *args, **options):
