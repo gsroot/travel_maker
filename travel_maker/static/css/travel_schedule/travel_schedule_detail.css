@@ -4,6 +4,10 @@ body {
     width: 100%;
 }
 
+header {
+    color: white;
+}
+
 a:hover {
     text-decoration: none;
 }

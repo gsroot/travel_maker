@@ -43,6 +43,7 @@
     </div>
     {% include 'travel_schedule/snippets/event_control_modal.html' %}
     {% include 'travel_schedule/snippets/event_add_modal.html' %}
+    {% include 'travel_schedule/snippets/event_time_change_modal.html' %}
 {% endblock %}
 
 {% block javascript %}
@@ -59,8 +60,7 @@
             var contenttype_list = [];
             var schedule_start = moment('{{ travelschedule.start|date:"c" }}');
             var schedule_end = moment('{{ travelschedule.end|date:"c" }}');
-            var title;
-            var travel_info;
+            var event;
 
             var set_waypoint = function () {
                 new Waypoint({
@@ -147,54 +147,50 @@
                 search();
             });
 
-            $('#datetimepicker-start').datetimepicker({
+            $('#starttime-add, #endtime-add, #starttime-change, #endtime-change').datetimepicker({
                 minDate: schedule_start,
                 maxDate: moment(schedule_end).add(1, 'days').subtract(1, 'second'),
                 format: 'YYYY-MM-DD HH:mm'
             });
 
-            $('#datetimepicker-end').datetimepicker({
-                minDate: schedule_start,
-                maxDate: moment(schedule_end).add(1, 'days').subtract(1, 'second'),
-                format: 'YYYY-MM-DD HH:mm'
+            $('#starttime-add').on("dp.change", function (e) {
+                $('#endtime-add').data("DateTimePicker").minDate(e.date);
             });
 
-            $('#datetimepicker-start').on("dp.change", function (e) {
-                $('#datetimepicker-end').data("DateTimePicker").minDate(e.date);
+            $('#endtime-add').on("dp.change", function (e) {
+                $('#starttime-add').data("DateTimePicker").maxDate(e.date);
             });
 
-            $('#datetimepicker-end').on("dp.change", function (e) {
-                $('#datetimepicker-start').data("DateTimePicker").maxDate(e.date);
+            $('#starttime-change').on("dp.change", function (e) {
+                $('#endtime-change').data("DateTimePicker").minDate(e.date);
+            });
+
+            $('#endtime-change').on("dp.change", function (e) {
+                $('#starttime-change').data("DateTimePicker").maxDate(e.date);
             });
 
             $('.fc-event').click(function () {
-                title = $(this).data('event').title;
-                travel_info = $(this).data('event').travel_info;
+                event.title = $(this).data('event').title;
+                event.travel_info = $(this).data('event').travel_info;
 
-                $('#event-btns').hide();
+                $('.btn-inner-event').hide();
                 $('#show-event-add-modal').show();
                 $('#event-control-modal').modal();
             });
 
             $('#show-travelinfo').click(function () {
-                show_travel_info(travel_info);
+                show_travel_info(event.travel_info);
             });
 
             $('#show-event-add-modal').click(function () {
-                $('#datetimepicker-start').val('');
-                $('#datetimepicker-end').val('');
+                $('.time').val('');
                 $('#event-add-modal').modal();
             });
 
             $('#add-event').click(function () {
-                var start = moment($('#datetimepicker-start').val());
-                var end = moment($('#datetimepicker-end').val());
-                $('#calendar').fullCalendar('renderEvent', {
-                    'title': title,
-                    'travel_info': travel_info,
-                    'start': start,
-                    'end': end
-                }, true);
+                event.start = $('#starttime-add').val();
+                event.end = $('#endtime-add').val();
+                $('#calendar').fullCalendar('renderEvent', event, true);
             });
 
             $('#del-event').click(function () {
@@ -228,6 +224,18 @@
                         console.log(error);
                     }
                 });
+            });
+
+            $('#show-event-change-modal').click(function () {
+                $('#starttime-change').val(moment(event.start).format('YYYY-MM-DD HH:mm'));
+                $('#endtime-change').val(moment(event.end).format('YYYY-MM-DD HH:mm'));
+                $('#event-time-change-modal').modal();
+            });
+
+            $('#change-event').click(function () {
+                event.start = $('#starttime-change').val();
+                event.end = $('#endtime-change').val();
+                $('#calendar').fullCalendar('updateEvent', event, true);
             });
 
             $('#save').click(function () {
@@ -335,11 +343,11 @@
                         },
                     {% endfor %}
                 ],
-                eventClick: function (event, jsEvent, view) {
-                    travel_info = event.travel_info;
-                    $('#del-event').data('eventid', event._id);
+                eventClick: function (e, jsEvent, view) {
+                    event = e;
+                    $('#del-event').data('eventid', e._id);
                     $('#show-event-add-modal').hide();
-                    $('#event-btns').show();
+                    $('.btn-inner-event').show();
                     $('#event-control-modal').modal();
                 },
                 viewRender: function (view, element) {
