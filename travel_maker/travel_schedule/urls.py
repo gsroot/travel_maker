@@ -1,4 +1,5 @@
 from django.conf.urls import url
+from updown.views import AddRatingFromModel
 
 from travel_maker.travel_schedule.views import TravelScheduleCreateView, TravelScheduleListView, \
     TravelScheduleDetailView, TravelScheduleDeleteView, TravelScheduleUpdateView, \
@@ -7,6 +8,11 @@ from travel_maker.travel_schedule.views import TravelScheduleCreateView, TravelS
 urlpatterns = [
     url(r'^$', TravelScheduleListView.as_view(), name='list'),
     url(r'^(?P<pk>\d+)/$', TravelScheduleDetailView.as_view(), name='detail'),
+    url(r"^(?P<object_id>\d+)/rate/(?P<score>[\d\-]+)$", AddRatingFromModel(), {
+        'app_label': 'travel_schedule',
+        'model': 'TravelSchedule',
+        'field_name': 'updown',
+    }, name="updown"),
     url(r'^create/$', TravelScheduleCreateView.as_view(), name='create'),
     url(r'^update/(?P<pk>\d+)$', TravelScheduleUpdateView.as_view(), name='update'),
     url(r'^delete/(?P<pk>\d+)/$', TravelScheduleDeleteView.as_view(), name='delete'),

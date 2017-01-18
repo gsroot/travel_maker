@@ -10,22 +10,29 @@
             </a>
             <div class="spacer-xs"></div>
             <div class="btn-group btn-group-justified btn-group-ispublic" role="group">
-                <div class="btn-group btn-group" role="group">
+                <div class="btn-group" role="group">
                     <button id="btn-ispublic-true"
                             class="btn {% if travelschedule.is_public %}btn-active{% else %}btn-inactive{% endif %}">
                         공개
                     </button>
                 </div>
-                <div class="btn-group btn-group" role="group">
+                <div class="btn-group" role="group">
                     <button id="btn-ispublic-false"
                             class="btn {% if travelschedule.is_public %}btn-inactive{% else %}btn-active{% endif %}">
                         비공개
                     </button>
                 </div>
             </div>
+
         </div>
         <div class="spacer-xs"></div>
     {% endif %}
+    <div class="box">
+        <button id="btn-up" class="btn btn-block btn-tm">
+            좋아요 <span id="likes">{{ travelschedule.updown.likes }}</span>
+        </button>
+    </div>
+    <div class="spacer-xs"></div>
     <div class="box center">
         <a href="{{ travelschedule.owner.get_absolute_url }}">
             <img class="owner-img" src="{{ travelschedule.owner.thumbnail.url }}">

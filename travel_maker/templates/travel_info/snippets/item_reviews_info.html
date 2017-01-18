@@ -6,77 +6,87 @@
             <h3>유저 평가</h3>
             <div class="spacer-sm"></div>
             {% for review in google_reviews %}
-                <div class="row">
-                    <div class="col-md-1">
-                        {% if review.profile_photo_url %}
-                            <img class="review-user-profile-img img-circle"
-                                 src="https:{{ review.profile_photo_url }}" alt="">
-                        {% else %}
-                            <img class="review-user-profile-img img-circle"
-                                 src="{% static 'img/no-photo.png' %}" alt="">
-                        {% endif %}
-                    </div>
-                    <div class="row col-md-11">
-                        <div class="review-user-name row">
-                            {{ review.author_name }}
+                <div class="review">
+                    <input class="review-id" type="hidden" value="{{ review.id }}">
+                    <div class="row">
+                        <div class="col-md-1">
+                            {% if review.profile_photo_url %}
+                                <img class="review-user-profile-img img-circle"
+                                     src="https:{{ review.profile_photo_url }}" alt="">
+                            {% else %}
+                                <img class="review-user-profile-img img-circle"
+                                     src="{% static 'img/no-photo.png' %}" alt="">
+                            {% endif %}
                         </div>
-                        <div class="row">
-                            <div class="review-rating col-md-2">
-                                <div id="google-rating-{{ review.id }}"></div>
+                        <div class="row col-md-11">
+                            <div class="review-user-name row">
+                                {{ review.author_name }}
                             </div>
-                            <div class="review-time col-md-10">
-                                {{ review.time }}
+                            <div class="row">
+                                <div class="review-rating col-md-2">
+                                    <div id="google-rating-{{ review.id }}"></div>
+                                </div>
+                                <div class="review-time col-md-10">
+                                    {{ review.time }}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="spacer-sm"></div>
-                <div class="row">
-                    <div class="col-md-1"></div>
-                    <div class="review-content col-md-11">
-                        {{ review.text }}
+                    <div class="spacer-sm"></div>
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="review-content col-md-11">
+                            {{ review.text }}
+                        </div>
                     </div>
                 </div>
                 <div class="spacer-sm divider"></div>
                 <div class="spacer-sm"></div>
             {% endfor %}
             {% for review in travel_reviews %}
-                <div class="row">
-                    <div class="col-md-1">
-                        {% if review.owner.thumbnail %}
-                            <img class="review-user-profile-img img-circle"
-                                 src="{{ review.owner.thumbnail.url }}" alt="">
-                        {% else %}
-                            <img class="review-user-profile-img img-circle"
-                                 src="{% static 'img/no-photo.png' %}" alt="">
-                        {% endif %}
-                    </div>
-                    <div class="row col-md-11">
-                        <div class="review-user-name row">
-                            {{ review.owner.username }}
+                <div class="review">
+                    <input class="review-id" type="hidden" value="{{ review.id }}">
+                    <div class="row">
+                        <div class="col-md-1">
+                            {% if review.owner.thumbnail %}
+                                <img class="review-user-profile-img img-circle"
+                                     src="{{ review.owner.thumbnail.url }}" alt="">
+                            {% else %}
+                                <img class="review-user-profile-img img-circle"
+                                     src="{% static 'img/no-photo.png' %}" alt="">
+                            {% endif %}
                         </div>
-                        <div class="row">
-                            <div class="review-rating col-md-2">
-                                <div id="travel-rating-{{ review.id }}"></div>
+                        <div class="row col-md-11">
+                            <div class="review-user-name row">
+                                {{ review.owner.username }}
                             </div>
-                            <div class="review-time col-md-9">
-                                {{ review.updated }}
-                            </div>
-                            <div class="review-del col-md-1">
-                                {% if user == review.owner %}
-                                    <a href="{% url 'travel_review:delete' review.id %}">삭제</a>
-                                {% endif %}
+                            <div class="row">
+                                <div class="review-rating col-md-2">
+                                    <div id="travel-rating-{{ review.id }}"></div>
+                                </div>
+                                <div class="review-time col-md-7">
+                                    {{ review.updated }}
+                                </div>
+                                <div class="review-ext col-md-3">
+                                    <button class="btn btn-tm btn-up">
+                                        좋아요 <span class="likes">{{ review.updown.likes }}</span>
+                                    </button>
+                                    {% if user == review.owner %}
+                                        <a href="{% url 'travel_review:delete' review.id %}">
+                                            <button class="btn btn-danger">삭제</button>
+                                        </a>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="spacer-sm"></div>
-                <div class="row">
-                    <div class="col-md-1"></div>
-                    <div class="col-md-11 review-content">
-                        <input class="travel-review-id" type="hidden" value="{{ review.id }}">
-                        <div>
-                            {{ review.content|safe }}
+                    <div class="spacer-sm"></div>
+                    <div class="row">
+                        <div class="col-md-1"></div>
+                        <div class="col-md-11 review-content">
+                            <div>
+                                {{ review.content|safe }}
+                            </div>
                         </div>
                     </div>
                 </div>

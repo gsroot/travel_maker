@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     'schedule',
     'rest_framework',
     'django_summernote',
+    'updown',
 
     'travel_maker.public_data_collector.apps.PublicDataCollectorConfig',
     'travel_maker.google_data_collector.apps.GoogleDataCollectorConfig',

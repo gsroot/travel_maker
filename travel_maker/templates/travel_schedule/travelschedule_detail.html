@@ -126,6 +126,37 @@
                     }
                 }
             });
+
+            $('#btn-up').click(function () {
+                var url = "{% url 'profile:schedule_updown' user.id travelschedule.id %}";
+                var reverse_score = 1;
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    contentType: 'application/json',
+                    success: function (result) {
+                        reverse_score = result == 0 ? 1 : -parseInt(result);
+                        url = '{{ travelschedule.get_absolute_url }}rate/' + reverse_score;
+                        $.ajax({
+                            type: 'GET',
+                            url: url,
+                            contentType: 'application/json',
+                            success: function (result) {
+                                var likes_elm = $('#likes');
+                                var likes = parseInt(likes_elm.text());
+                                likes += reverse_score;
+                                likes_elm.text(likes);
+                            },
+                            error: function (req, status, error) {
+                                alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+                            }
+                        });
+                    },
+                    error: function (req, status, error) {
+                        alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+                    }
+                });
+            });
         });
     </script>
 {% endblock %}

@@ -3,15 +3,20 @@ from allauth.account.views import PasswordChangeView
 from braces.views import LoginRequiredMixin
 from braces.views import UserPassesTestMixin
 from django.contrib import messages
+from django.contrib.contenttypes.models import ContentType
+from django.http import HttpResponse
 from django.urls import reverse
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import DeleteView
 from django.views.generic import ListView
 from django.views.generic import UpdateView
+from updown.models import Vote
 
 from travel_maker.account.forms import UserUpdateForm
 from travel_maker.account.models import TmUser
 from travel_maker.travel_bookmark.models import TravelBookmark
+from travel_maker.travel_review.models import TravelReview
 from travel_maker.travel_schedule.models import TravelSchedule
 
 
@@ -74,3 +79,27 @@ class ProfileBookmarkListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = TravelBookmark.objects.filter(owner=self.kwargs['pk'])
         return queryset
+
+
+class UpdownListView(LoginRequiredMixin, ListView):
+    template_name = 'updown/updown_list.html'
+
+    def get_queryset(self):
+        queryset = Vote.objects.filter(user=self.kwargs['pk'])
+        return queryset
+
+
+class ProfileScheduleUpdownScoreView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        content_type = ContentType.objects.get_for_model(TravelSchedule)
+        vote = Vote.objects.filter(user=request.user, object_id=kwargs['schedule_id'], content_type=content_type)
+        score = vote[0].score if vote.exists() else 0
+        return HttpResponse(score)
+
+
+class ProfileReviewUpdownScoreView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        content_type = ContentType.objects.get_for_model(TravelReview)
+        vote = Vote.objects.filter(user=request.user, object_id=kwargs['review_id'], content_type=content_type)
+        score = vote[0].score if vote.exists() else 0
+        return HttpResponse(score)

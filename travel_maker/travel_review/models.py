@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
+from updown.fields import RatingField
 
 from travel_maker.account.models import TmUser
 from travel_maker.public_data_collector.models import TravelInfo
@@ -15,6 +16,7 @@ class TravelReview(models.Model):
     content = models.CharField(max_length=5000)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
+    updown = RatingField(can_change_vote=True)
 
     @property
     def text(self):
