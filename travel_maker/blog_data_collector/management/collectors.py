@@ -1,5 +1,4 @@
 import json
-import re
 from datetime import datetime
 from json import JSONDecodeError
 from urllib.parse import urlparse, parse_qs, urlunparse
@@ -11,7 +10,7 @@ from django.db import IntegrityError
 
 from config.settings.base import NAVER_API_CLIENT_ID, NAVER_API_CLIENT_SECRET
 from travel_maker.blog_data_collector.forms import BlogDataForm
-from travel_maker.blog_data_collector.models import BlogDataProgress, BlogData
+from travel_maker.blog_data_collector.models import BlogDataProgress
 from travel_maker.public_data_collector.models import TravelInfo
 
 
@@ -34,7 +33,7 @@ class WebCollector(Collector):
 
     def response_to_dict(self, response):
         response.raise_for_status()
-        res_dict = json.loads(re.sub(r'\\\\*([^\"])', r'\1', response.text))
+        res_dict = json.loads(response.text)
 
         return res_dict
 
@@ -43,6 +42,11 @@ class BlogDataCollector(WebCollector):
     def __init__(self):
         super().__init__()
         self.progress = BlogDataProgress.objects.get_or_create(collector_type=self.__class__.__name__)[0]
+
+    def get_travel_infos(self):
+        travel_infos = TravelInfo.objects.filter(blogdata__isnull=True).distinct().order_by('modified')
+
+        return travel_infos
 
     def parse_blogs(self, blogs, travel_info):
         for blog in blogs:
@@ -78,6 +82,7 @@ class BlogDataCollector(WebCollector):
                     'http://section.blog.naver.com/TagSearchAsync.nhn?variables=' + variables
                 )
                 tags = response.json()[0]['tags']
+                tags = [str(t) for t in tags]
 
             elif parse_result.netloc == 'blog.daum.net':
                 link = list(parse_result)
@@ -133,20 +138,17 @@ class BlogDataCollector(WebCollector):
                 if tags_div:
                     tags = [tag.get_text() for tag in tags_div.find_all('a')]
 
-            blog['tags'] = ' '.join(tags) if all(type(tag) == str for tag in tags) else ''
+            blog['tags'] = ', '.join(tags)
             form = BlogDataForm(blog)
-            if form.is_valid() and not BlogData.objects.filter(travel_info=travel_info, link=blog['link']).exists():
+            if form.is_valid():
                 form.save()
 
     def request(self):
         progress = self.progress
 
-        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id).order_by('id')
+        travel_infos = self.get_travel_infos()
 
         for travel_info in travel_infos:
-            if BlogData.objects.filter(travel_info=travel_info).exists():
-                continue
             progress.travel_info = travel_info
             progress.save()
 

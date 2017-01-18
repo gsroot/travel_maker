@@ -416,7 +416,8 @@ class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
                 if self.get_info_class() == TravelIntroInfo:
                     info_class = self.get_info_class(travel_info.contenttype_id)
                 info_dict = res_dict['response']['body']['items']['item']
-                self.save_info(info_class, travel_info, info_dict)
+                if info_class != FestivalIntroInfo or info_dict['eventenddate'] >= datetime.today().date():
+                    self.save_info(info_class, travel_info, info_dict)
 
             self.update_progress(self.progress)
 

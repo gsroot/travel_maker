@@ -4,6 +4,10 @@ body {
     width: 100%;
 }
 
+header a {
+    color: white;
+}
+
 section {
     padding: 100px 0;
 }
