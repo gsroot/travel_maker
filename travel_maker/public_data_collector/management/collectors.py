@@ -3,6 +3,10 @@ from urllib.parse import urlencode, urlunsplit, urljoin
 from urllib.parse import urlsplit
 
 import requests
+from dateutil.relativedelta import relativedelta
+from django.db import DataError
+from django.db.models import F
+from django.db.models import Q
 
 from travel_maker.public_data_collector.models import *
 
@@ -80,6 +84,9 @@ class WebCollector(Collector):
             raise UserWarning(msg)
 
         return res_dict
+
+    def _update_info_dict(self, info_dict, travel_info=None):
+        pass
 
 
 class DepthItemWebCollector(WebCollector):
@@ -261,7 +268,7 @@ class TravelInfoWebCollector(WebCollector):
         self.operation = 'areaBasedList'
         self.endpoint = urljoin(self.base_url, self.operation)
 
-    def _update_info_dict(self, info_dict):
+    def _update_info_dict(self, info_dict, travel_info=None):
         if 'mlevel' in info_dict and type(info_dict['mlevel']) is not int:
             del info_dict['mlevel']
         if 'readcount' in info_dict and type(info_dict['readcount']) is not int:
@@ -309,60 +316,94 @@ class TravelInfoWebCollector(WebCollector):
 
         raw_travel_info_dicts = res_dict['response']['body']['items']['item']
 
-        info_dicts = []
+        info_dicts_to_create = []
+        info_dicts_to_update = []
         for raw_info in raw_travel_info_dicts:
-            info_dicts.append(
-                {self.key_to_column_swithcer[key]: val for key, val in raw_info.items()
-                 if key in self.key_to_column_swithcer}
-            )
+            existing_info = TravelInfo.objects.filter(id=raw_info['contentid'])
+            modified = datetime.strptime(str(raw_info['modifiedtime']), '%Y%m%d%H%M%S')
+            info_dict = {self.key_to_column_swithcer[key]: val for key, val in raw_info.items()
+                         if key in self.key_to_column_swithcer}
+            if not existing_info.exists():
+                info_dicts_to_create.append(info_dict)
+            elif modified != existing_info[0].modified:
+                info_dicts_to_update.append(info_dict)
 
-        infos = []
-        for info_dict in info_dicts:
+        infos_to_create = []
+        for info_dict in info_dicts_to_create:
             self._update_info_dict(info_dict)
-            infos.append(TravelInfo(**info_dict))
+            infos_to_create.append(TravelInfo(**info_dict))
 
-        TravelInfo.objects.bulk_create(infos)
+        TravelInfo.objects.bulk_create(infos_to_create)
+
+        for info_dict in info_dicts_to_update:
+            self._update_info_dict(info_dict)
+            TravelInfo.objects.filter(id=info_dict.pop('id')).update(**info_dict)
 
     def run(self):
         super().run()
-        if TravelInfo.objects.all().exists():
+        self.request()
+
+
+class AdditionalInfoWebCollector(WebCollector):
+    def init_progress(self, progress, target_info_count):
+        if progress.last_progress_date.date() != datetime.today().date():
+            progress.target_info_count = target_info_count
+            progress.info_complete_count = 0
+            if progress.target_info_count == 0:
+                progress.percent = 100
+            else:
+                progress.percent = 0
+            progress.save()
+
+    def set_travel_info_to_progress(self, progress, travel_info):
+        progress.travel_info = travel_info
+        progress.save()
+
+    def update_progress(self, progress):
+        progress.info_complete_count += 1
+        progress.percent = int(progress.info_complete_count * 100 / progress.target_info_count)
+        progress.save()
+
+    def get_travel_infos(self):
+        pass
+
+    def get_info_class(self, contenttype_id=None):
+        pass
+
+    def get_query_params(self, travel_info):
+        pass
+
+    def update_or_create_info(self, info_class, travel_info, info_dict):
+        pass
+
+    def save_info(self, info_class, travel_info, info_dict):
+        self._update_info_dict(info_dict, travel_info)
+        self.update_or_create_info(info_class, travel_info, info_dict)
+
+    def run(self):
+        super().run()
+        if self.progress.last_progress_date.date() == datetime.today().date() and self.progress.percent >= 100:
             print("  Nothing to do")
             return
         self.request()
 
 
-class TravelOverviewInfoWebCollector(WebCollector):
-    def __init__(self):
-        super().__init__()
-        self.operation = 'detailCommon'
-        self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=TravelOverviewInfo.__name__)[0]
-
-    def _update_info_dict(self, info_dict):
-        del info_dict['contentid']
-        del info_dict['contenttypeid']
-
-        new_info_dict = {key: value for key, value in info_dict.items() if key in ['telname', 'homepage', 'overview']}
-        info_dict.clear()
-        info_dict.update(new_info_dict)
+class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
+    def update_or_create_info(self, info_class, travel_info, info_dict):
+        try:
+            info_class.objects.update_or_create(travel_info=travel_info, defaults=info_dict)
+        except DataError as e:
+            print(e)
 
     def request(self):
-        progress = self.progress
-
-        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id).order_by('id')
+        travel_infos = self.get_travel_infos()
+        info_class = self.get_info_class()
+        self.init_progress(self.progress, travel_infos.count())
 
         for travel_info in travel_infos:
-            if TravelOverviewInfo.objects.filter(travel_info=travel_info).exists():
-                continue
-            progress.travel_info = travel_info
-            progress.save()
+            self.set_travel_info_to_progress(self.progress, travel_info)
 
-            query_params = {
-                'contentId': travel_info.id,
-                'defaultYN': 'Y',
-                'overviewYN': 'Y',
-            }
+            query_params = self.get_query_params(travel_info)
             self.update_url(query_params)
             response = requests.get(self.url)
             try:
@@ -372,34 +413,99 @@ class TravelOverviewInfoWebCollector(WebCollector):
                 return
 
             if res_dict['response']['body']['totalCount'] != 0:
+                if self.get_info_class() == TravelIntroInfo:
+                    info_class = self.get_info_class(travel_info.contenttype_id)
                 info_dict = res_dict['response']['body']['items']['item']
-                self._update_info_dict(info_dict)
-                info_dict.update({
-                    'travel_info': travel_info
-                })
+                self.save_info(info_class, travel_info, info_dict)
 
-                TravelOverviewInfo.objects.create(**info_dict)
-
-            progress.info_complete_count += 1
-            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
-            progress.save()
-
-    def run(self):
-        super().run()
-        if self.progress.percent >= 100:
-            print("  Nothing to do")
-            return
-        self.request()
+            self.update_progress(self.progress)
 
 
-class TravelIntroInfoWebCollector(WebCollector):
+class ManyToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
+    def request(self):
+        travel_infos = self.get_travel_infos()
+        info_class = self.get_info_class()
+        self.init_progress(self.progress, travel_infos.count())
+
+        for travel_info in travel_infos:
+            self.set_travel_info_to_progress(self.progress, travel_info)
+
+            query_params = self.get_query_params(travel_info)
+
+            req_cnt_per_travel_info = 2 if self.get_info_class() == TravelImageInfo \
+                                           and travel_info.contenttype is ContentTypeConstant.RESTAURANT else 1
+            for i in range(req_cnt_per_travel_info):
+                if self.get_info_class() == TravelDetailInfo and i == 1:
+                    query_params.update({
+                        'imageYN': 'N'
+                    })
+                self.update_url(query_params)
+                response = requests.get(self.url)
+                try:
+                    res_dict = self.response_to_dict(response)
+                except UserWarning as e:
+                    print(e)
+                    if self.get_info_class() == TravelImageInfo and \
+                                    travel_info.contenttype is ContentTypeConstant.RESTAURANT and i == 1:
+                        info_class.objects.get(travel_info=travel_info).delete()
+                    return
+
+                if res_dict['response']['body']['totalCount'] != 0:
+                    if self.get_info_class() == TravelDetailInfo:
+                        info_class = self.get_info_class(travel_info.contenttype_id)
+                    info_dicts = res_dict['response']['body']['items']['item']
+                    info_dicts = [info_dicts] if type(info_dicts) is not list else info_dicts
+
+                    for info_dict in info_dicts:
+                        self.save_info(info_class, travel_info, info_dict)
+
+            self.update_progress(self.progress)
+
+
+class TravelOverviewInfoWebCollector(OneToOneAditionalInfoWebCollector):
+    def __init__(self):
+        super().__init__()
+        self.operation = 'detailCommon'
+        self.endpoint = urljoin(self.base_url, self.operation)
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
+
+    def _update_info_dict(self, info_dict, travel_info=None):
+        del info_dict['contentid']
+        del info_dict['contenttypeid']
+
+        new_info_dict = {key: value for key, value in info_dict.items() if key in ['telname', 'homepage', 'overview']}
+        info_dict.clear()
+        info_dict.update(new_info_dict)
+
+    def get_travel_infos(self):
+        datetime_before = datetime.today().date() - relativedelta(days=5)
+        travel_infos = TravelInfo.objects.filter(modified__gte=datetime_before).filter(
+            Q(traveloverviewinfo__isnull=True) |
+            Q(traveloverviewinfo__isnull=False, tm_updated__gt=F('traveloverviewinfo__tm_updated'))
+        ).order_by('modified')
+
+        return travel_infos
+
+    def get_info_class(self, contenttype_id=None):
+        return TravelOverviewInfo
+
+    def get_query_params(self, travel_info):
+        query_params = {
+            'contentId': travel_info.id,
+            'defaultYN': 'Y',
+            'overviewYN': 'Y',
+        }
+        return query_params
+
+
+class TravelIntroInfoWebCollector(OneToOneAditionalInfoWebCollector):
     def __init__(self):
         super().__init__()
         self.operation = 'detailIntro'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=TravelIntroInfo.__name__)[0]
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
-    def _update_info_dict(self, info_dict):
+    def _update_info_dict(self, info_dict, travel_info=None):
         if 'contentid' in info_dict:
             del info_dict['contentid']
         if 'contenttypeid' in info_dict:
@@ -419,7 +525,7 @@ class TravelIntroInfoWebCollector(WebCollector):
                 .replace('leports', '') \
                 .replace('lodging', '') \
                 .replace('shopping', '')
-            if self.info_class is RestaurantIntroInfo:
+            if self.get_info_class(travel_info.contenttype_id) == RestaurantIntroInfo:
                 key = key.replace('food', '')
             if key in ['eventstartdate', 'eventenddate']:
                 try:
@@ -432,122 +538,203 @@ class TravelIntroInfoWebCollector(WebCollector):
         info_dict.clear()
         info_dict.update(new_info_dict)
 
-    def request(self):
-        progress = self.progress
+    def get_travel_infos(self):
+        datetime_before = datetime.today().date() - relativedelta(days=5)
+        travel_infos = TravelInfo.objects.filter(modified__gte=datetime_before).filter(
+            Q(tourspotintroinfo__isnull=True, culturalfacilityintroinfo__isnull=True,
+              festivalintroinfo__isnull=True, tourcoursedetailinfo__isnull=True, leportsintroinfo__isnull=True,
+              lodgingdetailinfo__isnull=True, shoppingintroinfo__isnull=True, restaurantintroinfo__isnull=True) |
+            Q(tourspotintroinfo__isnull=False, tm_updated__gt=F('tourspotintroinfo__tm_updated')) |
+            Q(culturalfacilityintroinfo__isnull=False, tm_updated__gt=F('culturalfacilityintroinfo__tm_updated')) |
+            Q(festivalintroinfo__isnull=False, tm_updated__gt=F('festivalintroinfo__tm_updated')) |
+            Q(tourcourseintroinfo__isnull=False, tm_updated__gt=F('tourcourseintroinfo__tm_updated')) |
+            Q(leportsintroinfo__isnull=False, tm_updated__gt=F('leportsintroinfo__tm_updated')) |
+            Q(lodgingintroinfo__isnull=False, tm_updated__gt=F('lodgingintroinfo__tm_updated')) |
+            Q(shoppingintroinfo__isnull=False, tm_updated__gt=F('shoppingintroinfo__tm_updated')) |
+            Q(restaurantintroinfo__isnull=False, tm_updated__gt=F('restaurantintroinfo__tm_updated'))
+        ).order_by('modified')
 
-        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id).order_by('id')
+        return travel_infos
 
-        for travel_info in travel_infos:
+    def get_info_class(self, contenttype_id=None):
+        info_class_swithcer = {
+            ContentTypeConstant.TOURSPOT.id: TourspotIntroInfo,
+            ContentTypeConstant.CULTURAL_FACILITY.id: CulturalFacilityIntroInfo,
+            ContentTypeConstant.FESTIVAL.id: FestivalIntroInfo,
+            ContentTypeConstant.TOUR_COURSE.id: TourCourseIntroInfo,
+            ContentTypeConstant.LEPORTS.id: LeportsIntroInfo,
+            ContentTypeConstant.LODGING.id: LodgingIntroInfo,
+            ContentTypeConstant.SHOPPING.id: ShoppingIntroInfo,
+            ContentTypeConstant.RESTAURANT.id: RestaurantIntroInfo,
+        }
+        if contenttype_id:
+            return info_class_swithcer[contenttype_id]
+        else:
+            return TravelIntroInfo
 
-            if TourspotIntroInfo.objects.filter(travel_info=travel_info).exists() \
-                    or CulturalFacilityIntroInfo.objects.filter(travel_info=travel_info).exists() \
-                    or FestivalIntroInfo.objects.filter(travel_info=travel_info).exists() \
-                    or TourCourseIntroInfo.objects.filter(travel_info=travel_info).exists() \
-                    or LeportsIntroInfo.objects.filter(travel_info=travel_info).exists() \
-                    or LodgingIntroInfo.objects.filter(travel_info=travel_info).exists() \
-                    or ShoppingIntroInfo.objects.filter(travel_info=travel_info).exists() \
-                    or RestaurantIntroInfo.objects.filter(travel_info=travel_info).exists():
-                continue
-
-            progress.travel_info = travel_info
-            progress.save()
-
-            query_params = {
-                'contentId': travel_info.id,
-                'contentTypeId': travel_info.contenttype.id,
-            }
-            self.update_url(query_params)
-            response = requests.get(self.url)
-            try:
-                res_dict = self.response_to_dict(response)
-            except UserWarning as e:
-                print(e)
-                return
-
-            if res_dict['response']['body']['totalCount'] != 0:
-                info_class_swithcer = {
-                    ContentTypeConstant.TOURSPOT.id: TourspotIntroInfo,
-                    ContentTypeConstant.CULTURAL_FACILITY.id: CulturalFacilityIntroInfo,
-                    ContentTypeConstant.FESTIVAL.id: FestivalIntroInfo,
-                    ContentTypeConstant.TOUR_COURSE.id: TourCourseIntroInfo,
-                    ContentTypeConstant.LEPORTS.id: LeportsIntroInfo,
-                    ContentTypeConstant.LODGING.id: LodgingIntroInfo,
-                    ContentTypeConstant.SHOPPING.id: ShoppingIntroInfo,
-                    ContentTypeConstant.RESTAURANT.id: RestaurantIntroInfo,
-                }
-                self.info_class = info_class_swithcer[travel_info.contenttype.id]
-
-                info_dict = res_dict['response']['body']['items']['item']
-                self._update_info_dict(info_dict)
-                info_dict.update({
-                    'travel_info': travel_info
-                })
-
-                self.info_class.objects.create(**info_dict)
-
-            progress.info_complete_count += 1
-            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
-            progress.save()
-
-    def run(self):
-        super().run()
-        if self.progress.percent >= 100:
-            print("  Nothing to do")
-            return
-        self.request()
+    def get_query_params(self, travel_info):
+        query_params = {
+            'contentId': travel_info.id,
+            'contentTypeId': travel_info.contenttype.id,
+        }
+        return query_params
 
 
-class TravelDetailInfoWebCollector(WebCollector):
+class TravelDetailInfoWebCollector(ManyToOneAditionalInfoWebCollector):
     def __init__(self):
         super().__init__()
         self.operation = 'detailInfo'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=TravelDetailInfo.__name__)[0]
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
-    def _update_info_dict(self, info_dict):
+    def _update_info_dict(self, info_dict, travel_info=None):
         if 'contentid' in info_dict:
             del info_dict['contentid']
         if 'contenttypeid' in info_dict:
             del info_dict['contenttypeid']
 
-        if self.info_class is DefaultTravelDetailInfo and 'fldgubun' in info_dict:
+        if self.get_info_class(travel_info.contenttype_id) == DefaultTravelDetailInfo and 'fldgubun' in info_dict:
             del info_dict['fldgubun']
-        elif self.info_class is TourCourseDetailInfo and 'subcontentid' in info_dict:
+        elif self.get_info_class(travel_info.contenttype_id) == TourCourseDetailInfo and 'subcontentid' in info_dict:
             sub_travel_info_id = info_dict.pop('subcontentid')
             info_dict['sub_travel_info_id'] = sub_travel_info_id \
                 if TravelInfo.objects.filter(id=sub_travel_info_id).exists() else None
-        elif self.info_class is LodgingDetailInfo:
-            if 'roomcode' in info_dict:
-                del info_dict['roomcode']
+        elif self.get_info_class(travel_info.contenttype_id) == LodgingDetailInfo:
             for key, value in info_dict.items():
                 if value == 'Y':
                     info_dict[key] = True
                 elif value == 'N':
                     info_dict[key] = False
 
-    def request(self):
-        progress = self.progress
+    def get_travel_infos(self):
+        datetime_before = datetime.today().date() - relativedelta(months=1)
+        travel_infos = TravelInfo.objects.filter(modified__gte=datetime_before).filter(
+            Q(defaulttraveldetailinfo__isnull=True, tourcoursedetailinfo__isnull=True, lodgingdetailinfo__isnull=True) |
+            Q(defaulttraveldetailinfo__isnull=False, tm_updated__gt=F('defaulttraveldetailinfo__tm_updated')) |
+            Q(tourcoursedetailinfo__isnull=False, tm_updated__gt=F('tourcoursedetailinfo__tm_updated')) |
+            Q(lodgingdetailinfo__isnull=False, tm_updated__gt=F('lodgingdetailinfo__tm_updated'))
+        ).distinct().order_by('modified')
 
-        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
+        return travel_infos
+
+    def get_info_class(self, contenttype_id=None):
+        info_class_swithcer = {
+            ContentTypeConstant.TOURSPOT.id: DefaultTravelDetailInfo,
+            ContentTypeConstant.CULTURAL_FACILITY.id: DefaultTravelDetailInfo,
+            ContentTypeConstant.FESTIVAL.id: DefaultTravelDetailInfo,
+            ContentTypeConstant.TOUR_COURSE.id: TourCourseDetailInfo,
+            ContentTypeConstant.LEPORTS.id: DefaultTravelDetailInfo,
+            ContentTypeConstant.LODGING.id: LodgingDetailInfo,
+            ContentTypeConstant.SHOPPING.id: DefaultTravelDetailInfo,
+            ContentTypeConstant.RESTAURANT.id: DefaultTravelDetailInfo,
+        }
+        if contenttype_id:
+            return info_class_swithcer[contenttype_id]
+        else:
+            return TravelDetailInfo
+
+    def get_query_params(self, travel_info):
+        query_params = {
+            'contentId': travel_info.id,
+            'contentTypeId': travel_info.contenttype.id,
+        }
+        return query_params
+
+    def update_or_create_info(self, info_class, travel_info, info_dict):
+        try:
+            if info_class == DefaultTravelDetailInfo:
+                info_class.objects.update_or_create(
+                    travel_info=travel_info, serialnum=info_dict['serialnum'], defaults=info_dict)
+            elif info_class == TourCourseDetailInfo:
+                info_class.objects.update_or_create(
+                    travel_info=travel_info, subnum=info_dict['subnum'], defaults=info_dict)
+            elif info_class == LodgingDetailInfo:
+                info_class.objects.update_or_create(
+                    travel_info=travel_info, roomcode=info_dict['roomcode'], defaults=info_dict)
+        except DataError as e:
+            print(e)
+
+
+class TravelImageInfoWebCollector(ManyToOneAditionalInfoWebCollector):
+    def __init__(self):
+        super().__init__()
+        self.operation = 'detailImage'
+        self.endpoint = urljoin(self.base_url, self.operation)
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
+
+    def _update_info_dict(self, info_dict, travel_info=None):
+        if 'contentid' in info_dict:
+            del info_dict['contentid']
+        if 'imgname' in info_dict:
+            del info_dict['imgname']
+
+    def get_travel_infos(self):
+        datetime_before = datetime.today().date() - relativedelta(months=1)
+        travel_infos = TravelInfo.objects.filter(modified__gte=datetime_before).filter(
+            Q(travelimageinfo__isnull=True) | Q(tm_updated__gt=F('travelimageinfo__tm_updated'))
+        ).distinct().order_by('modified')
+
+        return travel_infos
+
+    def get_info_class(self, contenttype_id=None):
+        return TravelImageInfo
+
+    def get_query_params(self, travel_info):
+        query_params = {
+            'contentId': travel_info.id,
+        }
+        return query_params
+
+    def update_or_create_info(self, info_class, travel_info, info_dict):
+        info_class.objects.update_or_create(
+            travel_info=travel_info, serialnum=info_dict['serialnum'], defaults=info_dict)
+
+
+class NearbySpotInfoWebCollector(AdditionalInfoWebCollector):
+    def __init__(self):
+        super().__init__()
+        self.operation = 'locationBasedList'
+        self.endpoint = urljoin(self.base_url, self.operation)
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
+
+    def get_travel_infos(self):
+        datetime_before = datetime.strptime('20161102', '%Y%m%d')
+        # travel_infos = TravelInfo.objects.filter(
+        #     mapx__isnull=False, mapy__isnull=False, modified__gte=datetime_before
+        # ).filter(
+        #     Q(nearbyspotinfo__isnull=True) |
+        #     Q(nearbyspotinfo__isnull=False, tm_updated__gt=F('nearbyspotinfo__tm_updated'))
+        # ).distinct().order_by('modified')
+        infos = NearbySpotInfo.objects.filter(dist=0).exclude(
+            center_spot=F('target_spot')).distinct('center_spot')
+
+        return [info.center_spot for info in infos]
+
+    def get_info_class(self, contenttype_id=None):
+        return NearbySpotInfo
+
+    def get_query_params(self, travel_info):
+        query_params = {
+            'numOfRows': 1000,
+            'arrange': 'E',
+            'mapX': travel_info.mapx,
+            'mapY': travel_info.mapy,
+            'radius': '20000',
+        }
+        return query_params
+
+    def request(self):
+        travel_infos = self.get_travel_infos()
+        info_class = self.get_info_class()
+        self.init_progress(self.progress, len(travel_infos))
 
         for travel_info in travel_infos:
+            self.set_travel_info_to_progress(self.progress, travel_info)
+            query_params = self.get_query_params(travel_info)
 
-            if DefaultTravelDetailInfo.objects.filter(travel_info=travel_info).exists() \
-                    or TourCourseDetailInfo.objects.filter(travel_info=travel_info).exists() \
-                    or LodgingDetailInfo.objects.filter(travel_info=travel_info).exists():
-                continue
-
-            progress.travel_info = travel_info
-            progress.save()
-
-            query_params = {
-                'contentId': travel_info.id,
-                'contentTypeId': travel_info.contenttype.id,
-            }
             self.update_url(query_params)
             response = requests.get(self.url)
+
             try:
                 res_dict = self.response_to_dict(response)
             except UserWarning as e:
@@ -555,176 +742,23 @@ class TravelDetailInfoWebCollector(WebCollector):
                 return
 
             if res_dict['response']['body']['totalCount'] != 0:
-                info_class_swithcer = {
-                    ContentTypeConstant.TOURSPOT.id: DefaultTravelDetailInfo,
-                    ContentTypeConstant.CULTURAL_FACILITY.id: DefaultTravelDetailInfo,
-                    ContentTypeConstant.FESTIVAL.id: DefaultTravelDetailInfo,
-                    ContentTypeConstant.TOUR_COURSE.id: TourCourseDetailInfo,
-                    ContentTypeConstant.LEPORTS.id: DefaultTravelDetailInfo,
-                    ContentTypeConstant.LODGING.id: LodgingDetailInfo,
-                    ContentTypeConstant.SHOPPING.id: DefaultTravelDetailInfo,
-                    ContentTypeConstant.RESTAURANT.id: DefaultTravelDetailInfo,
-                }
-                self.info_class = info_class_swithcer[travel_info.contenttype.id]
-
                 info_dicts = res_dict['response']['body']['items']['item']
                 if type(info_dicts) is not list:
                     info_dicts = [info_dicts]
 
-                for info_dict in info_dicts:
-                    self._update_info_dict(info_dict)
-                    info_dict.update({
-                        'travel_info': travel_info
-                    })
+                infos = [
+                    info_class(
+                        center_spot=travel_info, target_spot=TravelInfo.objects.get(id=info['contentid']),
+                        dist=info['dist']
+                    )
+                    for info in info_dicts]
 
-                    self.info_class.objects.create(**info_dict)
+                if info_class.objects.filter(center_spot=travel_info).exists():
+                    for info in infos:
+                        info_class.objects.update_or_create(
+                            center_spot=info.center_spot, target_spot=info.target_spot, defaults={'dist': info.dist}
+                        )
+                else:
+                    info_class.objects.bulk_create(infos)
 
-            progress.info_complete_count += 1
-            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
-            progress.save()
-
-    def run(self):
-        super().run()
-        if self.progress.percent >= 100:
-            print("  Nothing to do")
-            return
-        self.request()
-
-
-class TravelImageInfoWebCollector(WebCollector):
-    def __init__(self):
-        super().__init__()
-        self.operation = 'detailImage'
-        self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=TravelImageInfo.__name__)[0]
-
-    def _update_info_dict(self, info_dict):
-        if 'contentid' in info_dict:
-            del info_dict['contentid']
-        if 'imgname' in info_dict:
-            del info_dict['imgname']
-
-    def request(self):
-        progress = self.progress
-
-        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id)
-
-        for travel_info in travel_infos:
-            if TravelImageInfo.objects.filter(travel_info=travel_info).exists():
-                continue
-
-            progress.travel_info = travel_info
-            progress.save()
-
-            query_params = {
-                'contentId': travel_info.id,
-            }
-
-            req_cnt_per_travel_info = 1 if travel_info.contenttype is not ContentTypeConstant.RESTAURANT else 2
-
-            for i in range(req_cnt_per_travel_info):
-                if i == 1:
-                    query_params.update({
-                        'imageYN': 'N'
-                    })
-                self.update_url(query_params)
-                response = requests.get(self.url)
-                try:
-                    res_dict = self.response_to_dict(response)
-                except UserWarning as e:
-                    print(e)
-                    if travel_info.contenttype is ContentTypeConstant.RESTAURANT and i == 0:
-                        TravelImageInfo.objects.get(travel_info=travel_info).delete()
-                    return
-
-                if res_dict['response']['body']['totalCount'] != 0:
-                    info_dicts = res_dict['response']['body']['items']['item']
-                    if type(info_dicts) is not list:
-                        info_dicts = [info_dicts]
-
-                    for info_dict in info_dicts:
-                        self._update_info_dict(info_dict)
-                        info_dict.update({
-                            'travel_info': travel_info
-                        })
-
-                        TravelImageInfo.objects.create(**info_dict)
-
-            progress.info_complete_count += 1
-            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
-            progress.save()
-
-    def run(self):
-        super().run()
-        if self.progress.percent >= 100:
-            print("  Nothing to do")
-            return
-        self.request()
-
-
-class NearbySpotInfoWebCollector(WebCollector):
-    def __init__(self):
-        super().__init__()
-        self.operation = 'locationBasedList'
-        self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=NearbySpotInfo.__name__)[0]
-
-    def request(self):
-        progress = self.progress
-
-        travel_infos = TravelInfo.objects.filter(mapx__isnull=False, mapy__isnull=False) \
-            if progress.travel_info is None \
-            else TravelInfo.objects.filter(mapx__isnull=False, mapy__isnull=False, id__gte=progress.travel_info.id)
-
-        for travel_info in travel_infos:
-            progress.travel_info = travel_info
-            progress.save()
-
-            query_params = {
-                'numOfRows': 1000,
-                'arrange': 'E',
-                'mapX': travel_info.mapx,
-                'mapY': travel_info.mapy,
-                'radius': '20000',
-            }
-            self.update_url(query_params)
-            response = requests.get(self.url)
-
-            try:
-                res_dict = self.response_to_dict(response)
-            except UserWarning as e:
-                print(e)
-                return
-
-            if res_dict['response']['body']['totalCount'] == 0:
-                continue
-
-            info_dicts = res_dict['response']['body']['items']['item']
-            if type(info_dicts) is not list:
-                info_dicts = [info_dicts]
-
-            infos = [
-                NearbySpotInfo(
-                    center_spot=travel_info, target_spot=TravelInfo.objects.get(id=info['contentid']), dist=info['dist']
-                )
-                for info in info_dicts]
-
-            if NearbySpotInfo.objects.filter(center_spot=travel_info).exists():
-                for info in infos:
-                    spotinfo = NearbySpotInfo.objects.get(center_spot=info.center_spot, target_spot=info.target_spot)
-                    spotinfo.dist = info['dist']
-                    spotinfo.save()
-            else:
-                NearbySpotInfo.objects.bulk_create(infos)
-
-            progress.info_complete_count += 1
-            progress.percent = int(progress.info_complete_count * 100 / AdditionalInfoProgress.TOTAL_TRAVEL_INFO_CNT)
-            progress.save()
-
-    def run(self):
-        super().run()
-        if self.progress.percent >= 100:
-            print("  Nothing to do")
-            return
-        self.request()
+            self.update_progress(self.progress)

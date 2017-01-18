@@ -5,6 +5,14 @@ from django.db import models
 from django.urls import reverse
 
 
+class TimeStamped(models.Model):
+    tm_created = models.DateTimeField(auto_now_add=True)
+    tm_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
 class District(models.Model):
     code = models.IntegerField()
     name = models.CharField(max_length=20)
@@ -88,7 +96,7 @@ class Category3(Category):
     cat2 = models.ForeignKey(Category2, on_delete=models.PROTECT)
 
 
-class TravelInfo(models.Model):
+class TravelInfo(TimeStamped):
     addr1 = models.CharField(max_length=100, blank=True, default='')
     addr2 = models.CharField(max_length=100, blank=True, default='')
     area_code = models.IntegerField(null=True)
@@ -178,15 +186,15 @@ class TravelInfo(models.Model):
         return reverse('travel_info:detail', args=(self.id,))
 
 
-class TravelOverviewInfo(models.Model):
-    travel_info = models.OneToOneField(TravelInfo, on_delete=models.PROTECT, primary_key=True)
+class TravelOverviewInfo(TimeStamped):
+    travel_info = models.OneToOneField(TravelInfo, on_delete=models.CASCADE, primary_key=True)
     telname = models.CharField(max_length=50, blank=True, default='')
     homepage = models.CharField(max_length=1000, blank=True, default='')
     overview = models.CharField(max_length=10000, blank=True, default='')
 
 
-class TravelIntroInfo(models.Model):
-    travel_info = models.OneToOneField(TravelInfo, on_delete=models.PROTECT, primary_key=True)
+class TravelIntroInfo(TimeStamped):
+    travel_info = models.OneToOneField(TravelInfo, on_delete=models.CASCADE, primary_key=True)
 
     class Meta:
         abstract = True
@@ -222,7 +230,7 @@ class CulturalFacilityIntroInfo(TravelIntroInfo):
     restdate = models.CharField(max_length=500, blank=True, default='')
     usefee = models.CharField(max_length=500, blank=True, default='')
     usetime = models.CharField(max_length=500, blank=True, default='')
-    scale = models.CharField(max_length=200, blank=True, default='')
+    scale = models.CharField(max_length=1000, blank=True, default='')
     spendtime = models.CharField(max_length=500, blank=True, default='')
 
 
@@ -235,7 +243,7 @@ class FestivalIntroInfo(TravelIntroInfo):
     eventplace = models.CharField(max_length=200, blank=True, default='')
     eventstartdate = models.DateField(null=True, blank=True)
     grade = models.CharField(max_length=100, blank=True, default='')
-    placeinfo = models.CharField(max_length=1000, blank=True, default='')
+    placeinfo = models.CharField(max_length=5000, blank=True, default='')
     playtime = models.CharField(max_length=500, blank=True, default='')
     program = models.CharField(max_length=2000, blank=True, default='')
     spendtime = models.CharField(max_length=500, blank=True, default='')
@@ -267,7 +275,7 @@ class LeportsIntroInfo(TravelIntroInfo):
     parking = models.CharField(max_length=1000, blank=True, default='')
     reservation = models.CharField(max_length=500, blank=True, default='')
     restdate = models.CharField(max_length=500, blank=True, default='')
-    scale = models.CharField(max_length=200, blank=True, default='')
+    scale = models.CharField(max_length=1000, blank=True, default='')
     usefee = models.CharField(max_length=500, blank=True, default='')
     usetime = models.CharField(max_length=500, blank=True, default='')
 
@@ -288,7 +296,7 @@ class LodgingIntroInfo(TravelIntroInfo):
     reservation = models.CharField(max_length=500, blank=True, default='')
     reservationurl = models.CharField(max_length=500, blank=True, default='')
     roomtype = models.CharField(max_length=1000, blank=True, default='')
-    scale = models.CharField(max_length=200, blank=True, default='')
+    scale = models.CharField(max_length=1000, blank=True, default='')
     subfacility = models.CharField(max_length=1000, blank=True, default='')
     barbecue = models.NullBooleanField(null=True)
     beauty = models.NullBooleanField(null=True)
@@ -317,7 +325,7 @@ class ShoppingIntroInfo(TravelIntroInfo):
     restroom = models.CharField(max_length=500, blank=True, default='')
     saleitem = models.CharField(max_length=500, blank=True, default='')
     saleitemcost = models.CharField(max_length=500, blank=True, default='')
-    scale = models.CharField(max_length=200, blank=True, default='')
+    scale = models.CharField(max_length=1000, blank=True, default='')
     shopguide = models.CharField(max_length=2000, blank=True, default='')
 
 
@@ -333,14 +341,14 @@ class RestaurantIntroInfo(TravelIntroInfo):
     parking = models.CharField(max_length=500, blank=True, default='')
     reservation = models.CharField(max_length=500, blank=True, default='')
     restdate = models.CharField(max_length=500, blank=True, default='')
-    scale = models.CharField(max_length=500, blank=True, default='')
+    scale = models.CharField(max_length=1000, blank=True, default='')
     seat = models.CharField(max_length=500, blank=True, default='')
     smoking = models.CharField(max_length=50, blank=True, default='')
     treatmenu = models.CharField(max_length=1000, blank=True, default='')
 
 
-class TravelDetailInfo(models.Model):
-    travel_info = models.ForeignKey(TravelInfo, on_delete=models.PROTECT)
+class TravelDetailInfo(TimeStamped):
+    travel_info = models.ForeignKey(TravelInfo, on_delete=models.CASCADE)
 
     class Meta:
         abstract = True
@@ -370,6 +378,7 @@ class TourCourseDetailInfo(TravelDetailInfo):
 
 
 class LodgingDetailInfo(TravelDetailInfo):
+    roomcode = models.IntegerField()
     roomtitle = models.CharField(max_length=200, blank=True, default='')
     roomsize1 = models.IntegerField(null=True)
     roomcount = models.IntegerField(null=True)
@@ -406,6 +415,9 @@ class LodgingDetailInfo(TravelDetailInfo):
     roomimg5 = models.CharField(max_length=500, blank=True, default='')
     roomimg5alt = models.CharField(max_length=500, blank=True, default='')
 
+    class Meta:
+        unique_together = ('travel_info', 'roomcode')
+
     @property
     def images(self):
         images = [
@@ -413,8 +425,8 @@ class LodgingDetailInfo(TravelDetailInfo):
         return images
 
 
-class TravelImageInfo(models.Model):
-    travel_info = models.ForeignKey(TravelInfo, on_delete=models.PROTECT)
+class TravelImageInfo(TimeStamped):
+    travel_info = models.ForeignKey(TravelInfo, on_delete=models.CASCADE)
     serialnum = models.CharField(max_length=100, blank=True, default='')
     originimgurl = models.CharField(max_length=500, blank=True, default='')
     smallimageurl = models.CharField(max_length=500, blank=True, default='')
@@ -423,9 +435,9 @@ class TravelImageInfo(models.Model):
         unique_together = ('travel_info', 'serialnum')
 
 
-class NearbySpotInfo(models.Model):
-    center_spot = models.ForeignKey(TravelInfo, on_delete=models.PROTECT, related_name='nearbyspotinfo_set')
-    target_spot = models.ForeignKey(TravelInfo, on_delete=models.PROTECT, related_name='nearbyspotinfo2_set')
+class NearbySpotInfo(TimeStamped):
+    center_spot = models.ForeignKey(TravelInfo, on_delete=models.CASCADE, related_name='nearbyspotinfo')
+    target_spot = models.ForeignKey(TravelInfo, on_delete=models.CASCADE, related_name='nearbyspotinfo2')
     dist = models.PositiveIntegerField()
 
     class Meta:
@@ -482,5 +494,6 @@ class AdditionalInfoProgress(Progress):
     TOTAL_TRAVEL_INFO_CNT = TravelInfo.objects.count()
 
     info_type = models.CharField(max_length=100)
-    travel_info = models.ForeignKey(TravelInfo, null=True, on_delete=models.PROTECT)
+    travel_info = models.ForeignKey(TravelInfo, null=True, on_delete=models.SET_NULL)
+    target_info_count = models.IntegerField(default=0)
     info_complete_count = models.IntegerField(default=0)

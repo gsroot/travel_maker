@@ -9,7 +9,7 @@ from travel_maker.public_data_collector.models import TravelInfo
 
 
 class TravelReview(models.Model):
-    travel_info = models.ForeignKey(TravelInfo, on_delete=models.PROTECT)
+    travel_info = models.ForeignKey(TravelInfo, on_delete=models.CASCADE)
     owner = models.ForeignKey(TmUser, on_delete=models.CASCADE)
     rating = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)])
     content = models.CharField(max_length=5000)

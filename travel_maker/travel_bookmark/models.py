@@ -8,7 +8,7 @@ from travel_maker.public_data_collector.models import TravelInfo
 
 class TravelBookmark(models.Model):
     owner = ForeignKey(TmUser, on_delete=models.CASCADE)
-    travel_info = ForeignKey(TravelInfo, on_delete=models.PROTECT)
+    travel_info = ForeignKey(TravelInfo, on_delete=models.CASCADE)
     created = DateTimeField(auto_now_add=True)
 
     def get_absolute_url(self):

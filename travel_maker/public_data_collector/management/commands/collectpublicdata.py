@@ -17,9 +17,9 @@ class Command(BaseCommand):
         WebCollector.service_key = WebCollector.service_keys[0]
 
         self.collectors = [
-            ContentTypeCollector(),
-            AreacodeWebCollector(),
-            CategorycodeWebCollector(),
+            # ContentTypeCollector(),
+            # AreacodeWebCollector(),
+            # CategorycodeWebCollector(),
             TravelInfoWebCollector(),
             TravelOverviewInfoWebCollector(),
             TravelIntroInfoWebCollector(),
