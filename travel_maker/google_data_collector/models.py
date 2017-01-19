@@ -1,4 +1,5 @@
 from django.db import models
+from updown.fields import RatingField
 
 from travel_maker.public_data_collector.models import TravelInfo
 
@@ -18,6 +19,7 @@ class GooglePlaceReviewInfo(models.Model):
     rating = models.PositiveSmallIntegerField()
     text = models.CharField(max_length=2000)
     time = models.DateTimeField()
+    updown = RatingField(can_change_vote=True)
 
 
 class Progress(models.Model):

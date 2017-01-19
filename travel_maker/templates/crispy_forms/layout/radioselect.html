@@ -1,12 +1,26 @@
 {% load crispy_forms_filters %}
 {% load l10n %}
 
-<div class="btn-group controls {{ field_class }}" data-toggle="buttons" {% if flat_attrs %} {{ flat_attrs|safe }}{% endif %}>
+<div class="btn-group controls {{ field_class }}" data-toggle="buttons" {% if flat_attrs %}
+    {{ flat_attrs|safe }}{% endif %}>
     {% include 'crispy_forms/layout/field_errors_block.html' %}
 
     {% for choice in field.field.choices %}
-        <label class="btn btn-tm {% if not field.value %}{% if not choice.0 %}active{% endif %}{% elif choice.0|stringformat:"s" == field.value|stringformat:"s" %}active{% endif %} {% if inline_class %}radio-{{ inline_class }}{% endif %}">
-            <input type="radio" {% if not field.value %}{% if not choice.0 %}checked="checked"{% endif %}{% elif choice.0|stringformat:"s" == field.value|stringformat:"s" %}checked="checked"{% endif %} name="{{ field.html_name }}" id="id_{{ field.html_name }}_{{ forloop.counter }}" value="{{ choice.0|unlocalize }}" {{ field.field.widget.attrs|flatatt }}>
+        <label class="btn btn-tm-default
+                {% if not field.value %}
+                    {% if not choice.0 %}active{% endif %}
+                {% elif choice.0|stringformat:"s" == field.value|stringformat:"s" %}
+                    active
+                {% endif %}
+                {% if inline_class %}radio-{{ inline_class }}{% endif %}">
+            <input type="radio"
+                    {% if not field.value %}
+                   {% if not choice.0 %}checked="checked"{% endif %}
+                    {% elif choice.0|stringformat:"s" == field.value|stringformat:"s" %}
+                   checked="checked"
+                    {% endif %}
+                   name="{{ field.html_name }}" id="id_{{ field.html_name }}_{{ forloop.counter }}"
+                   value="{{ choice.0|unlocalize }}" {{ field.field.widget.attrs|flatatt }}>
             {% if choice.1 != '세종특별자치시' %}{{ choice.1|unlocalize }}{% else %}세종시{% endif %}
         </label>
     {% endfor %}

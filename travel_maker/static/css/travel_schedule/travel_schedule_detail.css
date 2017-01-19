@@ -45,6 +45,10 @@ a:hover {
     word-break: break-all;
 }
 
+.btn-up {
+    padding: 10px 10px 10px 10px;
+}
+
 .nav-tabs .active {
     background: #fff;
 }

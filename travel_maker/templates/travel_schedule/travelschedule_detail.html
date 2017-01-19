@@ -127,9 +127,10 @@
                 }
             });
 
-            $('#btn-up').click(function () {
+            $('.btn-up').click(function () {
                 var url = "{% url 'profile:schedule_updown' user.id travelschedule.id %}";
                 var reverse_score = 1;
+                var btn_up = $(this);
                 $.ajax({
                     type: 'GET',
                     url: url,
@@ -142,10 +143,16 @@
                             url: url,
                             contentType: 'application/json',
                             success: function (result) {
-                                var likes_elm = $('#likes');
+                                var likes_elm = $('.likes');
                                 var likes = parseInt(likes_elm.text());
                                 likes += reverse_score;
                                 likes_elm.text(likes);
+                                if (reverse_score > 0) {
+                                    btn_up.addClass('btn_state_up');
+                                }
+                                else {
+                                    btn_up.removeClass('btn_state_up');
+                                }
                             },
                             error: function (req, status, error) {
                                 alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');

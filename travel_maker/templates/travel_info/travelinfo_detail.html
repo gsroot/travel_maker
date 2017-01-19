@@ -184,9 +184,14 @@
             });
 
             $('.btn-up').click(function () {
-                var review_id = $(this).closest('.review').find('.review-id').val();
+                var review_elem = $(this).closest('.review');
+                var review_id = review_elem.find('.review-id').val();
                 var url = "{% url 'profile:review_updown' user.id 0 %}".replace('/0', '/' + review_id);
+                if (review_elem.hasClass('google-review')) {
+                    url = "{% url 'profile:google_review_updown' user.id 0 %}".replace('/0', '/' + review_id);
+                }
                 var reverse_score = 0;
+                var btn_up = $(this);
                 var likes_elm = $(this).find('.likes');
                 $.ajax({
                     type: 'GET',
@@ -195,6 +200,9 @@
                     success: function (result) {
                         reverse_score = result == 0 ? 1 : -parseInt(result);
                         url = '/travel-review/' + review_id + '/rate/' + reverse_score;
+                        if (review_elem.hasClass('google-review')) {
+                            url = '/travel-review/google/' + review_id + '/rate/' + reverse_score;
+                        }
                         $.ajax({
                             type: 'GET',
                             url: url,
@@ -203,6 +211,12 @@
                                 var likes = parseInt(likes_elm.text());
                                 likes += reverse_score;
                                 likes_elm.text(likes);
+                                if (reverse_score > 0) {
+                                    btn_up.addClass('btn_state_up');
+                                }
+                                else {
+                                    btn_up.removeClass('btn_state_up');
+                                }
                             },
                             error: function (req, status, error) {
                                 alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');

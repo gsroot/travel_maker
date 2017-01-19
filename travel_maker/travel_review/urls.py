@@ -10,6 +10,11 @@ urlpatterns = [
         'model': 'TravelReview',
         'field_name': 'updown',
     }, name="updown"),
+    url(r"^google/(?P<object_id>\d+)/rate/(?P<score>[\d\-]+)$", AddRatingFromModel(), {
+        'app_label': 'google_data_collector',
+        'model': 'GooglePlaceReviewInfo',
+        'field_name': 'updown',
+    }, name="updown_google"),
     url(r'^create/(?P<travel_info>\d+)/$', TravelReviewCreateView.as_view(), name='create'),
     url(r'^delete/(?P<pk>\d+)/$', TravelReviewDeleteView.as_view(), name='delete'),
 ]

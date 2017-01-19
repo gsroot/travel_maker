@@ -15,6 +15,7 @@ from updown.models import Vote
 
 from travel_maker.account.forms import UserUpdateForm
 from travel_maker.account.models import TmUser
+from travel_maker.google_data_collector.models import GooglePlaceReviewInfo
 from travel_maker.travel_bookmark.models import TravelBookmark
 from travel_maker.travel_review.models import TravelReview
 from travel_maker.travel_schedule.models import TravelSchedule
@@ -100,6 +101,14 @@ class ProfileScheduleUpdownScoreView(LoginRequiredMixin, View):
 class ProfileReviewUpdownScoreView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
         content_type = ContentType.objects.get_for_model(TravelReview)
+        vote = Vote.objects.filter(user=request.user, object_id=kwargs['review_id'], content_type=content_type)
+        score = vote[0].score if vote.exists() else 0
+        return HttpResponse(score)
+
+
+class ProfileGoogleReviewUpdownScoreView(LoginRequiredMixin, View):
+    def get(self, request, *args, **kwargs):
+        content_type = ContentType.objects.get_for_model(GooglePlaceReviewInfo)
         vote = Vote.objects.filter(user=request.user, object_id=kwargs['review_id'], content_type=content_type)
         score = vote[0].score if vote.exists() else 0
         return HttpResponse(score)

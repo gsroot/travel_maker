@@ -2,11 +2,11 @@
     {% if user == travelschedule.owner %}
         <div class="box schedule-update">
             <a href="{% url 'travel_schedule:update' travelschedule.id %}">
-                <button class="btn btn-block btn-tm" type="submit">여행일정 정보 설정</button>
+                <button class="btn btn-block btn-tm-default" type="submit">여행일정 정보 설정</button>
             </a>
             <div class="spacer-xs"></div>
             <a href="{% url 'travel_schedule:calendar_update' travelschedule.id %}">
-                <button class="btn btn-block btn-tm" type="submit">여행일정표 변경</button>
+                <button class="btn btn-block btn-tm-default" type="submit">여행일정표 변경</button>
             </a>
             <div class="spacer-xs"></div>
             <div class="btn-group btn-group-justified btn-group-ispublic" role="group">
@@ -28,9 +28,9 @@
         <div class="spacer-xs"></div>
     {% endif %}
     <div class="box">
-        <button id="btn-up" class="btn btn-block btn-tm">
-            좋아요 <span id="likes">{{ travelschedule.updown.likes }}</span>
-        </button>
+        <span class="btn btn-tm-default btn-up">
+            <i class="fa fa-thumbs-o-up fa-lg"></i> <span class="likes">{{ travelschedule.updown.likes }}</span><br>추천
+        </span>
     </div>
     <div class="spacer-xs"></div>
     <div class="box center">

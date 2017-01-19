@@ -52,6 +52,14 @@
 	width: 90%;
 }
 
+.btn-up, .btn-del {
+    padding: 5px 5px 5px 5px;
+}
+
+.review-ext a:hover {
+    text-decoration: none !important;
+}
+
 #rating-text {
     margin-left: 10px;
     font-size: 18px;

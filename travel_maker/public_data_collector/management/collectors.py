@@ -416,8 +416,7 @@ class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
                 if self.get_info_class() == TravelIntroInfo:
                     info_class = self.get_info_class(travel_info.contenttype_id)
                 info_dict = res_dict['response']['body']['items']['item']
-                if info_class != FestivalIntroInfo or info_dict['eventenddate'] >= datetime.today().date():
-                    self.save_info(info_class, travel_info, info_dict)
+                self.save_info(info_class, travel_info, info_dict)
 
             self.update_progress(self.progress)
 
@@ -436,7 +435,7 @@ class ManyToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
             req_cnt_per_travel_info = 2 if self.get_info_class() == TravelImageInfo \
                                            and travel_info.contenttype is ContentTypeConstant.RESTAURANT else 1
             for i in range(req_cnt_per_travel_info):
-                if self.get_info_class() == TravelDetailInfo and i == 1:
+                if self.get_info_class() == TravelImageInfo and i == 1:
                     query_params.update({
                         'imageYN': 'N'
                     })
@@ -479,8 +478,7 @@ class TravelOverviewInfoWebCollector(OneToOneAditionalInfoWebCollector):
         info_dict.update(new_info_dict)
 
     def get_travel_infos(self):
-        datetime_before = datetime.today().date() - relativedelta(days=5)
-        travel_infos = TravelInfo.objects.filter(modified__gte=datetime_before).filter(
+        travel_infos = TravelInfo.objects.filter(
             Q(traveloverviewinfo__isnull=True) |
             Q(traveloverviewinfo__isnull=False, tm_updated__gt=F('traveloverviewinfo__tm_updated'))
         ).order_by('modified')
@@ -541,10 +539,11 @@ class TravelIntroInfoWebCollector(OneToOneAditionalInfoWebCollector):
 
     def get_travel_infos(self):
         datetime_before = datetime.today().date() - relativedelta(days=5)
-        travel_infos = TravelInfo.objects.filter(modified__gte=datetime_before).filter(
+        travel_infos = TravelInfo.objects.filter(
             Q(tourspotintroinfo__isnull=True, culturalfacilityintroinfo__isnull=True,
               festivalintroinfo__isnull=True, tourcoursedetailinfo__isnull=True, leportsintroinfo__isnull=True,
-              lodgingdetailinfo__isnull=True, shoppingintroinfo__isnull=True, restaurantintroinfo__isnull=True) |
+              lodgingdetailinfo__isnull=True, shoppingintroinfo__isnull=True, restaurantintroinfo__isnull=True,
+              tm_updated__gte=datetime_before) |
             Q(tourspotintroinfo__isnull=False, tm_updated__gt=F('tourspotintroinfo__tm_updated')) |
             Q(culturalfacilityintroinfo__isnull=False, tm_updated__gt=F('culturalfacilityintroinfo__tm_updated')) |
             Q(festivalintroinfo__isnull=False, tm_updated__gt=F('festivalintroinfo__tm_updated')) |
@@ -608,9 +607,10 @@ class TravelDetailInfoWebCollector(ManyToOneAditionalInfoWebCollector):
                     info_dict[key] = False
 
     def get_travel_infos(self):
-        datetime_before = datetime.today().date() - relativedelta(months=1)
-        travel_infos = TravelInfo.objects.filter(modified__gte=datetime_before).filter(
-            Q(defaulttraveldetailinfo__isnull=True, tourcoursedetailinfo__isnull=True, lodgingdetailinfo__isnull=True) |
+        datetime_before = datetime.today().date() - relativedelta(days=5)
+        travel_infos = TravelInfo.objects.filter(
+            Q(defaulttraveldetailinfo__isnull=True, tourcoursedetailinfo__isnull=True, lodgingdetailinfo__isnull=True,
+              tm_updated__gte=datetime_before) |
             Q(defaulttraveldetailinfo__isnull=False, tm_updated__gt=F('defaulttraveldetailinfo__tm_updated')) |
             Q(tourcoursedetailinfo__isnull=False, tm_updated__gt=F('tourcoursedetailinfo__tm_updated')) |
             Q(lodgingdetailinfo__isnull=False, tm_updated__gt=F('lodgingdetailinfo__tm_updated'))
@@ -670,9 +670,10 @@ class TravelImageInfoWebCollector(ManyToOneAditionalInfoWebCollector):
             del info_dict['imgname']
 
     def get_travel_infos(self):
-        datetime_before = datetime.today().date() - relativedelta(months=1)
-        travel_infos = TravelInfo.objects.filter(modified__gte=datetime_before).filter(
-            Q(travelimageinfo__isnull=True) | Q(tm_updated__gt=F('travelimageinfo__tm_updated'))
+        datetime_before = datetime.today().date() - relativedelta(days=5)
+        travel_infos = TravelInfo.objects.filter(
+            Q(travelimageinfo__isnull=True, tm_updated__gte=datetime_before) |
+            Q(travelimageinfo__isnull=False, tm_updated__gt=F('travelimageinfo__tm_updated'))
         ).distinct().order_by('modified')
 
         return travel_infos
@@ -699,17 +700,11 @@ class NearbySpotInfoWebCollector(AdditionalInfoWebCollector):
         self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
     def get_travel_infos(self):
-        datetime_before = datetime.strptime('20161102', '%Y%m%d')
-        # travel_infos = TravelInfo.objects.filter(
-        #     mapx__isnull=False, mapy__isnull=False, modified__gte=datetime_before
-        # ).filter(
-        #     Q(nearbyspotinfo__isnull=True) |
-        #     Q(nearbyspotinfo__isnull=False, tm_updated__gt=F('nearbyspotinfo__tm_updated'))
-        # ).distinct().order_by('modified')
-        infos = NearbySpotInfo.objects.filter(dist=0).exclude(
-            center_spot=F('target_spot')).distinct('center_spot')
+        travel_infos = TravelInfo.objects.filter(
+            mapx__isnull=False, mapy__isnull=False, nearbyspotinfo__isnull=True
+        ).distinct().order_by('modified')
 
-        return [info.center_spot for info in infos]
+        return travel_infos
 
     def get_info_class(self, contenttype_id=None):
         return NearbySpotInfo

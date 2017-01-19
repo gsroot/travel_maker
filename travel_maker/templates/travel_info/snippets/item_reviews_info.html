@@ -6,7 +6,7 @@
             <h3>유저 평가</h3>
             <div class="spacer-sm"></div>
             {% for review in google_reviews %}
-                <div class="review">
+                <div class="review google-review">
                     <input class="review-id" type="hidden" value="{{ review.id }}">
                     <div class="row">
                         <div class="col-md-1">
@@ -26,8 +26,14 @@
                                 <div class="review-rating col-md-2">
                                     <div id="google-rating-{{ review.id }}"></div>
                                 </div>
-                                <div class="review-time col-md-10">
+                                <div class="review-time col-md-7">
                                     {{ review.time }}
+                                </div>
+                                <div class="review-ext col-md-3">
+                                    <span class="btn-tm-default btn-up">
+                                        <i class="fa fa-thumbs-o-up"></i>
+                                        추천 <span class="likes">{{ review.updown.likes }}</span>
+                                    </span>
                                 </div>
                             </div>
                         </div>
@@ -68,12 +74,13 @@
                                     {{ review.updated }}
                                 </div>
                                 <div class="review-ext col-md-3">
-                                    <button class="btn btn-tm btn-up">
-                                        좋아요 <span class="likes">{{ review.updown.likes }}</span>
-                                    </button>
+                                    <span class="btn-tm-default btn-up">
+                                        <i class="fa fa-thumbs-o-up"></i>
+                                        추천 <span class="likes">{{ review.updown.likes }}</span>
+                                    </span>
                                     {% if user == review.owner %}
-                                        <a href="{% url 'travel_review:delete' review.id %}">
-                                            <button class="btn btn-danger">삭제</button>
+                                        <a class="btn-danger btn-del" href="{% url 'travel_review:delete' review.id %}">
+                                            <i class="fa fa-trash-o"></i> 삭제
                                         </a>
                                     {% endif %}
                                 </div>
@@ -95,4 +102,5 @@
             {% endfor %}
         </div>
     </div>
+    <div class="spacer-sm"></div>
 {% endif %}
