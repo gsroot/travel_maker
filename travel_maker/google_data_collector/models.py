@@ -1,6 +1,6 @@
 from django.db import models
-from updown.fields import RatingField
 
+from travel_maker.models import Votable
 from travel_maker.public_data_collector.models import TravelInfo
 
 
@@ -12,14 +12,13 @@ class GooglePlaceInfo(models.Model):
         ordering = ['id']
 
 
-class GooglePlaceReviewInfo(models.Model):
+class GooglePlaceReviewInfo(Votable):
     place_info = models.ForeignKey(GooglePlaceInfo, on_delete=models.CASCADE)
     author_name = models.CharField(max_length=200)
     profile_photo_url = models.CharField(max_length=500, blank=True)
     rating = models.PositiveSmallIntegerField()
     text = models.CharField(max_length=2000)
     time = models.DateTimeField()
-    updown = RatingField(can_change_vote=True)
 
 
 class Progress(models.Model):

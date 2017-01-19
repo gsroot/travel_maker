@@ -1,4 +1,4 @@
-{% load static bootstrap_pagination %}
+{% load static %}
 
 <div class="row">
     {% for bookmark in travelbookmark_list %}
@@ -8,7 +8,7 @@
                     <div class="bookmark-item">
                         {% if user == bookmark.owner %}
                             <button class="btn btn-danger btn-xs hidden delete"
-                                    data-toggle="modal" data-target="#bookmark-delete-modal"
+                                    data-toggle="modal" data-target="#travelbookmark-delete-modal"
                                     data-id="{{ bookmark.id }}">
                                 <i class="fa fa-trash"></i>
                             </button>

@@ -32,7 +32,7 @@ class UserSignupForm(SignupForm):
 
             ),
             FormActions(
-                HTML('<button class="btn btn-tm btn-block" id="id-signup" type="submit">회원가입</button>'),
+                HTML('<button class="btn btn-tm-default btn-block" id="id-signup" type="submit">회원가입</button>'),
                 css_class='text-center'
             ),
         )
@@ -50,7 +50,7 @@ class UserLoginForm(LoginForm):
                 'password',
             ),
             FormActions(
-                HTML('<button class="btn btn-tm btn-block" id="id-login" type="submit">로그인</button>'),
+                HTML('<button class="btn btn-tm-default btn-block" id="id-login" type="submit">로그인</button>'),
                 css_class='text-center'
             ),
         )
@@ -119,7 +119,7 @@ class SocialUserSignupForm(SocialSignupForm):
 
             ),
             FormActions(
-                HTML('<button class="btn btn-tm btn-block" id="id-signup" type="submit">회원가입</button>'),
+                HTML('<button class="btn btn-tm-default btn-block" id="id-signup" type="submit">회원가입</button>'),
                 css_class='text-center'
             ),
         )

@@ -8,13 +8,13 @@ from django.utils.translation import ugettext_lazy as _
 from schedule.models import Calendar
 from schedule.models import Event
 from taggit.managers import TaggableManager
-from updown.fields import RatingField
 
 from travel_maker.account.models import TmUser
+from travel_maker.models import Votable
 from travel_maker.public_data_collector.models import TravelInfo
 
 
-class TravelSchedule(models.Model):
+class TravelSchedule(Votable):
     owner = ForeignKey(TmUser, on_delete=models.CASCADE)
     calendar = OneToOneField(Calendar, on_delete=models.CASCADE, null=True)
     title = CharField(max_length=200, verbose_name=_('여행의 이름을 지어주세요'))
@@ -30,7 +30,6 @@ class TravelSchedule(models.Model):
         help_text=_('각 태그는 쉼표(,)로 구분됩니다')
     )
     is_public = BooleanField(default=True)
-    updown = RatingField(can_change_vote=True)
 
     class Meta:
         ordering = ['-id']

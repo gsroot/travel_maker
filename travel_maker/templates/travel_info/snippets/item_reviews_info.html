@@ -30,7 +30,8 @@
                                     {{ review.time }}
                                 </div>
                                 <div class="review-ext col-md-3">
-                                    <span class="btn-tm-default btn-up">
+                                    <span class="btn-tm-default btn-up {% if review.does_user_already_vote %}
+                                            btn-active{% endif %}">
                                         <i class="fa fa-thumbs-o-up"></i>
                                         추천 <span class="likes">{{ review.updown.likes }}</span>
                                     </span>
@@ -74,7 +75,8 @@
                                     {{ review.updated }}
                                 </div>
                                 <div class="review-ext col-md-3">
-                                    <span class="btn-tm-default btn-up">
+                                    <span class="btn-tm-default btn-up {% if review.does_user_already_vote %}
+                                            btn-active{% endif %}">
                                         <i class="fa fa-thumbs-o-up"></i>
                                         추천 <span class="likes">{{ review.updown.likes }}</span>
                                     </span>

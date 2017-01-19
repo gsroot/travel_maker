@@ -69,6 +69,11 @@ class TravelScheduleDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
     def test_func(self, user):
         return user == self.get_object().owner or self.get_object().is_public
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['travelschedule'] = context['travelschedule'].set_does_user_already_vote(self.request.user)
+        return context
+
 
 class TravelScheduleCreateView(LoginRequiredMixin, CreateView):
     model = TravelSchedule

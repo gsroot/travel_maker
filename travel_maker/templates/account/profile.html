@@ -31,12 +31,14 @@
             <div id="items" class="col-md-9">
             </div>
         </div>
+        <div class="spacer-xl"></div>
     </div>
     {% include 'account/snippets/profile_update_modal.html' %}
     {% include 'account/snippets/profile_password_change_modal.html' %}
     {% include 'account/snippets/profile_delete_modal.html' %}
     {% include 'account/snippets/schedule_delete_modal.html' %}
-    {% include 'account/snippets/bookmark_delete_modal.html' %}
+    {% include 'account/snippets/travelbookmark_delete_modal.html' %}
+    {% include 'account/snippets/schedulebookmark_delete_modal.html' %}
 {% endblock %}
 
 {% block javascript %}
@@ -69,12 +71,13 @@
                 e.preventDefault();
             });
 
-            $('#schedule-delete-modal, #bookmark-delete-modal').on('show.bs.modal', function (event) {
-                var button = $(event.relatedTarget);
-                var id = button.data('id');
-                var form = $(this).find('form');
-                form.attr('action', form.attr('action').replace('0', id));
-            });
+            $('#schedule-delete-modal, #travelbookmark-delete-modal, #schedulebookmark-delete-modal')
+                .on('show.bs.modal', function (event) {
+                    var button = $(event.relatedTarget);
+                    var id = button.data('id');
+                    var form = $(this).find('form');
+                    form.attr('action', form.attr('action').replace('0', id));
+                });
 
             {% if form.errors %}
                 $('.update-profile button').click();
@@ -104,7 +107,8 @@
             };
 
             var schedule_url = "{% url 'profile:schedule_list' tmuser.id %}";
-            var bookmark_url = "{% url 'profile:bookmark_list' tmuser.id %}";
+            var travelbookmark_url = "{% url 'profile:travel_bookmark_list' tmuser.id %}";
+            var schedulebookmark_url = "{% url 'profile:schedule_bookmark_list' tmuser.id %}";
             get_items(schedule_url);
 
             $('#travelschedule').click(function () {
@@ -114,7 +118,12 @@
 
             $('#travelbookmark').click(function () {
                 menu_click($(this));
-                get_items(bookmark_url);
+                get_items(travelbookmark_url);
+            });
+
+            $('#schedulebookmark').click(function () {
+                menu_click($(this));
+                get_items(schedulebookmark_url);
             });
         })
     </script>

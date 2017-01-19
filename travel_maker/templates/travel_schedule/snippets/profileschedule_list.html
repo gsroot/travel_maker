@@ -49,9 +49,9 @@
         </div>
     {% endfor %}
 </div>
-<div class="spacer-sm"></div>
 
 {% if user == tmuser %}
+    <div class="spacer-sm"></div>
     <div class="center">
         <a class="btn btn-tm-default" href="{% url 'travel_schedule:create' %}">여행 일정 만들기</a>
     </div>

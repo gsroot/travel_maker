@@ -22,9 +22,9 @@ a:hover {
     margin-right: 20px;
 }
 
-.btn-active {
-    background: #7bccc4;
-    color: #fff;
+.schedule-update .btn-active {
+    background: #7fcdbb;
+    color: #fff !important;
 }
 
 .btn-inactive {
@@ -45,8 +45,13 @@ a:hover {
     word-break: break-all;
 }
 
-.btn-up {
+.schedule-util .btn {
+    width: 32%;
     padding: 10px 10px 10px 10px;
+}
+
+.schedule-util .text {
+    font-size: 12px;
 }
 
 .nav-tabs .active {

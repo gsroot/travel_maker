@@ -27,9 +27,24 @@
         </div>
         <div class="spacer-xs"></div>
     {% endif %}
-    <div class="box">
-        <span class="btn btn-tm-default btn-up">
-            <i class="fa fa-thumbs-o-up fa-lg"></i> <span class="likes">{{ travelschedule.updown.likes }}</span><br>추천
+    <div class="box schedule-util">
+        <span class="btn btn-tm-default btn-up {% if travelschedule.does_user_already_vote %}btn-active{% endif %}">
+            <i class="fa fa-thumbs-o-up fa-lg"></i>
+            <span class="likes">{{ travelschedule.updown.likes }}</span>
+            <br><span class="text">추천</span>
+        </span>
+        <a class="btn btn-tm-default btn-bookmark" href="javascript:void(0)">
+            <form action="{% url 'travel_bookmark:schedule_create' %}" method="post">
+                {% csrf_token %}
+                <input name="travel_schedule" type="hidden" value="{{ travelschedule.id }}">
+            </form>
+            <i class="fa fa-bookmark-o fa-lg"></i>
+            <span class="bookmarks">{{ travelschedule.schedulebookmark_set.all.count }}</span>
+            <br><span class="text">책갈피</span>
+        </a>
+        <span class="btn btn-tm-default btn-clip">
+            <i class="fa fa-share-square-o fa-lg"></i>
+            <br><span class="text">퍼가기</span>
         </span>
     </div>
     <div class="spacer-xs"></div>

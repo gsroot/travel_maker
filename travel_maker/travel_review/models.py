@@ -1,22 +1,23 @@
 from bs4 import BeautifulSoup
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.urls import reverse
-from updown.fields import RatingField
+from updown.models import Vote
 
 from travel_maker.account.models import TmUser
+from travel_maker.models import Votable
 from travel_maker.public_data_collector.models import TravelInfo
 
 
-class TravelReview(models.Model):
+class TravelReview(Votable):
     travel_info = models.ForeignKey(TravelInfo, on_delete=models.CASCADE)
     owner = models.ForeignKey(TmUser, on_delete=models.CASCADE)
     rating = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)])
     content = models.CharField(max_length=5000)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
-    updown = RatingField(can_change_vote=True)
 
     @property
     def text(self):

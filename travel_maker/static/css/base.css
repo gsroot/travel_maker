@@ -88,7 +88,7 @@ body {
 }
 
 .navbar-default .navbar-header .navbar-brand {
-    color: #F05F40;
+    color: #7fcdbb;
     font-weight: 700;
     text-transform: uppercase;
 }
@@ -115,12 +115,12 @@ body {
 
 .navbar-default .nav > li > a:hover,
 .navbar-default .nav > li > a:focus:hover {
-    color: #F05F40;
+    color: #7fcdbb !important;
 }
 
 .navbar-default .nav > li.active > a,
 .navbar-default .nav > li.active > a:focus {
-    color: #F05F40 !important;
+    color: #7fcdbb !important;
     background-color: transparent;
 }
 
@@ -175,7 +175,7 @@ body {
 
     .navbar-default.affix .nav > li > a:hover,
     .navbar-default.affix .nav > li > a:focus:hover {
-        color: #F05F40;
+        color: #7fcdbb !important;
     }
 }
 
@@ -266,6 +266,6 @@ header .header-content .header-content-inner p {
     margin-left: 10px;
 }
 
-.btn_state_up, .btn-tm-default:hover, .btn-del:hover {
+.btn-active, .btn-tm-default:hover, .btn-del:hover {
     color: #7fcdbb !important;
 }

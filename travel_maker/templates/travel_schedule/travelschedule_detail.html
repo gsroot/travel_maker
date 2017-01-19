@@ -36,6 +36,7 @@
                 {% disqus_show_comments %}
             </div>
         </div>
+        <div class="spacer-xl"></div>
     </div>
 {% endblock %}
 
@@ -148,10 +149,10 @@
                                 likes += reverse_score;
                                 likes_elm.text(likes);
                                 if (reverse_score > 0) {
-                                    btn_up.addClass('btn_state_up');
+                                    btn_up.addClass('btn-active');
                                 }
                                 else {
-                                    btn_up.removeClass('btn_state_up');
+                                    btn_up.removeClass('btn-active');
                                 }
                             },
                             error: function (req, status, error) {
@@ -163,6 +164,10 @@
                         alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
                     }
                 });
+            });
+
+            $('.btn-bookmark').click(function () {
+                $(this).find('form').submit();
             });
         });
     </script>

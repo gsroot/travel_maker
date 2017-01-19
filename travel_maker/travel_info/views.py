@@ -59,13 +59,12 @@ class TravelInfoDetailView(DetailView):
         context['viewtype'] = self.request.GET.get('viewtype')
         context['naverapi_client_id'] = NAVER_API_CLIENT_ID
 
-        if GooglePlaceInfo.objects.filter(travel_info=context['travelinfo']).exists() \
-                and context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all():
-            context['google_reviews'] = context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all()
+        if hasattr(context['travelinfo'], 'googleplaceinfo'):
+            context['google_reviews'] = [review.set_does_user_already_vote(self.request.user) for review in
+                                         context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all()]
 
-        if TravelReview.objects.filter(travel_info=context['travelinfo']).exists() \
-                and context['travelinfo'].travelreview_set.all():
-            context['travel_reviews'] = context['travelinfo'].travelreview_set.all()
+        context['travel_reviews'] = [review.set_does_user_already_vote(self.request.user) for review in
+                                     context['travelinfo'].travelreview_set.all()]
 
         return context
 

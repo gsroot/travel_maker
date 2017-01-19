@@ -1,0 +1,55 @@
+{% load static %}
+
+<div class="row">
+    {% for bookmark in schedulebookmark_list %}
+        {% with bookmark.travel_schedule as schedule %}
+            <div class="col-md-6">
+                <a class="schedule-item-link" href="{{ schedule.get_absolute_url }}">
+                    <div class="schedule-item-bg">
+                        <div class="schedule-item">
+                            <div class="owner-info">
+                            <span>
+                                <img class="img-thumbnail owner-img" src="{{ schedule.owner.thumbnail.url }}">
+                            </span>
+                                <span class="owner-name">
+                                {% if schedule.owner.username %}
+                                    {{ schedule.owner.username }}
+                                {% else %}
+                                    {{ schedule.owner.email }}
+                                {% endif %}
+                            </span>
+                                {% if user == bookmark.owner %}
+                                    <button class="btn btn-danger btn-xs hidden delete"
+                                            data-toggle="modal" data-target="#schedulebookmark-delete-modal"
+                                            data-id="{{ bookmark.id }}"
+                                            data-title="{{ bookmark.title }}">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                            <div class="center">
+                                <h2 class="schedule-item-title">{{ schedule.title }}</h2>
+                                <div class="schedule-item-overview">
+                                    <div>{{ schedule.start }} ~ {{ schedule.end }}
+                                        ({{ schedule.duration_days }}일)
+                                    </div>
+                                    <div class="spacer-xs"></div>
+                                    <div>여행인원 {{ schedule.people_count }}명</div>
+                                    <div class="spacer-xs"></div>
+                                    <div>{{ schedule.tags.all|join:', ' }}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </a>
+                <div class="spacer-sm"></div>
+            </div>
+        {% endwith %}
+    {% empty %}
+        <div class="center">
+            <img class="empty-img" src="{% static 'img/empty.png' %}">
+            <div class="spacer-sm"></div>
+            <div class="empty-text">책갈피가 없습니다</div>
+        </div>
+    {% endfor %}
+</div>

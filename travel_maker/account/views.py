@@ -16,7 +16,7 @@ from updown.models import Vote
 from travel_maker.account.forms import UserUpdateForm
 from travel_maker.account.models import TmUser
 from travel_maker.google_data_collector.models import GooglePlaceReviewInfo
-from travel_maker.travel_bookmark.models import TravelBookmark
+from travel_maker.travel_bookmark.models import TravelBookmark, ScheduleBookmark
 from travel_maker.travel_review.models import TravelReview
 from travel_maker.travel_schedule.models import TravelSchedule
 
@@ -35,7 +35,8 @@ class ProfileHomeView(LoginRequiredMixin, UpdateView):
         context['passwordchangeform'] = ChangePasswordForm()
         user_id = self.kwargs['pk']
         context['schedule_cnt'] = TravelSchedule.objects.filter(owner=user_id).count()
-        context['bookmark_cnt'] = TravelBookmark.objects.filter(owner=user_id).count()
+        context['travelbookmark_cnt'] = TravelBookmark.objects.filter(owner=user_id).count()
+        context['schedulebookmark_cnt'] = ScheduleBookmark.objects.filter(owner=user_id).count()
 
         return context
 
@@ -76,9 +77,15 @@ class ProfileScheduleListView(LoginRequiredMixin, ListView):
         return context
 
 
-class ProfileBookmarkListView(LoginRequiredMixin, ListView):
+class ProfileTravelBookmarkListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         queryset = TravelBookmark.objects.filter(owner=self.kwargs['pk'])
+        return queryset
+
+
+class ProfileScheduleBookmarkListView(LoginRequiredMixin, ListView):
+    def get_queryset(self):
+        queryset = ScheduleBookmark.objects.filter(owner=self.kwargs['pk'])
         return queryset
 
 
@@ -92,23 +99,20 @@ class UpdownListView(LoginRequiredMixin, ListView):
 
 class ProfileScheduleUpdownScoreView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        content_type = ContentType.objects.get_for_model(TravelSchedule)
-        vote = Vote.objects.filter(user=request.user, object_id=kwargs['schedule_id'], content_type=content_type)
-        score = vote[0].score if vote.exists() else 0
+        schedule = TravelSchedule.objects.get(id=kwargs['schedule_id'])
+        score = 1 if schedule.get_does_user_already_vote(request.user) else 0
         return HttpResponse(score)
 
 
 class ProfileReviewUpdownScoreView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        content_type = ContentType.objects.get_for_model(TravelReview)
-        vote = Vote.objects.filter(user=request.user, object_id=kwargs['review_id'], content_type=content_type)
-        score = vote[0].score if vote.exists() else 0
+        review = TravelReview.objects.get(id=kwargs['review_id'])
+        score = 1 if review.get_does_user_already_vote(request.user) else 0
         return HttpResponse(score)
 
 
 class ProfileGoogleReviewUpdownScoreView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        content_type = ContentType.objects.get_for_model(GooglePlaceReviewInfo)
-        vote = Vote.objects.filter(user=request.user, object_id=kwargs['review_id'], content_type=content_type)
-        score = vote[0].score if vote.exists() else 0
+        review = GooglePlaceReviewInfo.objects.get(id=kwargs['review_id'])
+        score = 1 if review.get_does_user_already_vote(request.user) else 0
         return HttpResponse(score)
