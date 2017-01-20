@@ -48,6 +48,24 @@ class BlogDataCollector(WebCollector):
 
         return travel_infos
 
+    def init_progress(self, progress, target_info_count):
+        progress.target_info_count = target_info_count
+        progress.info_complete_count = 0
+        if progress.target_info_count == 0:
+            progress.percent = 100
+        else:
+            progress.percent = 0
+        progress.save()
+
+    def set_travel_info_to_progress(self, progress, travel_info):
+        progress.travel_info = travel_info
+        progress.save()
+
+    def update_progress(self, progress):
+        progress.info_complete_count += 1
+        progress.percent = int(progress.info_complete_count * 100 / progress.target_info_count)
+        progress.save()
+
     def parse_blogs(self, blogs, travel_info):
         for blog in blogs:
             blog['travel_info'] = travel_info.id
@@ -144,13 +162,11 @@ class BlogDataCollector(WebCollector):
                 form.save()
 
     def request(self):
-        progress = self.progress
-
         travel_infos = self.get_travel_infos()
+        self.init_progress(self.progress, travel_infos.count())
 
         for travel_info in travel_infos:
-            progress.travel_info = travel_info
-            progress.save()
+            self.set_travel_info_to_progress(self.progress, travel_info)
 
             query_params = {
                 'query': '{} 여행'.format(travel_info.title)
@@ -168,9 +184,7 @@ class BlogDataCollector(WebCollector):
             except (JSONDecodeError, UnicodeEncodeError, IntegrityError, NotImplementedError, DataError) as e:
                 print(e)
             finally:
-                progress.item_complete_count += 1
-                progress.percent = int(progress.item_complete_count * 100 / self.progress.TOTAL_ITEM_CNT)
-                progress.save()
+                self.update_progress(self.progress)
 
     def run(self):
         super().run()

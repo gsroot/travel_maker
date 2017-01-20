@@ -345,6 +345,10 @@ class TravelInfoWebCollector(WebCollector):
 
 
 class AdditionalInfoWebCollector(WebCollector):
+    def __init__(self):
+        super().__init__()
+        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
+
     def init_progress(self, progress, target_info_count):
         if progress.last_progress_date.date() != datetime.today().date():
             progress.target_info_count = target_info_count
@@ -389,6 +393,9 @@ class AdditionalInfoWebCollector(WebCollector):
 
 
 class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
+    def delete_expired_festivals(self, infos_to_delete):
+        pass
+
     def update_or_create_info(self, info_class, travel_info, info_dict):
         try:
             info_class.objects.update_or_create(travel_info=travel_info, defaults=info_dict)
@@ -400,6 +407,7 @@ class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
         info_class = self.get_info_class()
         self.init_progress(self.progress, travel_infos.count())
 
+        expired_festivals = []
         for travel_info in travel_infos:
             self.set_travel_info_to_progress(self.progress, travel_info)
 
@@ -410,15 +418,30 @@ class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
                 res_dict = self.response_to_dict(response)
             except UserWarning as e:
                 print(e)
+                if self.get_info_class() == TravelIntroInfo:
+                    self.delete_expired_festivals(expired_festivals)
                 return
 
             if res_dict['response']['body']['totalCount'] != 0:
                 if self.get_info_class() == TravelIntroInfo:
                     info_class = self.get_info_class(travel_info.contenttype_id)
                 info_dict = res_dict['response']['body']['items']['item']
-                self.save_info(info_class, travel_info, info_dict)
+
+                is_expired_festival = False
+                if self.get_info_class(travel_info.contenttype_id) == FestivalIntroInfo:
+                    eventenddate = datetime.strptime(str(info_dict['eventenddate']), '%Y%m%d').date()
+                    if eventenddate < datetime.today().date() - relativedelta(months=1):
+                        is_expired_festival = True
+
+                if is_expired_festival:
+                    expired_festivals.append(travel_info)
+                else:
+                    self.save_info(info_class, travel_info, info_dict)
 
             self.update_progress(self.progress)
+
+        if self.get_info_class() == TravelIntroInfo:
+            self.delete_expired_festivals(expired_festivals)
 
 
 class ManyToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
@@ -467,7 +490,6 @@ class TravelOverviewInfoWebCollector(OneToOneAditionalInfoWebCollector):
         super().__init__()
         self.operation = 'detailCommon'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
     def _update_info_dict(self, info_dict, travel_info=None):
         del info_dict['contentid']
@@ -502,7 +524,6 @@ class TravelIntroInfoWebCollector(OneToOneAditionalInfoWebCollector):
         super().__init__()
         self.operation = 'detailIntro'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
     def _update_info_dict(self, info_dict, travel_info=None):
         if 'contentid' in info_dict:
@@ -579,13 +600,17 @@ class TravelIntroInfoWebCollector(OneToOneAditionalInfoWebCollector):
         }
         return query_params
 
+    def delete_expired_festivals(self, infos_to_delete):
+        deleted, deleted_count = TravelInfo.objects.filter(
+            id__in=[info.id for info in infos_to_delete]).delete()
+        print('=== deleted festival count ===\n{}'.format(deleted_count))
+
 
 class TravelDetailInfoWebCollector(ManyToOneAditionalInfoWebCollector):
     def __init__(self):
         super().__init__()
         self.operation = 'detailInfo'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
     def _update_info_dict(self, info_dict, travel_info=None):
         if 'contentid' in info_dict:
@@ -661,7 +686,6 @@ class TravelImageInfoWebCollector(ManyToOneAditionalInfoWebCollector):
         super().__init__()
         self.operation = 'detailImage'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
     def _update_info_dict(self, info_dict, travel_info=None):
         if 'contentid' in info_dict:
@@ -697,7 +721,6 @@ class NearbySpotInfoWebCollector(AdditionalInfoWebCollector):
         super().__init__()
         self.operation = 'locationBasedList'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
     def get_travel_infos(self):
         travel_infos = TravelInfo.objects.filter(
@@ -747,14 +770,8 @@ class NearbySpotInfoWebCollector(AdditionalInfoWebCollector):
                         center_spot=travel_info, target_spot=TravelInfo.objects.get(id=info['contentid']),
                         dist=info['dist']
                     )
-                    for info in info_dicts]
+                    for info in info_dicts if TravelInfo.objects.filter(id=info['contentid']).exists()]
 
-                if info_class.objects.filter(center_spot=travel_info).exists():
-                    for info in infos:
-                        info_class.objects.update_or_create(
-                            center_spot=info.center_spot, target_spot=info.target_spot, defaults={'dist': info.dist}
-                        )
-                else:
-                    info_class.objects.bulk_create(infos)
+                info_class.objects.bulk_create(infos)
 
             self.update_progress(self.progress)

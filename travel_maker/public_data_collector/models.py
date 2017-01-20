@@ -491,8 +491,6 @@ class CategoryCodeProgress(Progress):
 
 
 class AdditionalInfoProgress(Progress):
-    TOTAL_TRAVEL_INFO_CNT = TravelInfo.objects.count()
-
     info_type = models.CharField(max_length=100)
     travel_info = models.ForeignKey(TravelInfo, null=True, on_delete=models.SET_NULL)
     target_info_count = models.IntegerField(default=0)

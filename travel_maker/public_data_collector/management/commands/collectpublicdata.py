@@ -17,18 +17,15 @@ class Command(BaseCommand):
         WebCollector.service_key = WebCollector.service_keys[0]
 
         self.collectors = [
-            # ContentTypeCollector(),
-            # AreacodeWebCollector(),
-            # CategorycodeWebCollector(),
-            TravelInfoWebCollector(),
-            TravelOverviewInfoWebCollector(),
             TravelIntroInfoWebCollector(),
+            TravelOverviewInfoWebCollector(),
             TravelDetailInfoWebCollector(),
             TravelImageInfoWebCollector(),
             NearbySpotInfoWebCollector(),
         ]
 
     def handle(self, *args, **options):
+        TravelInfoWebCollector().run()
         for idx, key in enumerate(WebCollector.service_keys):
             for collector in self.collectors:
                 collector.run()
