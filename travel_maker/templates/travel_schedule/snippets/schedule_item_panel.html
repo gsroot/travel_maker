@@ -31,7 +31,7 @@
         <span class="btn btn-tm-default btn-up {% if travelschedule.does_user_already_vote %}btn-active{% endif %}">
             <i class="fa fa-thumbs-o-up fa-lg"></i>
             <span class="likes">{{ travelschedule.updown.likes }}</span>
-            <br><span class="text">추천</span>
+            <br><span class="text">좋아요</span>
         </span>
         <a class="btn btn-tm-default btn-bookmark" href="javascript:void(0)">
             <form action="{% url 'travel_bookmark:schedule_create' %}" method="post">

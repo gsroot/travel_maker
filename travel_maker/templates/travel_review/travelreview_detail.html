@@ -4,27 +4,126 @@
 
 {% block css %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'vendor/fullcalendar/dist/fullcalendar.css' %}">
-    <link rel="stylesheet" href="{% static 'css/travel_schedule/travel_schedule_detail.css' %}">
+    <link rel="stylesheet" href="{% static 'css/travel_info/travel_info_detail.css' %}">
 {% endblock %}
 
 {% block header %}
-    <header>
-        <div class="spacer-xl"></div>
-        <div class="spacer-md"></div>
-        <div class="header-title">
-            ...
-        </div>
-    </header>
 {% endblock %}
 
 {% block content %}
-    <div class="spacer-md"></div>
-    <div class="container">
-        <div class="row">
-            <div class="center">
-                {{ travelreview.content|safe }}
+    {% with travelreview as review %}
+        <div class="spacer-xl"></div>
+        <div class="container">
+            <h3>{{ review.travel_info }}에 대한 여행지 리뷰</h3>
+            <div class="spacer-md"></div>
+            <div class="review">
+                <input class="review-id" type="hidden" value="{{ review.id }}">
+                <div class="row">
+                    <div class="col-md-1">
+                        <a href="{{ review.owner.get_absolute_url }}">
+                            {% if review.owner.thumbnail %}
+                                <img class="review-user-profile-img img-circle"
+                                     src="{{ review.owner.thumbnail.url }}" alt="">
+                            {% else %}
+                                <img class="review-user-profile-img img-circle"
+                                     src="{% static 'img/no-photo.png' %}" alt="">
+                            {% endif %}
+                        </a>
+                    </div>
+                    <div class="row col-md-11">
+                        <div class="review-user-name row">
+                            <a href="{{ review.owner.get_absolute_url }}">
+                                {{ review.owner.username }}
+                            </a>
+                        </div>
+                        <div class="row">
+                            <div class="review-rating col-md-2">
+                                <div id="travel-rating-{{ review.id }}"></div>
+                            </div>
+                            <div class="review-time col-md-7">
+                                {{ review.updated }}
+                            </div>
+                            <div class="review-ext col-md-3">
+                                    <span class="btn-tm-default btn-up {% if review.does_user_already_vote %}
+                                            btn-active{% endif %}">
+                                        <i class="fa fa-thumbs-o-up"></i>
+                                        좋아요 <span class="likes">{{ review.updown.likes }}</span>
+                                    </span>
+                                {% if user == review.owner %}
+                                    <a class="btn-danger btn-del" href="{% url 'travel_review:delete' review.id %}">
+                                        <i class="fa fa-trash-o"></i> 삭제
+                                    </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="spacer-sm"></div>
+                <div class="row">
+                    <div class="center">
+                        {% if review.tags.all %}
+                            <div class="tags">
+                                <i class="fa fa-tags"></i> {{ review.tags.all|join:', ' }}
+                            </div>
+                            <div class="spacer-sm"></div>
+                        {% endif %}
+                        {{ review.content|safe }}
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+    {% endwith %}
+{% endblock %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            $('.btn-up').click(function () {
+                var review_elem = $(this).closest('.review');
+                var review_id = review_elem.find('.review-id').val();
+                var url = "{% url 'profile:review_updown' user.id 0 %}".replace('/0', '/' + review_id);
+                if (review_elem.hasClass('google-review')) {
+                    url = "{% url 'profile:google_review_updown' user.id 0 %}".replace('/0', '/' + review_id);
+                }
+                var reverse_score = 0;
+                var btn_up = $(this);
+                var likes_elm = $(this).find('.likes');
+                $.ajax({
+                    type: 'GET',
+                    url: url,
+                    contentType: 'application/json',
+                    success: function (result) {
+                        reverse_score = result == 0 ? 1 : -parseInt(result);
+                        url = '/travel-review/' + review_id + '/rate/' + reverse_score;
+                        if (review_elem.hasClass('google-review')) {
+                            url = '/travel-review/google/' + review_id + '/rate/' + reverse_score;
+                        }
+                        $.ajax({
+                            type: 'GET',
+                            url: url,
+                            contentType: 'application/json',
+                            success: function (result) {
+                                var likes = parseInt(likes_elm.text());
+                                likes += reverse_score;
+                                likes_elm.text(likes);
+                                if (reverse_score > 0) {
+                                    btn_up.addClass('btn-active');
+                                }
+                                else {
+                                    btn_up.removeClass('btn-active');
+                                }
+                            },
+                            error: function (req, status, error) {
+                                alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+                            }
+                        });
+                    },
+                    error: function (req, status, error) {
+                        alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+                    }
+                });
+            });
+        })
+    </script>
 {% endblock %}

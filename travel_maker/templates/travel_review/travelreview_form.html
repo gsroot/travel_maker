@@ -12,7 +12,7 @@
         <div class="spacer-xl"></div>
         <div class="spacer-md"></div>
         <div class="header-title">
-            평가하기
+            여행지 리뷰 작성
         </div>
     </header>
 {% endblock %}
@@ -21,15 +21,17 @@
     <div class="spacer-md"></div>
     <div class="container">
         <form action="" method="post">
+            <label for="rating">
+                별점<span class="asteriskField">*</span>
+            </label>
             <div id="rating"></div>
+            <div class="spacer-sm"></div>
             {% crispy form %}
             <div class="col-md-6">
                 <button class="btn btn-block btn-tm-default" id="id-submit" type="submit">확인</button>
             </div>
             <div class="col-md-6">
-                <a class="btn btn-block btn-default" href="#">
-                    취소
-                </a>
+                <button class="btn btn-block btn-default btn-cancel">취소</button>
             </div>
         </form>
     </div>
@@ -74,6 +76,12 @@
                     $('#id_rating').val(integer + decimal);
                 }
             });
+
+            $('.btn-cancel').click(function () {
+                var current_url = window.location.href;
+                var travel_info_id = current_url.split('/').slice(-2)[0];
+                location.href = '{% url 'travel_info:detail' 0 %}'.replace('0', travel_info_id);
+            })
         })
     </script>
 {% endblock %}

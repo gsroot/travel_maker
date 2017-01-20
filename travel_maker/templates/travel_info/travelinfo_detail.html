@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% load static i18n %}
+{% load static i18n disqus_tags %}
 
 {% block title %}Travel Maker - {{ travelinfo.title }}{% endblock %}
 
@@ -43,6 +43,9 @@
                 {% include 'travel_info/snippets/item_blogs_info.html' %}
             </div>
         {% endautoescape %}
+        <div class="spacer-xl"></div>
+        {% disqus_show_comments %}
+        <div class="spacer-xl"></div>
     </div>
 {% endblock content %}
 
@@ -178,8 +181,9 @@
                 if (height >= max_height) {
                     var review_id = $(this).closest('.review').find('.review-id').val();
                     var url = "{% url 'travel_review:detail' 0 %}".replace('0', review_id);
-                    var more_review = '<a class="btn btn-block btn-default more-review" href="' + url + '">더보기</a>';
-                    $(this).append(more_review);
+                    var more_review = '<a class="more-review" href="' + url + '">리뷰 내용 더 보기</a>';
+                    $(this).closest('.review').append('<div class="fadeout"></div>');
+                    $(this).closest('.review').append(more_review);
                 }
             });
 
@@ -229,7 +233,7 @@
                 });
             });
 
-            $('#more_blogs a').click(function (e) {
+            $('#more-blogs a').click(function (e) {
                 $.ajax({
                     type: 'GET',
                     url: "{% url 'travel_info:blog_list_api' travelinfo.id %}",
@@ -240,7 +244,7 @@
                     },
                     success: function (result) {
                         if (result.toString().length == 0) {
-                            $('#more_blogs').remove();
+                            $('#more-blogs').remove();
                             return;
                         }
                         $('#item-blogs-info').append(result);

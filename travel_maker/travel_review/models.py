@@ -1,9 +1,11 @@
 from bs4 import BeautifulSoup
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator, MaxValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
 from django.urls import reverse
+from django.utils.translation import ugettext_lazy as _
+from taggit.managers import TaggableManager
 from updown.models import Vote
 
 from travel_maker.account.models import TmUser
@@ -15,7 +17,12 @@ class TravelReview(Votable):
     travel_info = models.ForeignKey(TravelInfo, on_delete=models.CASCADE)
     owner = models.ForeignKey(TmUser, on_delete=models.CASCADE)
     rating = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)])
-    content = models.CharField(max_length=5000)
+    content = models.CharField(max_length=5000, validators=[
+        RegexValidator(regex='^.{10,}$', message='최소 10글자 이상 입력해 주세요', code='tooshort')])
+    tags = TaggableManager(
+        blank=True,
+        help_text=_('각 태그는 쉼표(,)로 구분됩니다')
+    )
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 

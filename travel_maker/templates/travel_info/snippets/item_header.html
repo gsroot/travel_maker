@@ -50,11 +50,11 @@
                 {% if viewtype != 'popup' %}
                     <div class="item-header-right col-md-4">
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-5">
                                 <span><i class="fa fa-pencil-square-o fa-lg"></i></span>
-                                <span><a href="{% url 'travel_review:create' travelinfo.id %}">평가하기</a></span>
+                                <span><a href="{% url 'travel_review:create' travelinfo.id %}">리뷰 작성하기</a></span>
                             </div>
-                            <div class="travelbookmark-creation" class="col-md-8">
+                            <div class="travelbookmark-creation" class="col-md-6">
                                 <a href="javascript:void(0)">
                                     <form action="{% url 'travel_bookmark:create' %}" method="post">
                                         {% csrf_token %}
