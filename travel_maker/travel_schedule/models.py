@@ -18,7 +18,7 @@ class TravelSchedule(Votable):
     owner = ForeignKey(TmUser, on_delete=models.CASCADE)
     calendar = OneToOneField(Calendar, on_delete=models.CASCADE, null=True)
     title = CharField(max_length=200, verbose_name=_('여행의 이름을 지어주세요'))
-    description = TextField(max_length=5000, blank=True, verbose_name=_('여행에 대해 기록하고 싶은 세부 내용을 적어보세요'))
+    description = TextField(max_length=5000, blank=True, verbose_name=_('여행의 세부 내용을 적어주세요'))
     start = DateField(verbose_name=_('여행 첫째날'))
     end = DateField(verbose_name=_('여행 마지막날'))
     people_count = PositiveSmallIntegerField(
@@ -26,7 +26,7 @@ class TravelSchedule(Votable):
     )
     tags = TaggableManager(
         blank=True,
-        verbose_name=_('여행의 특징을 태그로 남겨보세요'),
+        verbose_name=_('여행의 특징을 태그로 표현해보세요'),
         help_text=_('각 태그는 쉼표(,)로 구분됩니다')
     )
     is_public = BooleanField(default=True)

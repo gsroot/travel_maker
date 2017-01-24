@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% load static i18n bootstrap_pagination %}
+
+{% block css %}
+    {{ block.super }}
+    <link href="{% static 'css/travel_info/travel_info.css' %}" rel="stylesheet">
+    <link href="{% static 'css/travel_info/nearby_spot_info_list.css' %}" rel="stylesheet">
+{% endblock %}
+
+{% block nav %}
+{% endblock %}
+
+{% block content %}
+    {% if nearbyspotinfo_list %}
+        <div id="item-nearby-info">
+            <h3>주변 여행지 정보</h3>
+            <div class="spacer-sm"></div>
+            <div class="row">
+                {% for info in nearbyspotinfo_list %}
+                    {% with info.center_spot as spot %}
+                        <div class="col-md-3">
+                            <a href="{{ spot.get_absolute_url }}" class="portfolio-box">
+                                <img src="{{ spot.image }}" class="img-responsive" alt="">
+                                <div class="portfolio-box-caption">
+                                    <div class="portfolio-box-caption-content">
+                                        <div class="project-category text-faded">
+                                            {{ spot.sigungu }}
+                                        </div>
+                                        <div class="project-name">
+                                            {{ spot.title }}
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="item-title">{{ spot.title }}</div>
+                                <div class="item-ext">
+                                    {{ spot.sigungu }} | {{ spot.contenttype }}<br>
+                                    {{ info.dist }}m 거리
+                                </div>
+                            </a>
+                        </div>
+                    {% endwith %}
+                {% endfor %}
+            </div>
+        </div>
+        <div class="spacer-md"></div>
+        <div class="center">
+            {% bootstrap_paginate page_obj range=10 previous_label='<' next_label='>' show_first_last='true' first_label='<<' last_label='>>' %}
+        </div>
+        <div class="spacer-sm divider"></div>
+        <div class="spacer-sm"></div>
+    {% endif %}
+{% endblock %}

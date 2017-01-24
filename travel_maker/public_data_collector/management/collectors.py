@@ -318,6 +318,7 @@ class TravelInfoWebCollector(WebCollector):
 
         info_dicts_to_create = []
         info_dicts_to_update = []
+
         for raw_info in raw_travel_info_dicts:
             existing_info = TravelInfo.objects.filter(id=raw_info['contentid'])
             modified = datetime.strptime(str(raw_info['modifiedtime']), '%Y%m%d%H%M%S')
@@ -724,7 +725,7 @@ class NearbySpotInfoWebCollector(AdditionalInfoWebCollector):
 
     def get_travel_infos(self):
         travel_infos = TravelInfo.objects.filter(
-            mapx__isnull=False, mapy__isnull=False, nearbyspotinfo__isnull=True
+            mapx__isnull=False, mapy__isnull=False, nearbyspotinfo_set__isnull=True
         ).distinct().order_by('modified')
 
         return travel_infos

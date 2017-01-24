@@ -73,6 +73,11 @@
     font-size: 18px;
 }
 
+#nearby-list-frame {
+    width: 100%;
+    height: 1300px;
+}
+
 #item-header-top .item-header-right {
     margin-top: 20px;
 }

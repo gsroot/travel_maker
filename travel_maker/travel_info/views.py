@@ -1,9 +1,8 @@
 # Create your views here.
 from statistics import mean
 
-from django.db.models import Avg, Count
-from django.db.models import Value
-from django.db.models.functions import Coalesce
+from django.db.models import F
+from django.db.models import Q
 from django.views.generic import DetailView
 from django.views.generic import ListView
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -12,10 +11,8 @@ from rest_framework.views import APIView
 
 from config.settings.base import NAVER_API_CLIENT_ID
 from travel_maker.blog_data_collector.models import BlogData
-from travel_maker.google_data_collector.models import GooglePlaceInfo
-from travel_maker.public_data_collector.models import TravelInfo, Area
+from travel_maker.public_data_collector.models import TravelInfo, NearbySpotInfo
 from travel_maker.travel_info.forms import TravelInfoSearchForm
-from travel_maker.travel_review.models import TravelReview
 
 
 class TravelInfoListView(ListView):
@@ -40,8 +37,10 @@ class TravelInfoListView(ListView):
         context = super().get_context_data(**kwargs)
         context.update(self.request.GET)
         travelinfo_list = context['travelinfo_list']
-        context['center_mapx'] = mean([spot.mapx for spot in travelinfo_list if spot.mapx])
-        context['center_mapy'] = mean([spot.mapy for spot in travelinfo_list if spot.mapy])
+        spot_mapx_list = [spot.mapx for spot in travelinfo_list if spot.mapx]
+        spot_mapy_list = [spot.mapy for spot in travelinfo_list if spot.mapy]
+        context['center_mapx'] = mean(spot_mapx_list) if spot_mapx_list else 0
+        context['center_mapy'] = mean(spot_mapy_list) if spot_mapy_list else 0
         context['naverapi_client_id'] = NAVER_API_CLIENT_ID
         context['form'] = TravelInfoSearchForm(self.request.GET) \
             if any([v != '' for v in self.request.GET.values()]) else TravelInfoSearchForm()
@@ -51,7 +50,7 @@ class TravelInfoListView(ListView):
 
 class TravelInfoDetailView(DetailView):
     model = TravelInfo
-    template_name = "travel_info/travelinfo_detail.html"
+    template_name = 'travel_info/travelinfo_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -67,6 +66,20 @@ class TravelInfoDetailView(DetailView):
                                      context['travelinfo'].travelreview_set.all()]
 
         return context
+
+
+class NearbySpotInfoListView(ListView):
+    template_name = 'travel_info/snippets/item_nearby_info.html'
+    paginate_by = 12
+
+    def get_queryset(self):
+        travel_info = TravelInfo.objects.filter(id=self.kwargs['pk']).exclude(contenttype__name='여행코스')
+        if not travel_info:
+            return []
+        queryset = NearbySpotInfo.objects.filter(target_spot=travel_info).exclude(
+            Q(center_spot=F('target_spot')) | Q(center_spot__contenttype__name='여행코스') | Q(dist=0)
+        ).order_by('dist')
+        return queryset
 
 
 class TravelInfoList(APIView):
@@ -93,7 +106,7 @@ class TravelInfoList(APIView):
         return Response({'travelinfo_list': self.get_queryset()})
 
 
-class NearbyTravelInfoList(APIView):
+class NearbySpotInfoList(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'travel_info/travelinfo_list_by_api.html'
 

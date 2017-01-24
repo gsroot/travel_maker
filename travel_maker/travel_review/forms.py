@@ -15,8 +15,8 @@ class TravelReviewCreateForm(ModelForm):
             'content': SummernoteWidget()
         }
         labels = {
-            'tags': _('여행지의 특징을 태그로 남겨보세요'),
-            'content': _('여행지에 대한 후기를 작성해주세요'),
+            'tags': _('여행지의 특징을 태그로 표현해보세요'),
+            'content': _('여행 후기를 작성해주세요'),
         }
 
     def __init__(self, *args, **kwargs):

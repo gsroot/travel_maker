@@ -436,8 +436,8 @@ class TravelImageInfo(TimeStamped):
 
 
 class NearbySpotInfo(TimeStamped):
-    center_spot = models.ForeignKey(TravelInfo, on_delete=models.CASCADE, related_name='nearbyspotinfo')
-    target_spot = models.ForeignKey(TravelInfo, on_delete=models.CASCADE, related_name='nearbyspotinfo2')
+    center_spot = models.ForeignKey(TravelInfo, on_delete=models.CASCADE, related_name='nearbyspotinfo_set')
+    target_spot = models.ForeignKey(TravelInfo, on_delete=models.CASCADE, related_name='nearbyspotinfo_set2')
     dist = models.PositiveIntegerField()
 
     class Meta:

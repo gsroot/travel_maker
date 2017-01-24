@@ -40,6 +40,11 @@
                 {% include 'travel_info/snippets/item_expguide.html' %}
                 {% include 'travel_info/snippets/item_detail_info.html' %}
                 {% include 'travel_info/snippets/item_reviews_info.html' %}
+                <div>
+                <iframe id='nearby-list-frame' src="{% url 'travel_info:nearby_list' travelinfo.id %}" frameborder="0"
+                    scrolling="no">
+                </iframe>
+                </div>
                 {% include 'travel_info/snippets/item_blogs_info.html' %}
             </div>
         {% endautoescape %}
