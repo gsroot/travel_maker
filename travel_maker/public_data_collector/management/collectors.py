@@ -349,6 +349,9 @@ class AdditionalInfoWebCollector(WebCollector):
         super().__init__()
         self.progress = AdditionalInfoProgress.objects.get_or_create(info_type=self.get_info_class().__name__)[0]
 
+    def get_travel_infos(self):
+        pass
+
     def init_progress(self, progress, target_info_count):
         if progress.last_progress_date.date() != datetime.today().date():
             progress.target_info_count = target_info_count
@@ -367,9 +370,6 @@ class AdditionalInfoWebCollector(WebCollector):
         progress.info_complete_count += 1
         progress.percent = int(progress.info_complete_count * 100 / progress.target_info_count)
         progress.save()
-
-    def get_travel_infos(self):
-        pass
 
     def get_info_class(self, contenttype_id=None):
         pass
@@ -600,9 +600,9 @@ class TravelIntroInfoWebCollector(OneToOneAditionalInfoWebCollector):
         }
         return query_params
 
-    def delete_expired_festivals(self, infos_to_delete):
+    def delete_expired_festivals(self, expired_festivals):
         deleted, deleted_count = TravelInfo.objects.filter(
-            id__in=[info.id for info in infos_to_delete]).delete()
+            id__in=[info.id for info in expired_festivals]).delete()
         print('=== deleted festival count ===\n{}'.format(deleted_count))
 
 
@@ -749,8 +749,8 @@ class NearbySpotInfoWebCollector(AdditionalInfoWebCollector):
 
         for travel_info in travel_infos:
             self.set_travel_info_to_progress(self.progress, travel_info)
-            query_params = self.get_query_params(travel_info)
 
+            query_params = self.get_query_params(travel_info)
             self.update_url(query_params)
             response = requests.get(self.url)
 

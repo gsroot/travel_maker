@@ -33,37 +33,80 @@ class WebCollector(Collector):
         if res_dict['status'] in ['ZERO_RESULTS', 'NOT_FOUND']:
             return None
         elif res_dict['status'] != 'OK':
-            msg = '  request failed!\n    url:{}\n    status:{}'.format(self.url, res_dict['status'])
+            msg = '  request failed!\n    url:{}\n    status:{}\n    error_message:{}'.format(
+                self.url, res_dict['status'], res_dict['error_message'])
             raise UserWarning(msg)
 
         return res_dict
 
 
-class GooglePlaceInfoCollector(WebCollector):
+class GoogleInfoCollector(WebCollector):
+    def __init__(self):
+        super().__init__()
+        self.progress = GoogleApiProgress.objects.get_or_create(collector_type=self.__class__.__name__)[0]
+
+    def get_target_infos(self):
+        pass
+
+    def init_progress(self, progress, target_info_count):
+        if progress.last_progress_date.date() != datetime.today().date():
+            progress.target_info_count = target_info_count
+            progress.info_complete_count = 0
+            if progress.target_info_count == 0:
+                progress.percent = 100
+            else:
+                progress.percent = 0
+            progress.save()
+
+    def set_target_info_to_progress(self, progress, target_info):
+        if target_info.__class__ == GooglePlaceInfo:
+            progress.travel_info = target_info
+        elif target_info.__class__ == GooglePlaceReviewInfo:
+            progress.place_info = target_info
+        progress.save()
+
+    def update_progress(self, progress):
+        progress.info_complete_count += 1
+        progress.percent = int(progress.info_complete_count * 100 / progress.target_info_count)
+        progress.save()
+
+    def get_query_params(self, travel_info):
+        pass
+
+    def run(self):
+        super().run()
+        if self.progress.last_progress_date.date() == datetime.today().date() and self.progress.percent >= 100:
+            print("  Nothing to do")
+            return
+        self.request()
+
+
+class GooglePlaceInfoCollector(GoogleInfoCollector):
     def __init__(self):
         super().__init__()
         self.operation = 'textsearch/json'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = GoogleApiProgress.objects.get_or_create(collector_type=self.__class__.__name__)[0]
-        self.progress.set_total_item_count(TravelInfo.objects.count())
+
+    def get_target_infos(self):
+        travel_infos = TravelInfo.objects.filter(googleplaceinfo__isnull=True).order_by('modified')
+        return travel_infos
+
+    def get_query_params(self, travel_info):
+        query_params = {
+            'query': travel_info.title,
+            'location': '{},{}'.format(travel_info.mapy, travel_info.mapx),
+            'radius': '10000',
+        }
+        return query_params
 
     def request(self):
-        progress = self.progress
-
-        travel_infos = TravelInfo.objects.all() if progress.travel_info is None \
-            else TravelInfo.objects.filter(id__gte=progress.travel_info.id).order_by('id')
+        travel_infos = self.get_target_infos()
+        self.init_progress(self.progress, travel_infos.count())
 
         for travel_info in travel_infos:
-            if GooglePlaceInfo.objects.filter(travel_info=travel_info).exists():
-                continue
-            progress.travel_info = travel_info
-            progress.save()
+            self.set_target_info_to_progress(self.progress, travel_info)
 
-            query_params = {
-                'query': travel_info.title,
-                'location': '{},{}'.format(travel_info.mapy, travel_info.mapx),
-                'radius': '10000',
-            }
+            query_params = self.get_query_params(travel_info)
             self.update_url(query_params)
             response = requests.get(self.url)
 
@@ -77,41 +120,33 @@ class GooglePlaceInfoCollector(WebCollector):
                 info_dict = res_dict['results'][0]
                 GooglePlaceInfo.objects.create(place_id=info_dict['place_id'], travel_info=travel_info)
 
-            progress.item_complete_count += 1
-            progress.percent = int(progress.item_complete_count * 100 / GoogleApiProgress.TOTAL_ITEM_CNT)
-            progress.save()
-
-    def run(self):
-        super().run()
-        if self.progress.percent >= 100:
-            print("  Nothing to do")
-            return
-        self.request()
+            self.update_progress(self.progress)
 
 
-class GooglePlaceReviewInfoCollector(WebCollector):
+class GooglePlaceReviewInfoCollector(GoogleInfoCollector):
     def __init__(self):
         super().__init__()
         self.operation = 'details/json'
         self.endpoint = urljoin(self.base_url, self.operation)
-        self.progress = GoogleApiProgress.objects.get_or_create(collector_type=self.__class__.__name__)[0]
-        self.progress.set_total_item_count(GooglePlaceInfo.objects.count())
+
+    def get_target_infos(self):
+        place_infos = GooglePlaceInfo.objects.filter(googleplacereviewinfo__isnull=True)
+        return place_infos
+
+    def get_query_params(self, place_info):
+        query_params = {
+            'placeid': place_info.place_id
+        }
+        return query_params
 
     def request(self):
-        progress = self.progress
-
-        place_infos = GooglePlaceInfo.objects.all() if progress.place_info is None \
-            else GooglePlaceInfo.objects.filter(id__gte=progress.place_info.id).order_by('id')
+        place_infos = self.get_target_infos()
+        self.init_progress(self.progress, place_infos.count())
 
         for place_info in place_infos:
-            if GooglePlaceReviewInfo.objects.filter(place_info=place_info).exists():
-                continue
-            progress.place_info = place_info
-            progress.save()
+            self.set_target_info_to_progress(self.progress, place_info)
 
-            query_params = {
-                'placeid': place_info.place_id
-            }
+            query_params = self.get_query_params()
             self.update_url(query_params)
             response = requests.get(self.url)
 
@@ -124,23 +159,13 @@ class GooglePlaceReviewInfoCollector(WebCollector):
             if res_dict:
                 if 'reviews' in res_dict['result']:
                     reviews = res_dict['result']['reviews']
-                    GooglePlaceReviewInfo.objects.bulk_create([
-                        GooglePlaceReviewInfo(
-                            place_info=place_info,
-                            author_name=review['author_name'],
-                            profile_photo_url=review['profile_photo_url'] if 'profile_photo_url' in review else '',
-                            rating=review['rating'], text=review['text'],
-                            time=datetime.fromtimestamp(float(review['time']))
-                        ) for review in reviews
-                    ])
+                    GooglePlaceReviewInfo.objects.bulk_create([GooglePlaceReviewInfo(
+                        place_info=place_info,
+                        author_name=review['author_name'],
+                        profile_photo_url=review[
+                            'profile_photo_url'] if 'profile_photo_url' in review else '',
+                        rating=review['rating'], text=review['text'],
+                        time=datetime.fromtimestamp(float(review['time']))
+                    ) for review in reviews])
 
-            progress.item_complete_count += 1
-            progress.percent = int(progress.item_complete_count * 100 / GoogleApiProgress.TOTAL_ITEM_CNT)
-            progress.save()
-
-    def run(self):
-        super().run()
-        if self.progress.percent >= 100:
-            print("  Nothing to do")
-            return
-        self.request()
+            self.update_progress(self.progress)

@@ -32,4 +32,4 @@ class BlogDataProgress(Progress):
     collector_type = models.CharField(max_length=100)
     travel_info = models.OneToOneField(TravelInfo, null=True, on_delete=models.SET_NULL)
     target_info_count = models.IntegerField(default=0)
-    item_complete_count = models.IntegerField(default=0)
+    info_complete_count = models.IntegerField(default=0)

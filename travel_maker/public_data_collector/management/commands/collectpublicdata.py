@@ -26,9 +26,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         TravelInfoWebCollector().run()
-        for idx, key in enumerate(WebCollector.service_keys):
-            for collector in self.collectors:
+        for collector in self.collectors:
+            for idx, key in enumerate(WebCollector.service_keys):
                 collector.run()
-            WebCollector.change_service_key(idx + 1)
+                WebCollector.change_service_key(idx + 1)
 
         return 'collecting data process complete.'

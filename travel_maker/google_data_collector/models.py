@@ -30,13 +30,8 @@ class Progress(models.Model):
 
 
 class GoogleApiProgress(Progress):
-    TOTAL_ITEM_CNT = 0
-
     collector_type = models.CharField(max_length=100)
     travel_info = models.OneToOneField(TravelInfo, null=True, on_delete=models.SET_NULL)
     place_info = models.OneToOneField(GooglePlaceInfo, null=True, on_delete=models.SET_NULL)
-    item_complete_count = models.IntegerField(default=0)
-
-    @classmethod
-    def set_total_item_count(cls, cnt):
-        cls.TOTAL_ITEM_CNT = cnt
+    target_info_count = models.IntegerField(default=0)
+    info_complete_count = models.IntegerField(default=0)
