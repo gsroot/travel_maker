@@ -14,7 +14,7 @@
     {% with travelreview as review %}
         <div class="spacer-xl"></div>
         <div class="container">
-            <h3>{{ review.travel_info }}에 대한 여행지 리뷰</h3>
+            <h3>"{{ review.travel_info }}"에 대한 리뷰</h3>
             <div class="spacer-md"></div>
             <div class="review">
                 <input class="review-id" type="hidden" value="{{ review.id }}">
@@ -43,18 +43,20 @@
                             <div class="review-time col-md-7">
                                 {{ review.updated }}
                             </div>
-                            <div class="review-ext col-md-3">
+                            {% if not user.is_anonymous %}
+                                <div class="review-ext col-md-3">
                                     <span class="btn-tm-default btn-up {% if review.does_user_already_vote %}
                                             btn-active{% endif %}">
                                         <i class="fa fa-thumbs-o-up"></i>
                                         좋아요 <span class="likes">{{ review.updown.likes }}</span>
                                     </span>
-                                {% if user == review.owner %}
-                                    <a class="btn-danger btn-del" href="{% url 'travel_review:delete' review.id %}">
-                                        <i class="fa fa-trash-o"></i> 삭제
-                                    </a>
-                                {% endif %}
-                            </div>
+                                    {% if user == review.owner %}
+                                        <a class="btn-danger btn-del" href="{% url 'travel_review:delete' review.id %}">
+                                            <i class="fa fa-trash-o"></i> 삭제
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -79,51 +81,53 @@
     {{ block.super }}
     <script>
         $(document).ready(function () {
-            $('.btn-up').click(function () {
-                var review_elem = $(this).closest('.review');
-                var review_id = review_elem.find('.review-id').val();
-                var url = "{% url 'profile:review_updown' user.id 0 %}".replace('/0', '/' + review_id);
-                if (review_elem.hasClass('google-review')) {
-                    url = "{% url 'profile:google_review_updown' user.id 0 %}".replace('/0', '/' + review_id);
-                }
-                var reverse_score = 0;
-                var btn_up = $(this);
-                var likes_elm = $(this).find('.likes');
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    contentType: 'application/json',
-                    success: function (result) {
-                        reverse_score = result == 0 ? 1 : -parseInt(result);
-                        url = '/travel-review/' + review_id + '/rate/' + reverse_score;
-                        if (review_elem.hasClass('google-review')) {
-                            url = '/travel-review/google/' + review_id + '/rate/' + reverse_score;
-                        }
-                        $.ajax({
-                            type: 'GET',
-                            url: url,
-                            contentType: 'application/json',
-                            success: function (result) {
-                                var likes = parseInt(likes_elm.text());
-                                likes += reverse_score;
-                                likes_elm.text(likes);
-                                if (reverse_score > 0) {
-                                    btn_up.addClass('btn-active');
-                                }
-                                else {
-                                    btn_up.removeClass('btn-active');
-                                }
-                            },
-                            error: function (req, status, error) {
-                                alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
-                            }
-                        });
-                    },
-                    error: function (req, status, error) {
-                        alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+            {% if not user.is_anonymous %}
+                $('.btn-up').click(function () {
+                    var review_elem = $(this).closest('.review');
+                    var review_id = review_elem.find('.review-id').val();
+                    var url = "{% url 'profile:review_updown' user.id 0 %}".replace('/0', '/' + review_id);
+                    if (review_elem.hasClass('google-review')) {
+                        url = "{% url 'profile:google_review_updown' user.id 0 %}".replace('/0', '/' + review_id);
                     }
+                    var reverse_score = 0;
+                    var btn_up = $(this);
+                    var likes_elm = $(this).find('.likes');
+                    $.ajax({
+                        type: 'GET',
+                        url: url,
+                        contentType: 'application/json',
+                        success: function (result) {
+                            reverse_score = result == 0 ? 1 : -parseInt(result);
+                            url = '/travel-review/' + review_id + '/rate/' + reverse_score;
+                            if (review_elem.hasClass('google-review')) {
+                                url = '/travel-review/google/' + review_id + '/rate/' + reverse_score;
+                            }
+                            $.ajax({
+                                type: 'GET',
+                                url: url,
+                                contentType: 'application/json',
+                                success: function (result) {
+                                    var likes = parseInt(likes_elm.text());
+                                    likes += reverse_score;
+                                    likes_elm.text(likes);
+                                    if (reverse_score > 0) {
+                                        btn_up.addClass('btn-active');
+                                    }
+                                    else {
+                                        btn_up.removeClass('btn-active');
+                                    }
+                                },
+                                error: function (req, status, error) {
+                                    alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+                                }
+                            });
+                        },
+                        error: function (req, status, error) {
+                            alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+                        }
+                    });
                 });
-            });
+            {% endif %}
         })
     </script>
 {% endblock %}

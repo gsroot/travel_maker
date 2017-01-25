@@ -60,7 +60,7 @@ a:hover {
 
 #travel-info-list {
     margin-top: 20px;
-    height: 800px;
+    height: 720px;
     overflow: auto;
 }
 
@@ -141,4 +141,12 @@ a:hover {
 .mfp-iframe-holder .mfp-content {
     max-width: none;
     width: 80%;
+}
+
+.checkbox-inline {
+    margin-left: 10px;
+}
+
+#mode-alert-msg {
+    margin-right: 10px;
 }

@@ -20,7 +20,7 @@
                 {% for info in nearbyspotinfo_list %}
                     {% with info.center_spot as spot %}
                         <div class="col-md-3">
-                            <a href="{{ spot.get_absolute_url }}" class="portfolio-box">
+                            <a class="portfolio-box" href="{{ spot.get_absolute_url }}" target="_blank">
                                 <img src="{{ spot.image }}" class="img-responsive" alt="">
                                 <div class="portfolio-box-caption">
                                     <div class="portfolio-box-caption-content">

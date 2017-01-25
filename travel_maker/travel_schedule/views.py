@@ -121,7 +121,7 @@ class TravelCalendarUpdateView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['area_list'] = Area.objects.all()
-        context['contenttype_list'] = ContentType.objects.filter(name__in=['관광지', '숙박', '쇼핑', '음식점'])
+        context['contenttype_list'] = ContentType.objects.exclude(name='여행코스')
         context['travelinfo_list'] = TravelInfo.objects.filter(contenttype__in=context['contenttype_list'])[:20]
 
         return context

@@ -26,6 +26,11 @@
                 {% endfor %}
             </div>
         </div>
+        <div class="spacer-sm"></div>
+        <div id="mode-alert" class="alert alert-info hidden" role="alert">
+            <span id="mode-alert-msg"></span>
+            <button id="mode-change" class="btn btn-danger btn-xs"><i class="fa fa-times"></i></button>
+        </div>
         <div id="travel-info-list">
             {% for travelinfo in travelinfo_list %}
                 <div class="fc-event ui-draggable ui-draggable-handle">

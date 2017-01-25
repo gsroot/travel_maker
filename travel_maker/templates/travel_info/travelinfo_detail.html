@@ -40,11 +40,11 @@
                 {% include 'travel_info/snippets/item_expguide.html' %}
                 {% include 'travel_info/snippets/item_detail_info.html' %}
                 {% include 'travel_info/snippets/item_reviews_info.html' %}
-                <div>
-                <iframe id='nearby-list-frame' src="{% url 'travel_info:nearby_list' travelinfo.id %}" frameborder="0"
-                    scrolling="no">
-                </iframe>
-                </div>
+                {% if travelinfo.title != '함덕 서우봉 해변' %}
+                    <iframe id='nearby-list-frame' src="{% url 'travel_info:nearby_list' travelinfo.id %}"
+                            frameborder="0" scrolling="no">
+                    </iframe>
+                {% endif %}
                 {% include 'travel_info/snippets/item_blogs_info.html' %}
             </div>
         {% endautoescape %}
@@ -174,12 +174,6 @@
                 });
             {% endfor %}
 
-            {% if viewtype == 'popup' %}
-                $('a').on('click', function (e) {
-                    e.preventDefault();
-                });
-            {% endif %}
-
             $('.review-content').each(function () {
                 var height = $(this).height();
                 var max_height = parseInt($(this).css('max-height'));
@@ -192,51 +186,53 @@
                 }
             });
 
-            $('.btn-up').click(function () {
-                var review_elem = $(this).closest('.review');
-                var review_id = review_elem.find('.review-id').val();
-                var url = "{% url 'profile:review_updown' user.id 0 %}".replace('/0', '/' + review_id);
-                if (review_elem.hasClass('google-review')) {
-                    url = "{% url 'profile:google_review_updown' user.id 0 %}".replace('/0', '/' + review_id);
-                }
-                var reverse_score = 0;
-                var btn_up = $(this);
-                var likes_elm = $(this).find('.likes');
-                $.ajax({
-                    type: 'GET',
-                    url: url,
-                    contentType: 'application/json',
-                    success: function (result) {
-                        reverse_score = result == 0 ? 1 : -parseInt(result);
-                        url = '/travel-review/' + review_id + '/rate/' + reverse_score;
-                        if (review_elem.hasClass('google-review')) {
-                            url = '/travel-review/google/' + review_id + '/rate/' + reverse_score;
-                        }
-                        $.ajax({
-                            type: 'GET',
-                            url: url,
-                            contentType: 'application/json',
-                            success: function (result) {
-                                var likes = parseInt(likes_elm.text());
-                                likes += reverse_score;
-                                likes_elm.text(likes);
-                                if (reverse_score > 0) {
-                                    btn_up.addClass('btn-active');
-                                }
-                                else {
-                                    btn_up.removeClass('btn-active');
-                                }
-                            },
-                            error: function (req, status, error) {
-                                alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
-                            }
-                        });
-                    },
-                    error: function (req, status, error) {
-                        alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+            {% if not user.is_anonymous %}
+                $('.btn-up').click(function () {
+                    var review_elem = $(this).closest('.review');
+                    var review_id = review_elem.find('.review-id').val();
+                    var url = "{% url 'profile:review_updown' user.id 0 %}".replace('/0', '/' + review_id);
+                    if (review_elem.hasClass('google-review')) {
+                        url = "{% url 'profile:google_review_updown' user.id 0 %}".replace('/0', '/' + review_id);
                     }
+                    var reverse_score = 0;
+                    var btn_up = $(this);
+                    var likes_elm = $(this).find('.likes');
+                    $.ajax({
+                        type: 'GET',
+                        url: url,
+                        contentType: 'application/json',
+                        success: function (result) {
+                            reverse_score = result == 0 ? 1 : -parseInt(result);
+                            url = '/travel-review/' + review_id + '/rate/' + reverse_score;
+                            if (review_elem.hasClass('google-review')) {
+                                url = '/travel-review/google/' + review_id + '/rate/' + reverse_score;
+                            }
+                            $.ajax({
+                                type: 'GET',
+                                url: url,
+                                contentType: 'application/json',
+                                success: function (result) {
+                                    var likes = parseInt(likes_elm.text());
+                                    likes += reverse_score;
+                                    likes_elm.text(likes);
+                                    if (reverse_score > 0) {
+                                        btn_up.addClass('btn-active');
+                                    }
+                                    else {
+                                        btn_up.removeClass('btn-active');
+                                    }
+                                },
+                                error: function (req, status, error) {
+                                    alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+                                }
+                            });
+                        },
+                        error: function (req, status, error) {
+                            alert('정상적으로 처리되지 않았습니다. 관리자에게 문의하세요.');
+                        }
+                    });
                 });
-            });
+            {% endif %}
 
             $('#more-blogs a').click(function (e) {
                 $.ajax({

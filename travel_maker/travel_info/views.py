@@ -59,17 +59,25 @@ class TravelInfoDetailView(DetailView):
         context['naverapi_client_id'] = NAVER_API_CLIENT_ID
 
         if hasattr(context['travelinfo'], 'googleplaceinfo'):
-            context['google_reviews'] = [review.set_does_user_already_vote(self.request.user) for review in
-                                         context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all()]
+            google_review_list = context['travelinfo'].googleplaceinfo.googleplacereviewinfo_set.all()
+            if self.request.user.is_anonymous():
+                context['google_reviews'] = [review for review in google_review_list]
+            else:
+                context['google_reviews'] = [review.set_does_user_already_vote(self.request.user) for review in
+                                             google_review_list]
 
-        context['travel_reviews'] = [review.set_does_user_already_vote(self.request.user) for review in
-                                     context['travelinfo'].travelreview_set.all()]
+        travel_review_list = context['travelinfo'].travelreview_set.all()
+        if self.request.user.is_anonymous():
+            context['travel_reviews'] = [review for review in travel_review_list]
+        else:
+            context['travel_reviews'] = [review.set_does_user_already_vote(self.request.user) for review in
+                                         travel_review_list]
 
         return context
 
 
 class NearbySpotInfoListView(ListView):
-    template_name = 'travel_info/snippets/item_nearby_info.html'
+    template_name = 'travel_info/nearbyspotinfo_list.html'
     paginate_by = 12
 
     def get_queryset(self):
@@ -87,7 +95,7 @@ class TravelInfoList(APIView):
     template_name = 'travel_info/travelinfo_list_by_api.html'
 
     def get_queryset(self):
-        queryset = TravelInfo.objects.filter(contenttype__name__in=['관광지', '숙박', '쇼핑', '음식점'])
+        queryset = TravelInfo.objects.exclude(contenttype__name='여행코스')
         area = self.request.query_params.get('area')
         title = self.request.query_params.get('name')
         contenttype_list = self.request.query_params.getlist('contenttype_list[]')
@@ -108,16 +116,27 @@ class TravelInfoList(APIView):
 
 class NearbySpotInfoList(APIView):
     renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'travel_info/travelinfo_list_by_api.html'
+    template_name = 'travel_info/nearbyspotinfo_list_by_api.html'
 
-    def get_queryset(self, pk):
-        queryset = TravelInfo.objects.filter(contenttype__name__in=['관광지', '숙박', '쇼핑', '음식점'])
+    def get_queryset(self):
+        queryset = NearbySpotInfo.objects.filter(target_spot=self.kwargs['pk']).exclude(
+            Q(center_spot=F('target_spot')) | Q(center_spot__contenttype__name='여행코스') | Q(dist=0)
+        ).order_by('dist')
+        area = self.request.query_params.get('area')
+        title = self.request.query_params.get('name')
+        contenttype_list = self.request.query_params.getlist('contenttype_list[]')
         page = int(self.request.query_params.get('page', 1))
+        if area:
+            queryset = queryset.filter(center_spot__sigungu__area=int(area))
+        if title:
+            queryset = queryset.filter(center_spot__title__contains=title)
+        if contenttype_list:
+            queryset = queryset.filter(center_spot__contenttype__in=contenttype_list)
         queryset = queryset[20 * (page - 1):20 * page]
         return queryset
 
     def get(self, request, pk):
-        return Response({'travelinfo_list': self.get_queryset(pk)})
+        return Response({'nearbyspotinfo_list': self.get_queryset()})
 
 
 class BlogList(APIView):

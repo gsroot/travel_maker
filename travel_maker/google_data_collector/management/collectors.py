@@ -2,6 +2,7 @@ from datetime import datetime
 from urllib.parse import urlencode, urljoin
 
 import requests
+from dateutil.relativedelta import relativedelta
 
 from config.settings.base import GOOGLE_API_KEY
 from travel_maker.google_data_collector.models import GooglePlaceInfo, GoogleApiProgress, GooglePlaceReviewInfo
@@ -49,19 +50,18 @@ class GoogleInfoCollector(WebCollector):
         pass
 
     def init_progress(self, progress, target_info_count):
-        if progress.last_progress_date.date() != datetime.today().date():
-            progress.target_info_count = target_info_count
-            progress.info_complete_count = 0
-            if progress.target_info_count == 0:
-                progress.percent = 100
-            else:
-                progress.percent = 0
-            progress.save()
+        progress.target_info_count = target_info_count
+        progress.info_complete_count = 0
+        if progress.target_info_count == 0:
+            progress.percent = 100
+        else:
+            progress.percent = 0
+        progress.save()
 
     def set_target_info_to_progress(self, progress, target_info):
-        if target_info.__class__ == GooglePlaceInfo:
+        if target_info.__class__ == TravelInfo:
             progress.travel_info = target_info
-        elif target_info.__class__ == GooglePlaceReviewInfo:
+        elif target_info.__class__ == GooglePlaceInfo:
             progress.place_info = target_info
         progress.save()
 
@@ -88,7 +88,9 @@ class GooglePlaceInfoCollector(GoogleInfoCollector):
         self.endpoint = urljoin(self.base_url, self.operation)
 
     def get_target_infos(self):
-        travel_infos = TravelInfo.objects.filter(googleplaceinfo__isnull=True).order_by('modified')
+        datetime_before = datetime.today().date() - relativedelta(days=5)
+        travel_infos = TravelInfo.objects.filter(tm_created__gte=datetime_before, googleplaceinfo__isnull=True) \
+            .order_by('modified')
         return travel_infos
 
     def get_query_params(self, travel_info):
@@ -146,7 +148,7 @@ class GooglePlaceReviewInfoCollector(GoogleInfoCollector):
         for place_info in place_infos:
             self.set_target_info_to_progress(self.progress, place_info)
 
-            query_params = self.get_query_params()
+            query_params = self.get_query_params(place_info)
             self.update_url(query_params)
             response = requests.get(self.url)
 

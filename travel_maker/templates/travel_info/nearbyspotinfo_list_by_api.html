@@ -1,0 +1,21 @@
+{% autoescape off %}
+    {% for info in nearbyspotinfo_list %}
+        {% with info.center_spot as spot %}
+            <div class="fc-event ui-draggable ui-draggable-handle">
+                <div class="hidden travelinfo-id">{{ spot.id }}</div>
+                <div class="row">
+                    <div class="col-md-5 travelinfo-image">
+                        <img class="travelinfo-image" src="{{ spot.thumbnail }}">
+                    </div>
+                    <div class="col-md-7 travelinfo-text">
+                        <div class="travelinfo-title">{{ spot.title }}</div>
+                        <div class="travelinfo-sigungu">{{ spot.sigungu }}</div>
+                        <div class="travelinfo-dist">{{ info.dist }}m 거리</div>
+                        <div class="spacer-xs"></div>
+                        <div class="travelinfo-contenttype">{{ spot.contenttype }}</div>
+                    </div>
+                </div>
+            </div>
+        {% endwith %}
+    {% endfor %}
+{% endautoescape %}
