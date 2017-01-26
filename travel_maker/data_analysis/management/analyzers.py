@@ -6,6 +6,8 @@ import pickle
 from konlpy.tag import Twitter
 
 from travel_maker.blog_data_collector.models import BlogData
+from travel_maker.data_analysis.models import DataAnalysisProgress
+from travel_maker.public_data_collector.models import TravelInfo
 
 
 class Analizer:
@@ -20,6 +22,8 @@ class BlogDataAnalizer(Analizer):
     words_and_ox_set = None
 
     def __init__(self):
+        super().__init__()
+        self.progress = DataAnalysisProgress.objects.get_or_create(collector_type=self.__class__.__name__)[0]
         self.pos_tagger = Twitter()
 
     def get_rating_filepath(self, target):
@@ -106,29 +110,69 @@ class BlogDataAnalizer(Analizer):
 
         return classifier
 
-    def run(self):
-        super().run()
+    def get_travel_infos(self):
+        travel_infos = TravelInfo.objects.filter(score__isnull=True, blogdata__isnull=False).distinct().order_by('id')
 
+        return travel_infos
+
+    def init_progress(self, progress, target_info_count):
+        progress.target_info_count = target_info_count
+        progress.info_complete_count = 0
+        if progress.target_info_count == 0:
+            progress.percent = 100
+        else:
+            progress.percent = 0
+        progress.save()
+
+    def set_travel_info_to_progress(self, progress, travel_info):
+        progress.travel_info = travel_info
+        progress.save()
+
+    def update_progress(self, progress):
+        progress.info_complete_count += 1
+        progress.percent = int(progress.info_complete_count * 100 / progress.target_info_count)
+        progress.save()
+
+    def get_score(self, travel_info):
+        blog_count = travel_info.blogdata_set.all().count()
+        blog_count = 30 if blog_count >= 30 else blog_count
+        blog_score = travel_info.blog_score * (0.66 + 0.44 * blog_count / 30) if travel_info.blog_score else 30
+        google_review_count = travel_info.googleplaceinfo.googleplacereviewinfo_set.all().count() \
+            if hasattr(travel_info, 'googleplaceinfo') else 0
+        rating_count = google_review_count + travel_info.travelreview_set.all().count()
+        rating_count = 5 if rating_count >= 5 else rating_count
+        rating_score = travel_info.rating * 20 * (1.2 + 0.8 * rating_count / 5) if travel_info.rating else 60
+        score = int(round(blog_score + rating_score, 2))
+        return score
+
+    def score_travel_info(self):
         try:
             classifier = self.load_classifier()
         except IOError:
             classifier = self.get_train_classifier()
 
-        # TODO: 블로그별 점수 저장, 여행지 점수 산정
-        blogs = BlogData.objects.filter(travel_info__title__contains='함덕')[:30]
+        travel_infos = self.get_travel_infos()
+        self.init_progress(self.progress, travel_infos.count())
 
-        points = []
-        for blog in blogs:
-            print(blog.title)
-            score = [0, 0]
+        for travel_info in travel_infos:
+            self.set_travel_info_to_progress(self.progress, travel_info)
 
-            words = self.tokenize(blog.text)
-            if classifier.classify(self.text_features(words)) == '1':
-                score[0] += 1
-            elif classifier.classify(self.text_features(words)) == '0':
-                score[1] += 1
+            if not travel_info.blog_score:
+                blogs = BlogData.objects.filter(travel_info=travel_info)[:30]
+                points = []
+                for blog in blogs:
+                    words = self.tokenize(blog.text)
+                    blog.point = 1 if classifier.classify(self.text_features(words)) == '1' else 0
+                    blog.save()
+                    points.append(blog.point)
+                travel_info.blog_score = round(mean(points), 2) * 100 if points else 0
 
-            print(score)
-            point = (score[0] / (score[0] + score[1]))
-            points.append(point)
-        print(mean(points))
+            travel_info.score = self.get_score(travel_info)
+            print('{}: 블로그 {}점 총 {}점'.format(travel_info.title, travel_info.blog_score, travel_info.score))
+            travel_info.save()
+
+            self.update_progress(self.progress)
+
+    def run(self):
+        super().run()
+        self.score_travel_info()

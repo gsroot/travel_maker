@@ -15,6 +15,7 @@ class BlogData(models.Model):
     postdate = DateField(null=True, blank=True)
     text = TextField()
     tags = TaggableManager()
+    point = models.PositiveSmallIntegerField(null=True)
 
     class Meta:
         unique_together = ('travel_info', 'link')

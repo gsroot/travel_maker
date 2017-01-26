@@ -1,10 +1,8 @@
 # Create your views here.
 from statistics import mean
 
-from django.db.models import F
-from django.db.models import Q
-from django.views.generic import DetailView
-from django.views.generic import ListView
+from django.db.models import F, Q, Count
+from django.views.generic import DetailView, ListView
 from rest_framework.renderers import TemplateHTMLRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -30,6 +28,8 @@ class TravelInfoListView(ListView):
 
         if self.request.GET.get('name'):
             queryset = queryset.filter(title__contains=self.request.GET.get('name'))
+
+        queryset = queryset.annotate(score_cnt=Count('score')).order_by('-score_cnt', '-score', 'id')
 
         return queryset
 

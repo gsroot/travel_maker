@@ -118,6 +118,8 @@ class TravelInfo(TimeStamped):
     readcount = models.IntegerField(null=True)
     created = models.DateTimeField(null=True, blank=True)
     modified = models.DateTimeField(null=True, blank=True)
+    blog_score = models.PositiveSmallIntegerField(null=True)
+    score = models.PositiveIntegerField(null=True)
 
     class Meta:
         ordering = ['id']

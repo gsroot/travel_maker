@@ -50,7 +50,13 @@
                         <div class="spacer-lg"></div>
                         <div class="row">
                             <div class="col-md-3">
-                                <div class="item-stat-count">97</div>
+                                <div class="item-stat-count">
+                                    {% if info.score %}
+                                        {{ info.score }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </div>
                                 <div class="item-stat-title">점수</div>
                             </div>
                             <div class="col-md-3">

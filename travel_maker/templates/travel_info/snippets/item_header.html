@@ -26,7 +26,13 @@
             <div class="row">
                 <div class="item-header-left">
                     <div class="col-md-1">
-                        <div class="item-stat-count">97</div>
+                        <div class="item-stat-count">
+                            {% if travelinfo.score %}
+                                {{ travelinfo.score }}
+                            {% else %}
+                                0
+                            {% endif %}
+                        </div>
                         <div class="item-stat-title">점수</div>
                     </div>
                     <div class="col-md-1">
