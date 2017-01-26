@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from travel_maker.data_analysis.models import DataAnalysisProgress
+
+
+class DataAnalysisProgressAdmin(admin.ModelAdmin):
+    list_display = [f.name for f in DataAnalysisProgress._meta.fields]
+
+
+admin.site.register(DataAnalysisProgress, DataAnalysisProgressAdmin)

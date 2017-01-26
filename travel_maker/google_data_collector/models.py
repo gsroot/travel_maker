@@ -8,8 +8,8 @@ class GooglePlaceInfo(models.Model):
     place_id = models.CharField(max_length=100)
     travel_info = models.OneToOneField(TravelInfo, on_delete=models.CASCADE)
 
-    class Meta:
-        ordering = ['id']
+    def __str__(self):
+        return self.travel_info.title
 
 
 class GooglePlaceReviewInfo(Votable):
@@ -19,6 +19,9 @@ class GooglePlaceReviewInfo(Votable):
     rating = models.PositiveSmallIntegerField()
     text = models.CharField(max_length=2000)
     time = models.DateTimeField()
+
+    def __str__(self):
+        return self.place_info.__str__()
 
 
 class Progress(models.Model):

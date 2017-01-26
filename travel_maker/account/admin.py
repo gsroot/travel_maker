@@ -19,7 +19,7 @@ class TmUserAdmin(UserAdmin):
             'fields': ('email', 'username', 'password1', 'password2')}
          ),
     )
-    list_display = ('email', 'username', 'is_staff')
+    list_display = [f.name for f in TmUser._meta.fields]
     search_fields = ('email', 'username')
 
 

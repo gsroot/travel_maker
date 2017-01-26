@@ -18,11 +18,10 @@ class HomeView(FormView):
         ).exclude(image='').annotate(score_cnt=Count('score')).order_by('-score_cnt', '-score', 'id')[:24]
         context['popular_tourspot_list_2'] = context['popular_tourspot_list_1'][:6]
 
-        schedules = TravelSchedule.objects.filter(is_public=True)
-        context['popular_travelschedule_list'] = sorted(schedules, key=lambda s: s.updown.likes, reverse=True)[:12]
+        context['popular_travelschedule_list'] = TravelSchedule.objects.filter(is_public=True).order_by(
+            '-updown_likes')[:12]
 
-        reviews = TravelReview.objects.all()
-        context['recent_review_list'] = sorted(reviews, key=lambda r: r.updown.likes, reverse=True)[:12]
+        context['recent_review_list'] = TravelReview.objects.all().order_by('-updown_likes')[:12]
 
         return context
 
