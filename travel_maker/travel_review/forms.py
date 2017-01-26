@@ -18,6 +18,9 @@ class TravelReviewCreateForm(ModelForm):
             'tags': _('여행지의 특징을 태그로 표현해보세요'),
             'content': _('여행 후기를 작성해주세요'),
         }
+        help_texts = {
+            'tags': _('각 태그는 쉼표(,)로 구분됩니다')
+        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

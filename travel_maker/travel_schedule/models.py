@@ -17,18 +17,14 @@ from travel_maker.public_data_collector.models import TravelInfo
 class TravelSchedule(Votable):
     owner = ForeignKey(TmUser, on_delete=models.CASCADE)
     calendar = OneToOneField(Calendar, on_delete=models.CASCADE, null=True)
-    title = CharField(max_length=200, verbose_name=_('여행의 이름을 지어주세요'))
-    description = TextField(max_length=5000, blank=True, verbose_name=_('여행의 세부 내용을 적어주세요'))
-    start = DateField(verbose_name=_('여행 첫째날'))
-    end = DateField(verbose_name=_('여행 마지막날'))
+    title = CharField(max_length=200)
+    description = TextField(max_length=5000, blank=True)
+    start = DateField()
+    end = DateField()
     people_count = PositiveSmallIntegerField(
-        default=1, validators=[MinValueValidator(1), MaxValueValidator(100)], verbose_name=_('여행 인원')
+        default=1, validators=[MinValueValidator(1), MaxValueValidator(100)]
     )
-    tags = TaggableManager(
-        blank=True,
-        verbose_name=_('여행의 특징을 태그로 표현해보세요'),
-        help_text=_('각 태그는 쉼표(,)로 구분됩니다')
-    )
+    tags = TaggableManager(blank=True)
     is_public = BooleanField(default=True)
 
     class Meta:

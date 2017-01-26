@@ -2,6 +2,7 @@ from crispy_forms.bootstrap import FormActions
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Fieldset, Field, Div, HTML
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from travel_maker.travel_schedule.models import TravelSchedule
 
@@ -14,6 +15,17 @@ class TravelScheduleForm(forms.ModelForm):
             'start': forms.DateInput(attrs={'readonly': 'true'}),
             'end': forms.DateInput(attrs={'readonly': 'true'}),
             'people_count': forms.NumberInput(attrs={'min': '1', 'max': '100'}),
+        }
+        labels = {
+            'title': _('여행의 이름을 지어주세요'),
+            'description': _('여행의 세부 내용을 적어주세요'),
+            'start': _('여행 첫째날'),
+            'end': _('여행 마지막날'),
+            'people_count': _('여행인원'),
+            'tags': _('여행의 특징을 태그로 표현해보세요'),
+        }
+        help_texts = {
+            'tags': _('각 태그는 쉼표(,)로 구분됩니다')
         }
 
     def __init__(self, *args, **kwargs):
