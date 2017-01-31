@@ -98,52 +98,58 @@
             <div class="spacer-sm"></div>
             <div class="row">
                 {% for review in recent_review_list %}
-                    <div class="row">
-                        <div class="col-md-3">
-                            {% with review.travel_info as info %}
-                                <a href="{{ info.get_absolute_url }}">
-                                    <div class="item-title">{{ info.title }}</div>
-                                </a>
-                                <div class="item-ext">{{ info.sigungu }} | {{ info.contenttype }}</div>
-                            {% endwith %}
-                        </div>
-                        <div class="col-md-9">
-                            <div class="spacer-sm"></div>
-                            <div class="row">
-                                <div class="col-md-1">
-                                    <a href="{{ review.owner.get_absolute_url }}">
-                                        {% if review.owner.thumbnail %}
-                                            <img class="review-user-profile-img img-circle"
-                                                 src="{{ review.owner.thumbnail.url }}" alt="">
-                                        {% else %}
-                                            <img class="review-user-profile-img img-circle"
-                                                 src="{% static 'img/no-photo.png' %}" alt="">
-                                        {% endif %}
+                    <div class="review">
+                        <input class="review-id" type="hidden" value="{{ review.id }}">
+                        <div class="row">
+                            <div class="col-md-3">
+                                {% with review.travel_info as info %}
+                                    <a href="{{ info.get_absolute_url }}">
+                                        <div class="item-title">{{ info.title }}</div>
                                     </a>
-                                </div>
-                                <div class="row col-md-11">
-                                    <div class="row">
-                                        <a class="review-user-name" href="{{ review.owner.get_absolute_url }}">
-                                            {{ review.owner.username }}
+                                    <div class="item-ext">{{ info.sigungu }} | {{ info.contenttype }}</div>
+                                {% endwith %}
+                            </div>
+                            <div class="col-md-9">
+                                <div class="spacer-sm"></div>
+                                <div class="row">
+                                    <div class="col-md-1">
+                                        <a href="{{ review.owner.get_absolute_url }}">
+                                            {% if review.owner.thumbnail %}
+                                                <img class="review-user-profile-img img-circle"
+                                                     src="{{ review.owner.thumbnail.url }}" alt="">
+                                            {% else %}
+                                                <img class="review-user-profile-img img-circle"
+                                                     src="{% static 'img/no-photo.png' %}" alt="">
+                                            {% endif %}
                                         </a>
                                     </div>
-                                    <div class="row">
-                                        <div class="review-rating col-md-2">
-                                            <div id="travel-rating-{{ review.id }}"></div>
+                                    <div class="row col-md-11">
+                                        <div class="row">
+                                            <a class="review-user-name" href="{{ review.owner.get_absolute_url }}">
+                                                {{ review.owner.username }}
+                                            </a>
                                         </div>
-                                        <div class="review-time col-md-9">
-                                            {{ review.updated }}
+                                        <div class="row">
+                                            <div class="review-rating col-md-2">
+                                                <div id="travel-rating-{{ review.id }}"></div>
+                                            </div>
+                                            <div class="review-time col-md-9">
+                                                {{ review.updated }}
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="spacer-sm"></div>
-                            <div class="row">
-                                <div class="col-md-1"></div>
-                                <div class="col-md-11 review-content">
-                                    <input class="travel-review-id" type="hidden" value="{{ review.id }}">
-                                    <div>
-                                        {{ review.text|safe }}
+                                <div class="spacer-sm"></div>
+                                <div class="row">
+                                    <div class="col-md-1"></div>
+                                    <div class="col-md-11 review-content">
+                                        {% if review.tags.all %}
+                                            <div class="tags">
+                                                <i class="fa fa-tags"></i> {{ review.tags.all|join:', ' }}
+                                            </div>
+                                            <div class="spacer-sm"></div>
+                                        {% endif %}
+                                        {{ review.content|safe }}
                                     </div>
                                 </div>
                             </div>
@@ -175,6 +181,18 @@
                     score: {{ review.rating }}
                 });
             {% endfor %}
+
+            $('.review-content').each(function () {
+                var height = $(this).height();
+                var max_height = parseInt($(this).css('max-height'));
+                if (height >= max_height) {
+                    var review_id = $(this).closest('.review').find('.review-id').val();
+                    var url = "{% url 'travel_review:detail' 0 %}".replace('0', review_id);
+                    var more_review = '<a class="more-review" href="' + url + '">리뷰 내용 더 보기</a>';
+                    $(this).closest('.review').append('<div class="fadeout"></div>');
+                    $(this).closest('.review').append(more_review);
+                }
+            });
         })
     </script>
 {% endblock %}
