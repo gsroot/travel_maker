@@ -114,6 +114,30 @@ class TravelInfoList(APIView):
         return Response({'travelinfo_list': self.get_queryset()})
 
 
+class BookmarkList(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'travel_info/travelinfo_list_by_api.html'
+
+    def get_queryset(self):
+        queryset = TravelInfo.objects.filter(travelbookmark__isnull=False).exclude(contenttype__name='여행코스')
+        area = self.request.query_params.get('area')
+        title = self.request.query_params.get('name')
+        contenttype_list = self.request.query_params.getlist('contenttype_list[]')
+        page = int(self.request.query_params.get('page', 1))
+        if area:
+            queryset = queryset.filter(sigungu__area=int(area))
+        if title:
+            queryset = queryset.filter(title__contains=title)
+        if contenttype_list:
+            queryset = queryset.filter(contenttype__in=contenttype_list)
+
+        queryset = queryset.distinct()[20 * (page - 1):20 * page]
+        return queryset
+
+    def get(self, request):
+        return Response({'travelinfo_list': self.get_queryset()})
+
+
 class NearbySpotInfoList(APIView):
     renderer_classes = [TemplateHTMLRenderer]
     template_name = 'travel_info/nearbyspotinfo_list_by_api.html'

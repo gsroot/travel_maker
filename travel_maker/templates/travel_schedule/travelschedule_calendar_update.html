@@ -62,14 +62,17 @@
             var schedule_start = moment('{{ travelschedule.start|date:"c" }}');
             var schedule_end = moment('{{ travelschedule.end|date:"c" }}');
             var event;
-            var is_nearby_mode = false;
+            var search_mode = 'default';
 
             var set_waypoint = function () {
                 new Waypoint({
                     element: document.getElementById('waypoint'),
                     handler: function (direction) {
-                        if (is_nearby_mode) {
+                        if (search_mode == 'nearby') {
                             get_nearbyspotinfos();
+                        }
+                        else if (search_mode == 'bookmark') {
+                            get_bookmarks();
                         }
                         else {
                             get_travelinfos();
@@ -80,6 +83,13 @@
                     offset: '110%'
                 });
             };
+
+            function init_options() {
+                $('#area-search').val('');
+                $('#name-search').val('');
+                $('#contenttype-search').find('input').attr('checked', false);
+                contenttype_list = [];
+            }
 
             var init_external_events = function () {
                 Waypoint.destroyAll();
@@ -103,9 +113,42 @@
                         Waypoint.destroyAll();
                         $('#waypoint').before(result);
                         page += 1;
-                        setTimeout(function () {
-                            set_waypoint();
-                        }, 2000);
+                        if (result.trim()) {
+                            setTimeout(function () {
+                                set_waypoint();
+                            }, 2000);
+                        }
+                        $('#external-events .fc-event').each(function () {
+                            set_external_event($(this));
+                        });
+                    },
+                    error: function (req, status, error) {
+                        alert('여행 정보를 가져오는데 문제가 있습니다. 관리자에게 문의하세요.');
+                    }
+                });
+            };
+
+            var get_bookmarks = function () {
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'travel_info:bookmark_list_api' %}",
+                    contentType: 'application/json',
+                    dataType: 'html',
+                    data: {
+                        area: $('#area-search').val(),
+                        name: $('#name-search').val(),
+                        contenttype_list: contenttype_list,
+                        page: page
+                    },
+                    success: function (result) {
+                        Waypoint.destroyAll();
+                        $('#waypoint').before(result);
+                        page += 1;
+                        if (result.trim()) {
+                            setTimeout(function () {
+                                set_waypoint();
+                            }, 2000);
+                        }
                         $('#external-events .fc-event').each(function () {
                             set_external_event($(this));
                         });
@@ -133,9 +176,11 @@
                         Waypoint.destroyAll();
                         $('#waypoint').before(result);
                         page += 1;
-                        setTimeout(function () {
-                            set_waypoint();
-                        }, 2000);
+                        if (result.trim()) {
+                            setTimeout(function () {
+                                set_waypoint();
+                            }, 2000);
+                        }
                         $('#external-events .fc-event').each(function () {
                             set_external_event($(this));
                         });
@@ -148,8 +193,11 @@
 
             var search = function () {
                 init_external_events();
-                if (is_nearby_mode) {
+                if (search_mode == 'nearby') {
                     get_nearbyspotinfos();
+                }
+                else if (search_mode == 'bookmark') {
+                    get_bookmarks();
                 }
                 else {
                     get_travelinfos();
@@ -193,6 +241,26 @@
             };
 
             set_waypoint();
+
+            $('.nav-tab').click(function () {
+                if ($(this).is('#nav-tab-search')) {
+                    search_mode = 'default';
+                } else if ($(this).is('#nav-tab-bookmark')) {
+                    search_mode = 'bookmark';
+                }
+
+                init_options();
+                var mode_alert = $('#mode-alert');
+                if (!mode_alert.hasClass('hidden')) {
+                    mode_alert.addClass('hidden');
+                }
+                search();
+
+                $(this).siblings().removeClass('active');
+                if (!$(this).hasClass("active")) {
+                    $(this).addClass('active');
+                }
+            });
 
             $('#area-search').change(function () {
                 search();
@@ -264,17 +332,21 @@
             });
 
             $('#show-nearby-items').click(function () {
-                is_nearby_mode = true;
+                search_mode = 'nearby';
                 init_external_events();
                 get_nearbyspotinfos();
                 show_current_mode(event.title);
             });
 
-            $('#mode-change').click(function () {
-                is_nearby_mode = false;
+            $('#nearby-mode-exit').click(function () {
                 init_external_events();
                 $('#mode-alert').addClass('hidden');
-                get_travelinfos();
+                if ($('#nav-tab-search').hasClass('active')) {
+                    search_mode = 'default';
+                    get_travelinfos();
+                } else if ($('#nav-tab-bookmark').hasClass('active')) {
+                    $('#nav-tab-search').click();
+                }
             });
 
             $('#show-event-change-modal').click(function () {

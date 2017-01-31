@@ -1,8 +1,9 @@
-<div class="external_events_pannel">
+<div class="external-events-pannel">
     <ul class="nav nav-tabs">
-        <li role="presentation" class="nav-tab active"><a href="#">검색</a></li>
-        <li role="presentation" class="nav-tab"><a href="#">관심 여행지</a></li>
+        <li role="presentation" id="nav-tab-search" class="nav-tab active"><a href="javascript:void(0)">검색</a></li>
+        <li role="presentation" id="nav-tab-bookmark" class="nav-tab"><a href="javascript:void(0)">관심 여행지</a></li>
     </ul>
+
     <div id="external-events" class="box">
         <div class="search">
             <label for="area-search">지역</label>
@@ -29,7 +30,7 @@
         <div class="spacer-sm"></div>
         <div id="mode-alert" class="alert alert-info hidden" role="alert">
             <span id="mode-alert-msg"></span>
-            <button id="mode-change" class="btn btn-danger btn-xs"><i class="fa fa-times"></i></button>
+            <button id="nearby-mode-exit" class="btn btn-danger btn-xs"><i class="fa fa-times"></i></button>
         </div>
         <div id="travel-info-list">
             {% for travelinfo in travelinfo_list %}
