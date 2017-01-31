@@ -25,7 +25,7 @@ from travel_maker.views import HomeView
 urlpatterns = [
     url(r'^admin/filebrowser/', include(site.urls)),
     url(r'^grappelli/', include('grappelli.urls')),
-    url(r'^admin/', admin.site.urls),
+    url(r'^tm-admin/', admin.site.urls),
     url(r'^$', HomeView.as_view(), name='home'),
     url(r'^accounts/profile/(?P<pk>\d+)/', include('travel_maker.account.urls', namespace='profile')),
     url(r'^accounts/', include('allauth.urls')),

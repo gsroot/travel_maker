@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.10/ref/settings/
 """
 
+import os
+
 import environ
 from django.urls import reverse_lazy
 
@@ -24,18 +26,18 @@ env.read_env()
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('DJANGO_SECRET_KEY')
+SECRET_KEY = env('DJANGO_SECRET_KEY', default=os.environ['DJANGO_SECRET_KEY'])
 
-TRAVEL_API_SECRET_KEY_LIST = env.list('TRAVEL_API_SECRET_KEY_LIST')
+TRAVEL_API_SECRET_KEY_LIST = env.list('TRAVEL_API_SECRET_KEY_LIST', default=os.environ['TRAVEL_API_SECRET_KEY_LIST'])
 
-GOOGLE_API_KEY = env('GOOGLE_API_KEY')
+GOOGLE_API_KEY = env('GOOGLE_API_KEY', default=os.environ['GOOGLE_API_KEY'])
 
-NAVER_API_CLIENT_ID = env('NAVER_API_CLIENT_ID')
+NAVER_API_CLIENT_ID = env('NAVER_API_CLIENT_ID', default=os.environ['NAVER_API_CLIENT_ID'])
 
-NAVER_API_CLIENT_SECRET = env('NAVER_API_CLIENT_SECRET')
+NAVER_API_CLIENT_SECRET = env('NAVER_API_CLIENT_SECRET', default=os.environ['NAVER_API_CLIENT_SECRET'])
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DJANGO_DEBUG', False)
+DEBUG = env.bool('DJANGO_DEBUG', default=os.environ['DJANGO_DEBUG'])
 
 ALLOWED_HOSTS = []
 
@@ -118,7 +120,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # https://docs.djangoproject.com/en/1.10/ref/settings/#databases
 
 DATABASES = {
-    'default': env.db('DATABASE_URL'),
+    'default': env.db('DATABASE_URL', default=os.environ['DATABASE_URL']),
 }
 
 # Password validation
@@ -165,14 +167,11 @@ STATICFILES_DIRS = (
     str(APPS_DIR.path('static')),
 )
 
-
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = str(RESOURCE_DIR.path('media'))
 
-
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
 
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
@@ -208,25 +207,23 @@ SOCIALACCOUNT_FORMS = {
 
 LOGIN_REDIRECT_URL = reverse_lazy('home')
 
-
 SUMMERNOTE_CONFIG = {
     'lang': 'ko-KR',
     'attachment_filesize_limit': 1024 * 1024,
     'toolbar': [
-            ['style', ['style']],
-            ['font', ['bold', 'italic', 'underline', 'superscript', 'subscript',
-                      'strikethrough', 'clear']],
-            ['fontname', ['fontname']],
-            ['fontsize', ['fontsize']],
-            ['color', ['color']],
-            ['para', ['ul', 'ol', 'paragraph']],
-            ['height', ['height']],
-            ['table', ['table']],
-            ['insert', ['link', 'picture', 'video', 'hr']],
-            ['view', ['fullscreen', 'codeview']],
+        ['style', ['style']],
+        ['font', ['bold', 'italic', 'underline', 'superscript', 'subscript',
+                  'strikethrough', 'clear']],
+        ['fontname', ['fontname']],
+        ['fontsize', ['fontsize']],
+        ['color', ['color']],
+        ['para', ['ul', 'ol', 'paragraph']],
+        ['height', ['height']],
+        ['table', ['table']],
+        ['insert', ['link', 'picture', 'video', 'hr']],
+        ['view', ['fullscreen', 'codeview']],
     ],
 }
-
 
 DISQUS_API_KEY = 'FsCjsn3hoMOx9B6AV9FpYycKe6HlUYqUR2fGqxbX4baQBOzKwtvU616EktHR6f4K'
 DISQUS_WEBSITE_SHORTNAME = 'travelmaker'
