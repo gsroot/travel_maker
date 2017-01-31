@@ -132,7 +132,9 @@ class GooglePlaceReviewInfoCollector(GoogleInfoCollector):
         self.endpoint = urljoin(self.base_url, self.operation)
 
     def get_target_infos(self):
-        place_infos = GooglePlaceInfo.objects.filter(googleplacereviewinfo__isnull=True)
+        datetime_before = datetime.today().date() - relativedelta(days=5)
+        place_infos = GooglePlaceInfo.objects.filter(tm_created__gte=datetime_before,
+                                                     googleplacereviewinfo__isnull=True)
         return place_infos
 
     def get_query_params(self, place_info):
