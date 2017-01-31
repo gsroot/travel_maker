@@ -37,7 +37,7 @@ NAVER_API_CLIENT_ID = env('NAVER_API_CLIENT_ID', default=os.environ['NAVER_API_C
 NAVER_API_CLIENT_SECRET = env('NAVER_API_CLIENT_SECRET', default=os.environ['NAVER_API_CLIENT_SECRET'])
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DJANGO_DEBUG', default=os.environ['DJANGO_DEBUG'])
+DEBUG = env.bool('DJANGO_DEBUG', default=False)
 
 ALLOWED_HOSTS = []
 
@@ -102,8 +102,15 @@ TEMPLATES = [
             str(APPS_DIR.path('templates')),
         ]
         ,
-        'APP_DIRS': True,
         'OPTIONS': {
+            # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-debug
+            'debug': DEBUG,
+            # See: https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
+            # https://docs.djangoproject.com/en/dev/ref/templates/api/#loader-types
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ],
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',

@@ -8,7 +8,7 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Use Whitenoise to serve static files
 # See: https://whitenoise.readthedocs.io/
-WHITENOISE_MIDDLEWARE = ('whitenoise.middleware.WhiteNoiseMiddleware',)
+WHITENOISE_MIDDLEWARE = ['whitenoise.middleware.WhiteNoiseMiddleware',]
 MIDDLEWARE = WHITENOISE_MIDDLEWARE + MIDDLEWARE
 
 # SECURITY CONFIGURATION
@@ -36,7 +36,7 @@ X_FRAME_OPTIONS = 'DENY'
 # See https://docs.djangoproject.com/en/1.6/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = env.list('DJANGO_ALLOWED_HOSTS', default=[
     'travel-maker.kr', 'www.travel-maker.kr', 'travel-maker.닷컴', 'www.travel-maker.닷컴', 'travel-maker.닷넷',
-    'www.travel-maker.닷넷'])
+    'www.travel-maker.닷넷', "travelmaker.herokuapp.com"])
 # END SITE CONFIGURATION
 
 INSTALLED_APPS += ('gunicorn',)
@@ -74,7 +74,7 @@ MEDIA_URL = 'https://s3.amazonaws.com/%s/' % AWS_STORAGE_BUCKET_NAME
 
 # Static Assets
 # ------------------------
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # EMAIL
 # ------------------------------------------------------------------------------
