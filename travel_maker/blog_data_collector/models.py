@@ -2,10 +2,11 @@ from django.db import models
 from django.db.models import CharField, DateField, TextField, ForeignKey
 from taggit.managers import TaggableManager
 
+from travel_maker.models import TimeStamped
 from travel_maker.public_data_collector.models import TravelInfo
 
 
-class BlogData(models.Model):
+class BlogData(TimeStamped):
     travel_info = ForeignKey(TravelInfo)
     bloggerlink = CharField(max_length=200)
     bloggername = CharField(max_length=200)

@@ -4,6 +4,14 @@ from updown.fields import RatingField
 from updown.models import Vote
 
 
+class TimeStamped(models.Model):
+    tm_created = models.DateTimeField(auto_now_add=True)
+    tm_updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
 class Votable(models.Model):
     updown = RatingField(can_change_vote=True)
 

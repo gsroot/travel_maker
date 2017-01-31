@@ -4,13 +4,7 @@ from statistics import mean
 from django.db import models
 from django.urls import reverse
 
-
-class TimeStamped(models.Model):
-    tm_created = models.DateTimeField(auto_now_add=True)
-    tm_updated = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        abstract = True
+from travel_maker.models import TimeStamped
 
 
 class District(models.Model):

@@ -10,11 +10,11 @@ from schedule.models import Event
 from taggit.managers import TaggableManager
 
 from travel_maker.account.models import TmUser
-from travel_maker.models import Votable
+from travel_maker.models import Votable, TimeStamped
 from travel_maker.public_data_collector.models import TravelInfo
 
 
-class TravelSchedule(Votable):
+class TravelSchedule(TimeStamped, Votable):
     owner = ForeignKey(TmUser, on_delete=models.CASCADE)
     calendar = OneToOneField(Calendar, on_delete=models.CASCADE, null=True)
     title = CharField(max_length=200)

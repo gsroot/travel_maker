@@ -9,11 +9,11 @@ from taggit.managers import TaggableManager
 from updown.models import Vote
 
 from travel_maker.account.models import TmUser
-from travel_maker.models import Votable
+from travel_maker.models import Votable, TimeStamped
 from travel_maker.public_data_collector.models import TravelInfo
 
 
-class TravelReview(Votable):
+class TravelReview(TimeStamped, Votable):
     travel_info = models.ForeignKey(TravelInfo, on_delete=models.CASCADE)
     owner = models.ForeignKey(TmUser, on_delete=models.CASCADE)
     rating = models.FloatField(validators=[MinValueValidator(0), MaxValueValidator(5)])
@@ -23,8 +23,6 @@ class TravelReview(Votable):
         blank=True,
         help_text=_('각 태그는 쉼표(,)로 구분됩니다')
     )
-    created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)
 
     @property
     def text(self):

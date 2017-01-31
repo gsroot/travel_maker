@@ -1,10 +1,10 @@
 from django.db import models
 
-from travel_maker.models import Votable
+from travel_maker.models import Votable, TimeStamped
 from travel_maker.public_data_collector.models import TravelInfo
 
 
-class GooglePlaceInfo(models.Model):
+class GooglePlaceInfo(TimeStamped):
     place_id = models.CharField(max_length=100)
     travel_info = models.OneToOneField(TravelInfo, on_delete=models.CASCADE)
 
@@ -12,7 +12,7 @@ class GooglePlaceInfo(models.Model):
         return self.travel_info.title
 
 
-class GooglePlaceReviewInfo(Votable):
+class GooglePlaceReviewInfo(TimeStamped, Votable):
     place_info = models.ForeignKey(GooglePlaceInfo, on_delete=models.CASCADE)
     author_name = models.CharField(max_length=200)
     profile_photo_url = models.CharField(max_length=500, blank=True)

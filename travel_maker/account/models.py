@@ -15,6 +15,7 @@ from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from config.settings.base import MEDIA_ROOT
+from travel_maker.models import TimeStamped
 
 
 class TmUserManager(BaseUserManager):
@@ -40,7 +41,7 @@ def thumbnail_path(instance, filename):
     return 'img/users/{0}/thumbnail.png'.format(instance.id)
 
 
-class TmUser(AbstractBaseUser, PermissionsMixin):
+class TmUser(PermissionsMixin, TimeStamped, AbstractBaseUser):
     username_validator = UnicodeUsernameValidator() if six.PY3 else ASCIIUsernameValidator()
 
     username = models.CharField(
