@@ -15,7 +15,11 @@
     <div>
         <a class="update-profile-introduction" role="button" data-toggle="modal"
            data-target="#profile-update-modal">
-            자기소개를 입력해주세요.
+            {% if tmuser.introduction %}
+                {{ tmuser.introduction }}
+            {% else %}
+                자기소개를 입력해주세요.
+            {% endif %}
         </a>
     </div>
     <div class="spacer-xs"></div>

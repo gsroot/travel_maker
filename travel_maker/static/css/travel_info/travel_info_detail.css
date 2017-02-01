@@ -22,7 +22,7 @@
 }
 
 #carousel-generic {
-    width: 500px;
+    width: 100%;
 }
 
 .review-user-profile-img {
@@ -105,4 +105,15 @@
 
 .carousel img {
     width: 100%;
+}
+
+@media only screen and (max-width: 1200px) {
+    #map-extend {
+        display: none;
+    }
+}
+
+.inline-block {
+    display: inline-block;
+    margin: 0 15px 0 15px;
 }

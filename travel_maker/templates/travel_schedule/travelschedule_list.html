@@ -11,95 +11,99 @@
 {% endblock header %}
 
 {% block content %}
-    <div class="container">
-        <div class="spacer-xl"></div>
-        <div>
-            {% crispy form %}
-        </div>
-        <div class="spacer-sm"></div>
-        <div class="schedule-items">
-            {% for schedule in travelschedule_list %}
-                <div class="row box">
-                    <div class="col-md-4">
-                        <a href="{% url 'travel_schedule:detail' schedule.id %}">
-                            <img class="item-img" src="{% static 'img/schedule_item_bg.jpg' %}" alt="">
+    <div class="spacer-xl"></div>
+    <div>
+        {% crispy form %}
+    </div>
+    <div class="spacer-sm"></div>
+    <div class="schedule-items">
+        {% for schedule in travelschedule_list %}
+            <div class="row box">
+                <div class="col-md-4">
+                    <a href="{% url 'travel_schedule:detail' schedule.id %}">
+                        <img class="item-img" src="{% static 'img/schedule_item_bg.jpg' %}" alt="">
+                    </a>
+                </div>
+                <div class="col-md-4 stat-area">
+                    <div class="spacer-xs"></div>
+                    <div class="row">
+                        <a class="schedule-title" href="{% url 'travel_schedule:detail' schedule.id %}">
+                            {{ schedule.title }}
                         </a>
                     </div>
-                    <div class="col-md-4 stat-area">
-                        <div class="spacer-xs"></div>
-                        <div class="row">
-                            <a class="schedule-title" href="{% url 'travel_schedule:detail' schedule.id %}">
-                                {{ schedule.title }}
-                            </a>
-                        </div>
-                        <div class="spacer-xs"></div>
-                        <div class="row">
-                            {{ schedule.summary }}
-                        </div>
-                        <div class="spacer-xs"></div>
-                        <div class="row spots">
-                            {{ schedule.spots|join:' --> ' }}
-                        </div>
+                    <div class="spacer-xs"></div>
+                    <div class="row">
+                        {{ schedule.summary }}
                     </div>
-                    <div class="col-md-4">
-                        <div class="spacer-xs"></div>
-                        <div class="row">
-                            <a href="{{ schedule.owner.get_absolute_url }}">
-                                <div class="owner-info">
-                                <span><img class="img-thumbnail owner-img"
-                                           src="{{ schedule.owner.thumbnail.url }}"></span>
-                                    <span class="owner-name">
+                    <div class="spacer-xs"></div>
+                    <div class="row spots">
+                        {{ schedule.spots|join:' --> ' }}
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="spacer-xs"></div>
+                    <div class="row">
+                        <a href="{{ schedule.owner.get_absolute_url }}">
+                            <div class="owner-info">
+                                <span>
+                                    <img class="img-thumbnail owner-img"
+                                         src={% if schedule.owner.thumbnail %}
+                                             "{{ schedule.owner.thumbnail.url }}"
+                                         {% else %}
+                                             "{% static 'img/no-photo.png' %}"
+                                         {% endif %}>
+                                </span>
+                                <span class="owner-name">
                                     {% if schedule.owner.username %}
                                         {{ schedule.owner.username }}
                                     {% else %}
                                         {{ schedule.owner.email }}
                                     {% endif %}
                                 </span>
-                                </div>
-                            </a>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="spacer-xs"></div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <i class="fa fa-calendar fa-lg"></i>
                         </div>
-                        <div class="spacer-xs"></div>
-                        <div class="row">
-                            <div class="col-md-1">
-                                <i class="fa fa-calendar fa-lg"></i>
-                            </div>
-                            <div class="col-md-11">
-                                <p>
-                                    {{ schedule.start }} ~ {{ schedule.end }}
-                                </p>
-                            </div>
+                        <div class="col-md-11">
+                            <p>
+                                {{ schedule.start }} ~ {{ schedule.end }}
+                            </p>
                         </div>
-                        <div class="spacer-xs"></div>
-                        <div class="row">
-                            <div class="col-md-1">
-                                <i class="fa fa-users fa-lg"></i>
-                            </div>
-                            <div class="col-md-11">
-                                <p>
-                                    {{ schedule.people_count }}명
-                                </p>
-                            </div>
+                    </div>
+                    <div class="spacer-xs"></div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <i class="fa fa-users fa-lg"></i>
                         </div>
-                        <div class="spacer-xs"></div>
-                        <div class="row">
-                            <div class="col-md-1">
-                                <i class="fa fa-tags fa-lg"></i>
-                            </div>
-                            <div class="col-md-11">
-                                <p>
-                                    {{ schedule.tags_str }}
-                                </p>
-                            </div>
+                        <div class="col-md-11">
+                            <p>
+                                {{ schedule.people_count }}명
+                            </p>
+                        </div>
+                    </div>
+                    <div class="spacer-xs"></div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <i class="fa fa-tags fa-lg"></i>
+                        </div>
+                        <div class="col-md-11">
+                            <p>
+                                {{ schedule.tags_str }}
+                            </p>
                         </div>
                     </div>
                 </div>
-                <div class="spacer-md"></div>
-            {% endfor %}
-        </div>
+            </div>
+            <div class="spacer-md"></div>
+        {% endfor %}
+    </div>
 
-        <div class="center">
-            {% bootstrap_paginate page_obj range=15 previous_label='<' next_label='>' show_first_last='true' first_label='<<' last_label='>>' %}
-        </div>
+    <div class="center">
+        {% bootstrap_paginate page_obj range=15 previous_label='<' next_label='>' show_first_last='true' first_label='<<' last_label='>>' %}
     </div>
     <div class="spacer-xl"></div>
 {% endblock content %}

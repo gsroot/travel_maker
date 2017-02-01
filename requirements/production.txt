@@ -4,4 +4,5 @@ gunicorn==19.6.0
 whitenoise==3.3.0
 django-storages==1.5.2
 boto3==1.4.4
-django-mailer==1.2.2
+django-anymail==0.8
+mailgun==0.1.1

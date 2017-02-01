@@ -3,7 +3,6 @@ from allauth.account.views import PasswordChangeView
 from braces.views import LoginRequiredMixin
 from braces.views import UserPassesTestMixin
 from django.contrib import messages
-from django.contrib.contenttypes.models import ContentType
 from django.http import HttpResponse
 from django.urls import reverse
 from django.urls import reverse_lazy

@@ -9,7 +9,12 @@
                         <div class="schedule-item">
                             <div class="owner-info">
                             <span>
-                                <img class="img-thumbnail owner-img" src="{{ schedule.owner.thumbnail.url }}">
+                                <img class="img-thumbnail owner-img"
+                                     src={% if travelschedule.owner.thumbnail %}
+                                         "{{ schedule.owner.thumbnail.url }}"
+                                     {% else %}
+                                         "{% static 'img/no-photo.png' %}"
+                                     {% endif %}>
                             </span>
                                 <span class="owner-name">
                                 {% if schedule.owner.username %}

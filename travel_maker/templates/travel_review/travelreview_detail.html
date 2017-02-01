@@ -13,64 +13,62 @@
 {% block content %}
     {% with travelreview as review %}
         <div class="spacer-xl"></div>
-        <div class="container">
-            <h3>"{{ review.travel_info }}"에 대한 리뷰</h3>
-            <div class="spacer-md"></div>
-            <div class="review">
-                <input class="review-id" type="hidden" value="{{ review.id }}">
-                <div class="row">
-                    <div class="col-md-1">
+        <h3>"{{ review.travel_info }}"에 대한 리뷰</h3>
+        <div class="spacer-md"></div>
+        <div class="review">
+            <input class="review-id" type="hidden" value="{{ review.id }}">
+            <div class="row">
+                <div class="col-md-1">
+                    <a href="{{ review.owner.get_absolute_url }}">
+                        {% if review.owner.thumbnail %}
+                            <img class="review-user-profile-img img-circle"
+                                 src="{{ review.owner.thumbnail.url }}" alt="">
+                        {% else %}
+                            <img class="review-user-profile-img img-circle"
+                                 src="{% static 'img/no-photo.png' %}" alt="">
+                        {% endif %}
+                    </a>
+                </div>
+                <div class="row col-md-11">
+                    <div class="review-user-name row">
                         <a href="{{ review.owner.get_absolute_url }}">
-                            {% if review.owner.thumbnail %}
-                                <img class="review-user-profile-img img-circle"
-                                     src="{{ review.owner.thumbnail.url }}" alt="">
-                            {% else %}
-                                <img class="review-user-profile-img img-circle"
-                                     src="{% static 'img/no-photo.png' %}" alt="">
-                            {% endif %}
+                            {{ review.owner.username }}
                         </a>
                     </div>
-                    <div class="row col-md-11">
-                        <div class="review-user-name row">
-                            <a href="{{ review.owner.get_absolute_url }}">
-                                {{ review.owner.username }}
-                            </a>
+                    <div class="row">
+                        <div class="review-rating col-md-2">
+                            <div id="travel-rating-{{ review.id }}"></div>
                         </div>
-                        <div class="row">
-                            <div class="review-rating col-md-2">
-                                <div id="travel-rating-{{ review.id }}"></div>
-                            </div>
-                            <div class="review-time col-md-7">
-                                {{ review.updated }}
-                            </div>
-                            {% if not user.is_anonymous %}
-                                <div class="review-ext col-md-3">
+                        <div class="review-time col-md-7">
+                            {{ review.updated }}
+                        </div>
+                        {% if not user.is_anonymous %}
+                            <div class="review-ext col-md-3">
                                     <span class="btn-tm-default btn-up {% if review.does_user_already_vote %}
                                             btn-active{% endif %}">
                                         <i class="fa fa-thumbs-o-up"></i>
                                         좋아요 <span class="likes">{{ review.updown.likes }}</span>
                                     </span>
-                                    {% if user == review.owner %}
-                                        <a class="btn-danger btn-del" href="{% url 'travel_review:delete' review.id %}">
-                                            <i class="fa fa-trash-o"></i> 삭제
-                                        </a>
-                                    {% endif %}
-                                </div>
-                            {% endif %}
-                        </div>
+                                {% if user == review.owner %}
+                                    <a class="btn-danger btn-del" href="{% url 'travel_review:delete' review.id %}">
+                                        <i class="fa fa-trash-o"></i> 삭제
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
-                <div class="spacer-sm"></div>
-                <div class="row">
-                    <div class="center">
-                        {% if review.tags.all %}
-                            <div class="tags">
-                                <i class="fa fa-tags"></i> {{ review.tags.all|join:', ' }}
-                            </div>
-                            <div class="spacer-sm"></div>
-                        {% endif %}
-                        {{ review.content|safe }}
-                    </div>
+            </div>
+            <div class="spacer-sm"></div>
+            <div class="row">
+                <div class="center">
+                    {% if review.tags.all %}
+                        <div class="tags">
+                            <i class="fa fa-tags"></i> {{ review.tags.all|join:', ' }}
+                        </div>
+                        <div class="spacer-sm"></div>
+                    {% endif %}
+                    {{ review.content|safe }}
                 </div>
             </div>
         </div>

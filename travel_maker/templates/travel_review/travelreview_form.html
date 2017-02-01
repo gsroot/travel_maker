@@ -19,22 +19,20 @@
 
 {% block content %}
     <div class="spacer-md"></div>
-    <div class="container">
-        <form action="" method="post">
-            <label for="rating">
-                별점<span class="asteriskField">*</span>
-            </label>
-            <div id="rating"></div>
-            <div class="spacer-sm"></div>
-            {% crispy form %}
-            <div class="col-md-6">
-                <button class="btn btn-block btn-tm-default" id="id-submit" type="submit">확인</button>
-            </div>
-            <div class="col-md-6">
-                <button class="btn btn-block btn-default btn-cancel">취소</button>
-            </div>
-        </form>
-    </div>
+    <form action="" method="post">
+        <label for="rating">
+            별점<span class="asteriskField">*</span>
+        </label>
+        <div id="rating"></div>
+        <div class="spacer-sm"></div>
+        {% crispy form %}
+        <div class="col-md-6">
+            <button class="btn btn-block btn-tm-default" id="id-submit" type="submit">확인</button>
+        </div>
+        <div class="col-md-6">
+            <button class="btn btn-block btn-default btn-cancel">취소</button>
+        </div>
+    </form>
     <div class="spacer-xl"></div>
 {% endblock %}
 

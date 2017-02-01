@@ -19,18 +19,16 @@
 
 {% block content %}
     <div class="spacer-md"></div>
-    <div class="container">
-        <form action="" method="post">
-            {% crispy form %}
-            <div class="col-md-6">
-                <button class="btn btn-block btn-tm-default" id="id-submit" type="submit">여행 일정 생성</button>
-            </div>
-            <div class="col-md-6">
-                <a class="btn btn-block btn-default" href="{{ user.get_absolute_url }}">
-                    취소
-                </a>
-            </div>
-        </form>
-    </div>
+    <form action="" method="post">
+        {% crispy form %}
+        <div class="col-md-6">
+            <button class="btn btn-block btn-tm-default" id="id-submit" type="submit">여행 일정 생성</button>
+        </div>
+        <div class="col-md-6">
+            <a class="btn btn-block btn-default" href="{{ user.get_absolute_url }}">
+                취소
+            </a>
+        </div>
+    </form>
     <div class="spacer-xl"></div>
 {% endblock %}

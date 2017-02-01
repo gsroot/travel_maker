@@ -29,29 +29,27 @@
 
 {% block content %}
     <div class="spacer-md"></div>
-    <div class="container">
-        {% autoescape off %}
-            <div id="item-info">
-                <div class="row">
-                    {% include 'travel_info/snippets/item_image_info.html' %}
-                    {% include 'travel_info/snippets/item_base_info.html' %}
-                </div>
-                {% include 'travel_info/snippets/item_overview_info.html' %}
-                {% include 'travel_info/snippets/item_expguide.html' %}
-                {% include 'travel_info/snippets/item_detail_info.html' %}
-                {% include 'travel_info/snippets/item_reviews_info.html' %}
-                {% if travelinfo.title != '함덕 서우봉 해변' %}
-                    <iframe id='nearby-list-frame' src="{% url 'travel_info:nearby_list' travelinfo.id %}"
-                            frameborder="0" scrolling="no">
-                    </iframe>
-                {% endif %}
-                {% include 'travel_info/snippets/item_blogs_info.html' %}
+    {% autoescape off %}
+        <div id="item-info">
+            <div class="row">
+                {% include 'travel_info/snippets/item_image_info.html' %}
+                {% include 'travel_info/snippets/item_base_info.html' %}
             </div>
-        {% endautoescape %}
-        <div class="spacer-xl"></div>
-        {% disqus_show_comments %}
-        <div class="spacer-xl"></div>
-    </div>
+            {% include 'travel_info/snippets/item_overview_info.html' %}
+            {% include 'travel_info/snippets/item_expguide.html' %}
+            {% include 'travel_info/snippets/item_detail_info.html' %}
+            {% include 'travel_info/snippets/item_reviews_info.html' %}
+            {% if travelinfo.title != '함덕 서우봉 해변' %}
+                <iframe id='nearby-list-frame' src="{% url 'travel_info:nearby_list' travelinfo.id %}"
+                        frameborder="0" scrolling="no">
+                </iframe>
+            {% endif %}
+            {% include 'travel_info/snippets/item_blogs_info.html' %}
+        </div>
+    {% endautoescape %}
+    <div class="spacer-xl"></div>
+    {% disqus_show_comments %}
+    <div class="spacer-xl"></div>
 {% endblock content %}
 
 {% block javascript %}

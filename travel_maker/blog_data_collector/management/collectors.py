@@ -5,6 +5,7 @@ from urllib.parse import urlparse, parse_qs, urlunparse
 
 import requests
 from bs4 import BeautifulSoup
+from dateutil.relativedelta import relativedelta
 from django.db import DataError
 from django.db import IntegrityError
 
@@ -44,7 +45,9 @@ class BlogDataCollector(WebCollector):
         self.progress = BlogDataProgress.objects.get_or_create(collector_type=self.__class__.__name__)[0]
 
     def get_travel_infos(self):
-        travel_infos = TravelInfo.objects.filter(blogdata__isnull=True).distinct().order_by('modified')
+        datetime_before = datetime.today().date() - relativedelta(days=5)
+        travel_infos = TravelInfo.objects.filter(blogdata__isnull=True,
+                                                 tm_updated__gte=datetime_before).distinct().order_by('modified')
 
         return travel_infos
 

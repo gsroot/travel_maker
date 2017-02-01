@@ -18,25 +18,25 @@
                                      src="{% static 'img/no-photo.png' %}" alt="">
                             {% endif %}
                         </div>
-                        <div class="row col-md-11">
-                            <div class="review-user-name row">
+                        <div class="col-md-11">
+                            <div class="review-user-name">
                                 {{ review.author_name }}
                             </div>
-                            <div class="row">
-                                <div class="review-rating col-md-2">
+                            <div>
+                                <span class="review-rating">
                                     <div id="google-rating-{{ review.id }}"></div>
-                                </div>
-                                <div class="review-time col-md-7">
+                                </span>
+                                <span class="review-time">
                                     {{ review.time }}
-                                </div>
+                                </span>
                                 {% if not user.is_anonymous %}
-                                    <div class="review-ext col-md-3">
+                                    <span class="review-ext">
                                         <span class="btn-tm-default btn-up {% if review.does_user_already_vote %}
                                                 btn-active{% endif %}">
                                             <i class="fa fa-thumbs-o-up"></i>
                                             좋아요 <span class="likes">{{ review.updown.likes }}</span>
                                         </span>
-                                    </div>
+                                    </span>
                                 {% endif %}
                             </div>
                         </div>

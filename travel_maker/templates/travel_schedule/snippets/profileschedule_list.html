@@ -7,7 +7,14 @@
                 <div class="schedule-item-bg">
                     <div class="schedule-item">
                         <div class="owner-info">
-                            <span><img class="img-thumbnail owner-img" src="{{ schedule.owner.thumbnail.url }}"></span>
+                            <span>
+                                <img class="img-thumbnail owner-img"
+                                     src={% if schedule.owner.thumbnail %}
+                                         "{{ schedule.owner.thumbnail.url }}"
+                                     {% else %}
+                                         "{% static 'img/no-photo.png' %}"
+                                     {% endif %}>
+                            </span>
                             <span class="owner-name">
                                 {% if schedule.owner.username %}
                                     {{ schedule.owner.username }}

@@ -15,3 +15,7 @@ header a {
 header input[type='email'],input[type='password']{
     color: black !important;
 }
+
+.account-pannel {
+    padding: 20px;
+}

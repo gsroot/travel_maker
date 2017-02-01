@@ -2,6 +2,7 @@ from braces.views import LoginRequiredMixin
 from braces.views import UserPassesTestMixin
 from datetime import date
 from django.contrib import messages
+from django.db.models import Count
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.urls import reverse_lazy
@@ -122,7 +123,8 @@ class TravelCalendarUpdateView(LoginRequiredMixin, UserPassesTestMixin, DetailVi
         context = super().get_context_data(**kwargs)
         context['area_list'] = Area.objects.all()
         context['contenttype_list'] = ContentType.objects.exclude(name='여행코스')
-        context['travelinfo_list'] = TravelInfo.objects.filter(contenttype__in=context['contenttype_list'])[:20]
+        context['travelinfo_list'] = TravelInfo.objects.filter(contenttype__in=context['contenttype_list']).annotate(
+            score_cnt=Count('score')).order_by('-score_cnt', '-score', 'id')[:20]
 
         return context
 

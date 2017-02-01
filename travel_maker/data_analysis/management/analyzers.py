@@ -1,8 +1,11 @@
+from datetime import datetime
 from pprint import pprint
 from statistics import mean
 
 import nltk
 import pickle
+
+from dateutil.relativedelta import relativedelta
 from konlpy.tag import Twitter
 
 from travel_maker.blog_data_collector.models import BlogData
@@ -111,7 +114,9 @@ class BlogDataAnalizer(Analizer):
         return classifier
 
     def get_travel_infos(self):
-        travel_infos = TravelInfo.objects.filter(score__isnull=True, blogdata__isnull=False).distinct().order_by('id')
+        datetime_before = datetime.today().date() - relativedelta(days=5)
+        travel_infos = TravelInfo.objects.filter(score__isnull=True, blogdata__isnull=False,
+                                                 tm_updated__gte=datetime_before).distinct().order_by('id')
 
         return travel_infos
 

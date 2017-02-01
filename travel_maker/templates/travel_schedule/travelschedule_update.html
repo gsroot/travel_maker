@@ -19,20 +19,18 @@
 
 {% block content %}
     <div class="spacer-md"></div>
-    <div class="container">
-        <form action="" method="post">
-            {% crispy form %}
-            <div class="row">
-                <div class="col-md-6">
-                    <button class="btn btn-block btn-tm-default" id="id-submit" type="submit">설정 완료</button>
-                </div>
-                <div class="col-md-6">
-                    <a class="btn btn-block btn-default" href="{% url 'travel_schedule:detail' travelschedule.id %}">
-                        취소
-                    </a>
-                </div>
+    <form action="" method="post">
+        {% crispy form %}
+        <div class="row">
+            <div class="col-md-6">
+                <button class="btn btn-block btn-tm-default" id="id-submit" type="submit">설정 완료</button>
             </div>
-        </form>
-    </div>
+            <div class="col-md-6">
+                <a class="btn btn-block btn-default" href="{% url 'travel_schedule:detail' travelschedule.id %}">
+                    취소
+                </a>
+            </div>
+        </div>
+    </form>
     <div class="spacer-xl"></div>
 {% endblock %}

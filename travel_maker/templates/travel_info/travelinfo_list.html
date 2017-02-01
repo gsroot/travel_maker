@@ -17,111 +17,109 @@
 {% endblock header %}
 
 {% block content %}
-    <div class="container">
-        <div class="spacer-xl"></div>
-        <div>
-            {% crispy form %}
-        </div>
-        <div class="travel-info-items">
-            {% for info in travelinfo_list %}
-                <div class="spacer-md"></div>
-                <div class="row box">
-                    <div class="col-md-3">
-                        <div class="travel-info-index">
-                            <p>
-                                {% widthratio page_obj.number|add:"-1" 1 10 as start_counter %}
-                                {{ forloop.counter|slugify|add:start_counter }}
-                            </p>
-                        </div>
-                        <div class="spacer-xs"></div>
-                        <div>
-                            <a href="{% url 'travel_info:detail' info.id %}">
-                                <img src="{{ info.image }}" alt="">
-                            </a>
-                        </div>
+    <div class="spacer-xl"></div>
+    <div>
+        {% crispy form %}
+    </div>
+    <div class="travel-info-items">
+        {% for info in travelinfo_list %}
+            <div class="spacer-md"></div>
+            <div class="row box">
+                <div class="col-md-3">
+                    <div class="travel-info-index">
+                        <p>
+                            {% widthratio page_obj.number|add:"-1" 1 10 as start_counter %}
+                            {{ forloop.counter|slugify|add:start_counter }}
+                        </p>
                     </div>
-                    <div class="col-md-4 stat-area">
-                        <div class="spacer-sm"></div>
-                        <div class="row">
-                            <a class="travel-info-title" href="{% url 'travel_info:detail' info.id %}">
-                                {{ info.title }}
-                            </a>
-                        </div>
-                        <div class="spacer-lg"></div>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <div class="item-stat-count">
-                                    {% if info.score %}
-                                        {{ info.score }}
-                                    {% else %}
-                                        0
-                                    {% endif %}
-                                </div>
-                                <div class="item-stat-title">점수</div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="item-stat-count">
-                                    {{ info.reviews_cnt }}
-                                </div>
-                                <div class="item-stat-title">평가</div>
-                            </div>
-                            <div class="col-md-3">
-                                <div class="item-stat-count">
-                                    {% if info.blogs %}
-                                        {{ info.blogs.count }}
-                                    {% else %}
-                                        0
-                                    {% endif %}
-                                </div>
-                                <div class="item-stat-title">블로그</div>
-                            </div>
-                        </div>
+                    <div class="spacer-xs"></div>
+                    <div>
+                        <a href="{% url 'travel_info:detail' info.id %}">
+                            <img src="{{ info.image }}" alt="">
+                        </a>
                     </div>
-                    <div class="col-md-4">
-                        <div class="spacer-sm"></div>
-                        <div class="row">
-                            <div class="col-md-1">
-                                <i class="fa fa-tags fa-lg" aria-hidden="true"></i>
+                </div>
+                <div class="col-md-4 stat-area">
+                    <div class="spacer-sm"></div>
+                    <div class="row">
+                        <a class="travel-info-title" href="{% url 'travel_info:detail' info.id %}">
+                            {{ info.title }}
+                        </a>
+                    </div>
+                    <div class="spacer-lg"></div>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="item-stat-count">
+                                {% if info.score %}
+                                    {{ info.score }}
+                                {% else %}
+                                    0
+                                {% endif %}
                             </div>
-                            <div class="col-md-11">
-                                <p>
-                                    {% for tag in info.primary_six_tags %}
-                                        {{ tag.0 }}{% if forloop.counter < 6 %},{% endif %}
-                                    {% endfor %}
-                                </p>
-                            </div>
+                            <div class="item-stat-title">점수</div>
                         </div>
-                        <div class="row">
-                            <div class="col-md-1">
-                                <i class="fa fa-map-marker fa-lg" aria-hidden="true"></i>
+                        <div class="col-md-3">
+                            <div class="item-stat-count">
+                                {{ info.reviews_cnt }}
                             </div>
-                            <div class="col-md-11">
-                                <p>{{ info.addr1 }}</p>
-                            </div>
+                            <div class="item-stat-title">평가</div>
                         </div>
-                        <div class="spacer-sm"></div>
-                        <div class="row">
-                            <a class="travelbookmark-creation" href="javascript:void(0)">
-                                <form action="{% url 'travel_bookmark:create' %}" method="post">
-                                    {% csrf_token %}
-                                    <input name="travel_info" type="hidden" value="{{ info.id }}">
-                                    <div class="col-md-1">
-                                        <i class="fa fa-thumbs-o-up fa-lg" aria-hidden="true"></i>
-                                    </div>
-                                    <div class="col-md-11">
-                                        <p>관심 여행지에 추가</p>
-                                    </div>
-                                </form>
-                            </a>
+                        <div class="col-md-3">
+                            <div class="item-stat-count">
+                                {% if info.blogs %}
+                                    {{ info.blogs.count }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </div>
+                            <div class="item-stat-title">블로그</div>
                         </div>
                     </div>
                 </div>
-            {% endfor %}
-        </div>
-        <div class="spacer-md"></div>
-        <div class="center">
-            {% bootstrap_paginate page_obj range=15 previous_label='<' next_label='>' show_first_last='true' first_label='<<' last_label='>>' %}
-        </div>
+                <div class="col-md-4">
+                    <div class="spacer-sm"></div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <i class="fa fa-tags fa-lg" aria-hidden="true"></i>
+                        </div>
+                        <div class="col-md-11">
+                            <p>
+                                {% for tag in info.primary_six_tags %}
+                                    {{ tag.0 }}{% if forloop.counter < 6 %},{% endif %}
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-1">
+                            <i class="fa fa-map-marker fa-lg" aria-hidden="true"></i>
+                        </div>
+                        <div class="col-md-11">
+                            <p>{{ info.addr1 }}</p>
+                        </div>
+                    </div>
+                    <div class="spacer-sm"></div>
+                    <div class="row">
+                        <a class="travelbookmark-creation" href="javascript:void(0)">
+                            <form action="{% url 'travel_bookmark:create' %}" method="post">
+                                {% csrf_token %}
+                                <input name="travel_info" type="hidden" value="{{ info.id }}">
+                                <div class="col-md-1">
+                                    <i class="fa fa-thumbs-o-up fa-lg" aria-hidden="true"></i>
+                                </div>
+                                <div class="col-md-11">
+                                    <p>관심 여행지에 추가</p>
+                                </div>
+                            </form>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <div class="spacer-md"></div>
+    <div class="center">
+        {% bootstrap_paginate page_obj range=15 previous_label='<' next_label='>' show_first_last='true' first_label='<<' last_label='>>' %}
     </div>
     <div class="spacer-xl"></div>
 {% endblock content %}

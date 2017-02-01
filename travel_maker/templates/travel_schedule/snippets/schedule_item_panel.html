@@ -1,3 +1,5 @@
+{% load static %}
+
 <div class="scedule-item-pannel">
     {% if user == travelschedule.owner %}
         <div class="box schedule-update">
@@ -50,7 +52,12 @@
     <div class="spacer-xs"></div>
     <div class="box center">
         <a href="{{ travelschedule.owner.get_absolute_url }}">
-            <img class="owner-img" src="{{ travelschedule.owner.thumbnail.url }}">
+            <img class="owner-img"
+                 src={% if travelschedule.owner.thumbnail %}
+                     "{{ travelschedule.owner.thumbnail.url }}"
+                 {% else %}
+                     "{% static 'img/no-photo.png' %}"
+                 {% endif %}>
         </a>
         <div class="spacer-xs"></div>
         <a href="{{ travelschedule.owner.get_absolute_url }}">

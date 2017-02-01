@@ -1,80 +1,77 @@
 <div id="item-header">
-    <div class="container">
-        <div class="spacer-sm"></div>
-        <div id="item-header-top">
-            <div class="row">
-                <div class="item-header-left col-md-9">
-                    <span class="item-title">{{ travelinfo.title }}</span>
-                    <span class="item-primary-tags">
+    <div class="spacer-sm"></div>
+    <div id="item-header-top">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="item-header-left col-md-8">
+                <span class="item-title">{{ travelinfo.title }}</span>
+                <span class="item-primary-tags">
                         {% for tag in travelinfo.primary_three_tags %}
                             {{ tag.0 }}{% if forloop.counter < 3 %},{% endif %}
                         {% endfor %}
                     </span>
-                </div>
-                <div class="item-header-right col-md-3">
-                    <span id="rating"></span>
-                    {% if google_reviews or travel_reviews %}
-                        <span id="rating-text">{{ travelinfo.rating }} 점</span>
-                    {% endif %}
-                </div>
             </div>
-        </div>
-        <div class="spacer-xs"></div>
-        <div class="item-header-divider"></div>
-        <div class="spacer-xs"></div>
-        <div id="item-header-bottom">
-            <div class="row">
-                <div class="item-header-left">
-                    <div class="col-md-1">
-                        <div class="item-stat-count">
-                            {% if travelinfo.score %}
-                                {{ travelinfo.score }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </div>
-                        <div class="item-stat-title">점수</div>
-                    </div>
-                    <div class="col-md-1">
-                        <div class="item-stat-count">
-                            {{ travelinfo.reviews_cnt }}
-                        </div>
-                        <div class="item-stat-title">평가</div>
-                    </div>
-                    <div class="col-md-1">
-                        <div class="item-stat-count">
-                            {% if travelinfo.blogs %}
-                                {{ travelinfo.blogs.count }}
-                            {% else %}
-                                0
-                            {% endif %}
-                        </div>
-                        <div class="item-stat-title">블로그</div>
-                    </div>
-                </div>
-                <div class="col-md-5"></div>
-                {% if viewtype != 'popup' %}
-                    <div class="item-header-right col-md-4">
-                        <div class="row">
-                            <div class="col-md-5">
-                                <span><i class="fa fa-pencil-square-o fa-lg"></i></span>
-                                <span><a href="{% url 'travel_review:create' travelinfo.id %}">리뷰 작성하기</a></span>
-                            </div>
-                            <div class="travelbookmark-creation" class="col-md-6">
-                                <a href="javascript:void(0)">
-                                    <form action="{% url 'travel_bookmark:create' %}" method="post">
-                                        {% csrf_token %}
-                                        <input name="travel_info" type="hidden" value="{{ travelinfo.id }}">
-                                    </form>
-                                    <span><i class="fa fa-thumbs-o-up fa-lg"></i></span>
-                                    <span>관심 여행지에 추가</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+            <div class="item-header-right col-md-3">
+                <span id="rating"></span>
+                {% if google_reviews or travel_reviews %}
+                    <span id="rating-text">{{ travelinfo.rating }} 점</span>
                 {% endif %}
             </div>
         </div>
-        <div class="spacer-sm"></div>
     </div>
+    <div class="spacer-xs"></div>
+    <div class="item-header-divider"></div>
+    <div class="spacer-xs"></div>
+    <div id="item-header-bottom">
+        <div class="row">
+            <div class="col-md-1"></div>
+            <div class="col-md-7 item-header-left">
+                <div class="inline-block">
+                    <div class="item-stat-count">
+                        {% if travelinfo.score %}
+                            {{ travelinfo.score }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="item-stat-title">점수</div>
+                </div>
+                <div class="inline-block">
+                    <div class="item-stat-count">
+                        {{ travelinfo.reviews_cnt }}
+                    </div>
+                    <div class="item-stat-title">평가</div>
+                </div>
+                <div class="inline-block">
+                    <div class="item-stat-count">
+                        {% if travelinfo.blogs %}
+                            {{ travelinfo.blogs.count }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </div>
+                    <div class="item-stat-title">블로그</div>
+                </div>
+            </div>
+            {% if viewtype != 'popup' %}
+                <div class="col-md-4 item-header-right">
+                    <div class="inline-block">
+                        <span><i class="fa fa-pencil-square-o fa-lg"></i></span>
+                        <span><a href="{% url 'travel_review:create' travelinfo.id %}">리뷰 작성하기</a></span>
+                    </div>
+                    <div class="inline-block travelbookmark-creation">
+                        <a href="javascript:void(0)">
+                            <form action="{% url 'travel_bookmark:create' %}" method="post">
+                                {% csrf_token %}
+                                <input name="travel_info" type="hidden" value="{{ travelinfo.id }}">
+                            </form>
+                            <span><i class="fa fa-thumbs-o-up fa-lg"></i></span>
+                            <span>관심 여행지에 추가</span>
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="spacer-sm"></div>
 </div>

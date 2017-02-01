@@ -26,7 +26,7 @@ env.read_env()
 # See https://docs.djangoproject.com/en/1.10/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('DJANGO_SECRET_KEY', default=os.environ['DJANGO_SECRET_KEY'])
+SECRET_KEY = env('SECRET_KEY', default=os.environ['SECRET_KEY'])
 
 TRAVEL_API_SECRET_KEY_LIST = env.list('TRAVEL_API_SECRET_KEY_LIST', default=os.environ['TRAVEL_API_SECRET_KEY_LIST'])
 
@@ -37,9 +37,7 @@ NAVER_API_CLIENT_ID = env('NAVER_API_CLIENT_ID', default=os.environ['NAVER_API_C
 NAVER_API_CLIENT_SECRET = env('NAVER_API_CLIENT_SECRET', default=os.environ['NAVER_API_CLIENT_SECRET'])
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DJANGO_DEBUG', default=False)
-
-ALLOWED_HOSTS = []
+DEBUG = env.bool('DEBUG', default=False)
 
 # Application definition
 
@@ -203,7 +201,7 @@ ACCOUNT_LOGOUT_ON_PASSWORD_CHANGE = True
 ACCOUNT_AUTHENTICATION_METHOD = 'email'
 ACCOUNT_USER_MODEL_EMAIL_FIELD = 'email'
 ACCOUNT_USERNAME_MIN_LENGTH = 3
-SOCIALACCOUNT_AUTO_SIGNUP = False
+SOCIALACCOUNT_AUTO_SIGNUP = True
 ACCOUNT_FORMS = {
     'signup': 'travel_maker.account.forms.UserSignupForm',
     'login': 'travel_maker.account.forms.UserLoginForm',

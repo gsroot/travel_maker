@@ -20,3 +20,14 @@
         </div>
     </header>
 {% endblock header %}
+
+{% block javascript %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function () {
+            {% if messages %}
+                history.back();
+            {% endif %}
+        })
+    </script>
+{% endblock %}

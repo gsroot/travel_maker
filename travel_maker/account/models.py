@@ -13,6 +13,7 @@ from django.urls import reverse
 from django.utils import six
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
+from io import BytesIO
 
 from config.settings.base import MEDIA_ROOT
 from travel_maker.models import TimeStamped
@@ -130,20 +131,16 @@ class TmUser(PermissionsMixin, TimeStamped, AbstractBaseUser):
             self.save()
 
     def update_thumbnail(self):
-        if hasattr(self, '_loaded_image') and self._loaded_image:
-            os.remove(MEDIA_ROOT + '/' + self._loaded_image)
         if self.image:
             self.image.open()
             image = Image.open(self.image)
             side_length = min([self.image_width, self.image_height])
             croped = image.crop((0, 0, side_length, side_length))
-
-            filepath = MEDIA_ROOT + '/' + thumbnail_path(self, None)
             croped.thumbnail((200, 200))
-            croped.save(filepath, 'PNG')
 
-            url = thumbnail_path(self, None)
-            self.thumbnail = url
+            io = BytesIO()
+            croped.save(io, format='png')
+            self.thumbnail.save('thumbnail.png', ContentFile(io.getvalue()), save=False)
         else:
             self.thumbnail = ''
 

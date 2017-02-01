@@ -107,7 +107,8 @@ class TravelInfoList(APIView):
         if contenttype_list:
             queryset = queryset.filter(contenttype__in=contenttype_list)
 
-        queryset = queryset[20 * (page - 1):20 * page]
+        queryset = queryset.annotate(score_cnt=Count('score')).order_by('-score_cnt', '-score', 'id')[
+                   20 * (page - 1):20 * page]
         return queryset
 
     def get(self, request):
@@ -119,7 +120,8 @@ class BookmarkList(APIView):
     template_name = 'travel_info/travelinfo_list_by_api.html'
 
     def get_queryset(self):
-        queryset = TravelInfo.objects.filter(travelbookmark__isnull=False).exclude(contenttype__name='여행코스')
+        queryset = TravelInfo.objects.filter(travelbookmark__isnull=False, travelbookmark__owner=self.request.user) \
+            .exclude(contenttype__name='여행코스')
         area = self.request.query_params.get('area')
         title = self.request.query_params.get('name')
         contenttype_list = self.request.query_params.getlist('contenttype_list[]')
@@ -131,7 +133,8 @@ class BookmarkList(APIView):
         if contenttype_list:
             queryset = queryset.filter(contenttype__in=contenttype_list)
 
-        queryset = queryset.distinct()[20 * (page - 1):20 * page]
+        queryset = queryset.annotate(score_cnt=Count('score')).order_by('-score_cnt', '-score', 'id')[
+                   20 * (page - 1):20 * page]
         return queryset
 
     def get(self, request):
@@ -156,7 +159,7 @@ class NearbySpotInfoList(APIView):
             queryset = queryset.filter(center_spot__title__contains=title)
         if contenttype_list:
             queryset = queryset.filter(center_spot__contenttype__in=contenttype_list)
-        queryset = queryset[20 * (page - 1):20 * page]
+        queryset = queryset.order_by('dist')[20 * (page - 1):20 * page]
         return queryset
 
     def get(self, request, pk):

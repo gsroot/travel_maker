@@ -21,23 +21,21 @@
 {% block content %}
     {% get_or_create_calendar travelschedule as calendar %}
     <div class="spacer-md"></div>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-3">
-                {% include 'travel_schedule/snippets/schedule_item_panel.html' %}
-            </div>
-            <div class="col-md-9">
-                {% include 'travel_schedule/snippets/schedule_item_overview.html' %}
-                <div class="spacer-xs"></div>
-                <div id="calendar-box" class="box">
-                    <div id="calendar"></div>
-                </div>
-                <div class="spacer-md"></div>
-                {% disqus_show_comments %}
-            </div>
+    <div class="row">
+        <div class="col-md-3">
+            {% include 'travel_schedule/snippets/schedule_item_panel.html' %}
         </div>
-        <div class="spacer-xl"></div>
+        <div class="col-md-9">
+            {% include 'travel_schedule/snippets/schedule_item_overview.html' %}
+            <div class="spacer-xs"></div>
+            <div id="calendar-box" class="box">
+                <div id="calendar"></div>
+            </div>
+            <div class="spacer-md"></div>
+            {% disqus_show_comments %}
+        </div>
     </div>
+    <div class="spacer-xl"></div>
 {% endblock %}
 
 {% block javascript %}
