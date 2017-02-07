@@ -1,6 +1,8 @@
 # Create your views here.
 from statistics import mean
+from datetime import datetime
 
+from dateutil.relativedelta import relativedelta
 from django.db.models import F, Q, Count
 from django.views.generic import DetailView, ListView
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -18,7 +20,9 @@ class TravelInfoListView(ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        queryset = TravelInfo.objects.all()
+        datetime_before = datetime.today().date() - relativedelta(days=30)
+        queryset = TravelInfo.objects.exclude(contenttype__name='행사/공연/축제',
+                                              festivalintroinfo__eventenddate__lt=datetime_before)
 
         if self.request.GET.get('area'):
             queryset = queryset.filter(sigungu__area=self.request.GET.get('area'))
@@ -81,7 +85,9 @@ class NearbySpotInfoListView(ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        travel_info = TravelInfo.objects.filter(id=self.kwargs['pk']).exclude(contenttype__name='여행코스')
+        datetime_before = datetime.today().date() - relativedelta(days=30)
+        travel_info = TravelInfo.objects.filter(id=self.kwargs['pk']).exclude(Q(contenttype__name='여행코스') | Q(
+            contenttype__name='행사/공연/축제', festivalintroinfo__eventenddate__lt=datetime_before))
         if not travel_info:
             return []
         queryset = NearbySpotInfo.objects.filter(target_spot=travel_info).exclude(
@@ -95,7 +101,10 @@ class TravelInfoList(APIView):
     template_name = 'travel_info/travelinfo_list_by_api.html'
 
     def get_queryset(self):
-        queryset = TravelInfo.objects.exclude(contenttype__name='여행코스')
+        datetime_before = datetime.today().date() - relativedelta(days=30)
+        queryset = TravelInfo.objects.exclude(
+            Q(contenttype__name='여행코스') | Q(contenttype__name='행사/공연/축제',
+                                            festivalintroinfo__eventenddate__lt=datetime_before))
         area = self.request.query_params.get('area')
         title = self.request.query_params.get('name')
         contenttype_list = self.request.query_params.getlist('contenttype_list[]')
@@ -120,8 +129,10 @@ class BookmarkList(APIView):
     template_name = 'travel_info/travelinfo_list_by_api.html'
 
     def get_queryset(self):
+        datetime_before = datetime.today().date() - relativedelta(days=30)
         queryset = TravelInfo.objects.filter(travelbookmark__isnull=False, travelbookmark__owner=self.request.user) \
-            .exclude(contenttype__name='여행코스')
+            .exclude(Q(contenttype__name='여행코스') | Q(contenttype__name='행사/공연/축제',
+                                                     festivalintroinfo__eventenddate__lt=datetime_before))
         area = self.request.query_params.get('area')
         title = self.request.query_params.get('name')
         contenttype_list = self.request.query_params.getlist('contenttype_list[]')
@@ -146,8 +157,10 @@ class NearbySpotInfoList(APIView):
     template_name = 'travel_info/nearbyspotinfo_list_by_api.html'
 
     def get_queryset(self):
+        datetime_before = datetime.today().date() - relativedelta(days=30)
         queryset = NearbySpotInfo.objects.filter(target_spot=self.kwargs['pk']).exclude(
-            Q(center_spot=F('target_spot')) | Q(center_spot__contenttype__name='여행코스') | Q(dist=0)
+            Q(center_spot=F('target_spot')) | Q(center_spot__contenttype__name='여행코스') | Q(dist=0) | Q(
+                contenttype__name='행사/공연/축제', festivalintroinfo__eventenddate__lt=datetime_before)
         ).order_by('dist')
         area = self.request.query_params.get('area')
         title = self.request.query_params.get('name')
