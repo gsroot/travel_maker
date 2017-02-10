@@ -28,7 +28,8 @@ env.read_env()
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY', default=os.environ['SECRET_KEY'])
 
-TRAVEL_API_SECRET_KEY_LIST = env.list('TRAVEL_API_SECRET_KEY_LIST', default=os.environ['TRAVEL_API_SECRET_KEY_LIST'])
+TRAVEL_API_SECRET_KEY_LIST = env('TRAVEL_API_SECRET_KEY_LIST', default=os.environ['TRAVEL_API_SECRET_KEY_LIST']).split(
+    ',')
 
 GOOGLE_API_KEY = env('GOOGLE_API_KEY', default=os.environ['GOOGLE_API_KEY'])
 

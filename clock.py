@@ -1,7 +1,6 @@
 import subprocess
 
 from apscheduler.schedulers.background import BackgroundScheduler
-from apscheduler.schedulers.blocking import BlockingScheduler
 from pytz import timezone
 
 schedule = BackgroundScheduler(timezone=timezone('Asia/Seoul'))
