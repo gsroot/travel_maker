@@ -408,6 +408,7 @@ class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
         info_class = self.get_info_class()
         self.init_progress(self.progress, travel_infos.count())
 
+        expired_festivals = []
         for travel_info in travel_infos:
             self.set_travel_info_to_progress(self.progress, travel_info)
 
@@ -418,6 +419,8 @@ class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
                 res_dict = self.response_to_dict(response)
             except UserWarning as e:
                 print(e)
+                if self.get_info_class() == TravelIntroInfo:
+                    self.delete_expired_festivals(expired_festivals)
                 return
 
             if res_dict['response']['body']['totalCount'] != 0:
@@ -431,10 +434,15 @@ class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
                     if eventenddate < datetime.today().date() - relativedelta(months=1):
                         is_expired_festival = True
 
-                if not is_expired_festival:
+                if is_expired_festival:
+                    expired_festivals.append(travel_info)
+                else:
                     self.save_info(info_class, travel_info, info_dict)
 
             self.update_progress(self.progress)
+
+        if self.get_info_class() == TravelIntroInfo:
+            self.delete_expired_festivals(expired_festivals)
 
 
 class ManyToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
