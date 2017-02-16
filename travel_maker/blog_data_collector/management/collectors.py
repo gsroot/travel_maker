@@ -191,7 +191,4 @@ class BlogDataCollector(WebCollector):
 
     def run(self):
         super().run()
-        if self.progress.percent >= 100:
-            print("  Nothing to do")
-            return
         self.request()
