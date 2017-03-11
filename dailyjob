@@ -1,0 +1,5 @@
+#!/bin/bash
+python manage.py collectpublicdata
+python manage.py collectgoogledata
+python manage.py collectblogdata
+python manage.py analysisdata

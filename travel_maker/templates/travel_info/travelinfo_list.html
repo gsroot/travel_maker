@@ -177,6 +177,28 @@
             $('.travelbookmark-creation').click(function () {
                 $(this).find('form').submit();
             });
+
+            $('#div_id_area .btn').click(function () {
+                var sigungu_div = $('#sigungu-div');
+                var area = $(this).find('input[name=area]').val();
+                area = area ? area : 0;
+                $.ajax({
+                    type: 'GET',
+                    url: "{% url 'travel_info:sigungu_list_api' 0 %}".replace('0', area),
+                    contentType: 'application/json',
+                    dataType: 'html',
+                    data: {
+                        area: area
+                    },
+                    success: function (result) {
+                        console.log(result);
+                        sigungu_div.html(result);
+                    },
+                    error: function (req, status, error) {
+                        alert('지역 정보를 가져오는데 문제가 있습니다. 관리자에게 문의하세요.');
+                    }
+                });
+            })
         })
     </script>
 {% endblock %}

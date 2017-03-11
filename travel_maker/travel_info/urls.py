@@ -1,7 +1,7 @@
 from django.conf.urls import url
 
 from travel_maker.travel_info.views import TravelInfoListView, TravelInfoDetailView, TravelInfoList, BlogList, \
-    NearbySpotInfoList, NearbySpotInfoListView, BookmarkList
+    NearbySpotInfoList, NearbySpotInfoListView, BookmarkList, SigunguList
 
 urlpatterns = [
     url(r'^$', TravelInfoListView.as_view(), name='list'),
@@ -11,4 +11,5 @@ urlpatterns = [
     url(r'^api/bookmarks/$', BookmarkList.as_view(), name='bookmark_list_api'),
     url(r'^api/(?P<pk>\d+)/nearbylist/$', NearbySpotInfoList.as_view(), name='nearby_list_api'),
     url(r'^api/(?P<pk>\d+)/blogs/$', BlogList.as_view(), name='blog_list_api'),
+    url(r'^api/area/(?P<area>\d+)/sigungu/$', SigunguList.as_view(), name='sigungu_list_api'),
 ]

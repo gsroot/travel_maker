@@ -11,7 +11,7 @@ from rest_framework.views import APIView
 
 from config.settings.base import NAVER_API_CLIENT_ID
 from travel_maker.blog_data_collector.models import BlogData
-from travel_maker.public_data_collector.models import TravelInfo, NearbySpotInfo
+from travel_maker.public_data_collector.models import TravelInfo, NearbySpotInfo, Sigungu
 from travel_maker.travel_info.forms import TravelInfoSearchForm
 
 
@@ -24,14 +24,19 @@ class TravelInfoListView(ListView):
         queryset = TravelInfo.objects.exclude(contenttype__name='행사/공연/축제',
                                               festivalintroinfo__eventenddate__lt=datetime_before)
 
-        if self.request.GET.get('area'):
-            queryset = queryset.filter(sigungu__area=self.request.GET.get('area'))
+        sigungu = self.request.GET.get('sigungu')
+        area = self.request.GET.get('area')
+        contenttype = self.request.GET.getlist('contenttype')
+        title = self.request.GET.get('name')
 
-        if self.request.GET.getlist('contenttype'):
-            queryset = queryset.filter(contenttype__in=self.request.GET.getlist('contenttype'))
-
-        if self.request.GET.get('name'):
-            queryset = queryset.filter(title__contains=self.request.GET.get('name'))
+        if sigungu:
+            queryset = queryset.filter(sigungu=int(sigungu))
+        elif area:
+            queryset = queryset.filter(sigungu__area=int(area))
+        if contenttype:
+            queryset = queryset.filter(contenttype__in=contenttype)
+        if title:
+            queryset = queryset.filter(title__contains=title)
 
         queryset = queryset.annotate(score_cnt=Count('score')).order_by('-score_cnt', '-score', 'id')
 
@@ -191,3 +196,15 @@ class BlogList(APIView):
 
     def get(self, request, pk):
         return Response({'blog_list': self.get_queryset()})
+
+
+class SigunguList(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'travel_info/sigungu_list_by_api.html'
+
+    def get_queryset(self):
+        queryset = Sigungu.objects.filter(area=self.kwargs['area'])
+        return queryset
+
+    def get(self, request, area):
+        return Response({'sigungu_list': self.get_queryset()})

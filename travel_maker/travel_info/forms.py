@@ -24,6 +24,7 @@ class TravelInfoSearchForm(Form):
             Fieldset(
                 '',
                 Field('area', template='crispy_forms/custom_choice_field.html'),
+                Div(css_class='form-group', css_id='sigungu-div'),
                 InlineCheckboxes('contenttype'),
                 Div(
                     Div(css_class='col-md-3'),

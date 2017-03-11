@@ -430,6 +430,8 @@ class OneToOneAditionalInfoWebCollector(AdditionalInfoWebCollector):
 
                 is_expired_festival = False
                 if self.get_info_class(travel_info.contenttype_id) == FestivalIntroInfo:
+                    if not info_dict.get('eventenddate'):
+                        continue
                     eventenddate = datetime.strptime(str(info_dict['eventenddate']), '%Y%m%d').date()
                     if eventenddate < datetime.today().date() - relativedelta(months=1):
                         is_expired_festival = True

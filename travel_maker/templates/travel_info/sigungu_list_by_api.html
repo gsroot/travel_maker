@@ -1,0 +1,8 @@
+<div class="btn-group controls " data-toggle="buttons">
+    {% for sigungu in sigungu_list %}
+        <label class="btn btn-tm-default">
+            <input type="radio" name="sigungu" id="id_sigungu_{{ forloop.counter }}" value="{{ sigungu.id }}">
+            {{ sigungu }}
+        </label>
+    {% endfor %}
+</div>
